@@ -181,6 +181,10 @@ export default defineConfig({
   base,
   cleanUrls: true,
   ignoreDeadLinks: true,
+  head: [
+    ['link', { rel: 'icon', href: `${base}favicon.svg` }],
+    ['meta', { name: 'theme-color', content: '#3157d5' }]
+  ],
   markdown: {
     config(md) {
       const defaultFence = md.renderer.rules.fence
@@ -196,10 +200,16 @@ export default defineConfig({
   },
   themeConfig: {
     logo: '/favicon.svg',
+    siteTitle: 'Agent App',
+    nav: [
+      { text: 'English', link: '/en/' },
+      { text: '简体中文', link: '/zh/' }
+    ],
+    sidebar: [],
     search: { provider: 'local' },
-    locales: {
-      root: { label: 'English', lang: 'en-US', nav: enNav, sidebar: enSidebar },
-      zh: { label: '简体中文', lang: 'zh-CN', nav: zhNav, sidebar: zhSidebar }
+    footer: {
+      message: 'Draft host-platform standard for installable agent applications.',
+      copyright: 'Released for discussion and implementation.'
     },
     socialLinks: [
       { icon: 'github', link: 'https://github.com/limecloud/agentapp' }
@@ -207,16 +217,45 @@ export default defineConfig({
   },
   locales: {
     root: {
+      label: 'Start',
+      lang: 'en-US',
+      title: 'Agent App',
+      description: 'Installable agent application packages.',
+      themeConfig: {
+        nav: [
+          { text: 'English', link: '/en/' },
+          { text: '简体中文', link: '/zh/' }
+        ],
+        sidebar: []
+      }
+    },
+    en: {
       label: 'English',
       lang: 'en-US',
       title: 'Agent App',
-      description: 'Installable agent application packages.'
+      description: 'Installable agent application packages.',
+      themeConfig: {
+        nav: enNav,
+        sidebar: enSidebar,
+        editLink: {
+          pattern: 'https://github.com/limecloud/agentapp/edit/main/docs/:path',
+          text: 'Edit this page on GitHub'
+        }
+      }
     },
     zh: {
       label: '简体中文',
       lang: 'zh-CN',
       title: 'Agent App',
-      description: '面向 Agent 的可安装应用包标准。'
+      description: '面向 Agent 的可安装应用包标准。',
+      themeConfig: {
+        nav: zhNav,
+        sidebar: zhSidebar,
+        editLink: {
+          pattern: 'https://github.com/limecloud/agentapp/edit/main/docs/:path',
+          text: '在 GitHub 编辑本页'
+        }
+      }
     }
   }
 })
