@@ -26,12 +26,48 @@ flowchart TD
   ComposeQ -->|否| Other[宿主项目文件]
 ```
 
-## 示例
+## 三者如何协作
+
+```mermaid
+flowchart LR
+  User[用户选择 App Entry] --> App[APP.md entry]
+  App --> Skill[Agent Skill: 怎么做]
+  App --> KSlot[Knowledge Template: 需要什么知识]
+  KSlot --> KPack[Agent Knowledge Pack: 具体客户事实]
+  App --> Tool[Agent Tool: 可调用能力]
+  App --> Artifact[Agent Artifact: 产出]
+  App --> Eval[Eval / QC: 是否可交付]
+```
+
+Agent App 不把 Skill 的流程复制进来，也不把 Knowledge 的事实复制进来。它只声明这些资产如何被宿主组合成一个应用。
+
+## 内容工程化示例
 
 AI 内容工程化应用应该这样拆：
 
-- 写作方法和流程放在 Agent Skills。
-- 个人 IP、产品事实、内容运营 playbook 放在 Agent Knowledge。
-- `/IP文章`、`/内容日历`、所需知识槽位、工具依赖、Artifact 合约和质量门禁放在 Agent App 声明。
+| 资产 | 正确位置 | 原因 |
+| --- | --- | --- |
+| 如何采访创始人并整理 IP 资料 | Agent Skill | 它是生产知识的方法。 |
+| 创始人经历、表达风格、禁忌、金句 | Agent Knowledge | 它是可溯源的 persona 数据。 |
+| 如何写公众号文章、如何去 AI 味 | Agent Skill | 它是写作流程和评审工艺。 |
+| `/IP文章`、`/内容日历`、`/复盘报告` | Agent App | 它们是用户可见入口。 |
+| 竞品调研、图片生成、飞书导出 | Agent Tool | 它们是外部能力。 |
+| 文章草稿、脚本批次、策略报告 | Agent Artifact | 它们是持久交付物。 |
+| 事实支撑、本人语气、可发布性 | Eval / Agent QC / Evidence | 它们是质量和信任判断。 |
 
-客户数据属于 Knowledge 包或 Overlay，不属于官方 Agent App 包。
+## 常见错误
+
+- 把客户资料写进官方 App 包。
+- 把完整写作流程写进 `APP.md`，而不是 Skill。
+- 把知识库当成指令执行。
+- 为一个 App 新造工具协议。
+- 让 Cloud Registry 变成隐藏 Agent Runtime。
+- 在宿主 Core 里写死业务入口，而不是从 App projection 生成。
+
+## 固定结论
+
+- App 是组合，不是执行。
+- Skill 是工艺，不是客户事实。
+- Knowledge 是数据，不是指令。
+- Runtime 是执行事实源，不是 App manifest。
+- Cloud 可以分发 App，但默认不运行 Agent。

@@ -7,9 +7,11 @@
 - Specification: docs/en/specification.md
 - What is Agent App: docs/en/what-is-agent-app.md
 - App vs Skills and Knowledge: docs/en/agent-app-vs-skills-knowledge.md
+- Quickstart: docs/en/authoring/quickstart.md
 - Runtime model: docs/en/client-implementation/runtime-model.md
+- Mini-program analogy: docs/en/reference/mini-program-analogy.md
 - Reference CLI: docs/en/reference/reference-cli.md
 
 ## Core boundary
 
-Agent App composes Agent Skills, Agent Knowledge, Agent Tool, Agent Context, Agent UI, Agent Artifact, Agent Evidence, Agent Policy, Agent Runtime, and Agent QC into an installable app package. It does not run agents by itself.
+Agent App composes Agent Skills, Agent Knowledge, Agent Tool, Agent Context, Agent UI, Agent Artifact, Agent Evidence, Agent Policy, Agent Runtime, and Agent QC into an installable app package. It does not run agents by itself. Hosts install apps locally, project entries into local catalogs, and execute through host Agent Runtime.

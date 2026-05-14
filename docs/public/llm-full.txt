@@ -78,34 +78,47 @@ description: Agent App package format draft.
 
 Agent App defines an installable application composition package for agent hosts. It follows the Agent Skills package style: directory-as-package, a top-level Markdown entry file, YAML frontmatter, progressive loading, optional support directories, and validation tooling.
 
+Agent App is intentionally a composition layer. It does not define a new runtime, tool protocol, knowledge format, UI component model, artifact format, evidence model, or policy engine. It references neighboring standards and tells a host how to install, project, and prepare an app-like agent experience.
+
+## Design goals
+
+1. Make app-like agent systems portable across host products.
+2. Let hosts expose capability surfaces while keeping execution under host control.
+3. Let users install a scenario-specific app without modifying the host core.
+4. Keep customer data outside official app packages.
+5. Preserve provenance from app package to projected entries, runtime tasks, artifacts, evals, and evidence.
+6. Allow cloud registries to distribute and authorize apps without becoming hidden Agent Runtimes.
+
 ## Package shape
 
 ```text
 app-name/
-├── APP.md
-├── skills/
-├── knowledge-templates/
-├── workflows/
-├── tools/
-├── artifacts/
-├── evals/
-├── assets/
-└── examples/
+├── APP.md                 # required: manifest + app guide
+├── skills/                # optional: bundled or referenced Agent Skill packages
+├── knowledge-templates/   # optional: knowledge slot templates and setup docs
+├── workflows/             # optional: scene/workflow definitions and fixtures
+├── tools/                 # optional: tool requirement docs and permission hints
+├── artifacts/             # optional: output contracts, viewer hints, examples
+├── evals/                 # optional: readiness, quality, and review fixtures
+├── assets/                # optional: icons, screenshots, templates, sample media
+└── examples/              # optional: sample workspaces, prompts, outputs
 ```
 
-Only `APP.md` is required. Other directories are optional support assets.
+Only `APP.md` is required. Support directories must be progressively loaded: catalog consumers read `APP.md` first and load support files only when authoring, installing, validating, or running a specific entry.
 
 ## `APP.md`
 
 `APP.md` MUST contain YAML frontmatter followed by Markdown guidance.
 
-### Required frontmatter fields
+The frontmatter is the machine-readable manifest. The Markdown body is the human- and AI-readable guide: when to use the app, what setup it requires, how to evaluate results, and what the host must not infer.
+
+### Required fields
 
 | Field | Constraint |
 | --- | --- |
-| `name` | 1-64 characters, should match the package directory. |
-| `description` | Human and AI-readable description. |
-| `version` | App package version. |
+| `name` | 1-64 characters; lowercase kebab-case recommended; should match the package directory. |
+| `description` | 1-1024 characters; describes user value and activation context. |
+| `version` | App package version. SemVer is recommended for released apps. |
 | `status` | `draft`, `ready`, `needs-review`, `deprecated`, or `archived`. |
 | `appType` | `agent-app`, `workflow-app`, `domain-app`, `customer-app`, or `custom`. |
 
@@ -113,11 +126,11 @@ Only `APP.md` is required. Other directories are optional support assets.
 
 | Field | Purpose |
 | --- | --- |
-| `runtimeTargets` | `local`, `hybrid`, or `server-assisted`. Local means the host runtime executes the app locally. |
+| `runtimeTargets` | `local`, `hybrid`, or `server-assisted`. `local` means the host runtime executes the app locally after installation. |
 | `entries` | Host-visible app entries such as scenes, commands, homes, workflows, or artifact surfaces. |
 | `capabilities` | Standards or host capability surfaces required by the app. |
 | `permissions` | Permission requests the host must resolve before execution. |
-| `knowledgeTemplates` | Agent Knowledge slots that must or may be bound by user, tenant, or workspace. |
+| `knowledgeTemplates` | Agent Knowledge slots that user, tenant, or workspace overlays must bind. |
 | `skillRefs` | Agent Skill packages required or recommended by the app. |
 | `toolRefs` | Agent Tool surfaces or connectors required by the app. |
 | `artifactTypes` | Agent Artifact contracts or viewer hints produced by the app. |
@@ -126,15 +139,105 @@ Only `APP.md` is required. Other directories are optional support assets.
 | `compatibility` | Host, standard, or capability version constraints. |
 | `metadata` | Namespaced implementation metadata. |
 
-## Entry kinds
+## Entry model
 
-| Kind | Meaning |
+Entries are the app-level equivalent of mini-program pages, but they are not UI pages by default. They are host-visible launch points that can project into command palettes, slash commands, home cards, guided flows, artifact workspaces, or templates.
+
+| Kind | Meaning | Typical projection |
+| --- | --- | --- |
+| `home` | App landing surface. | App home card or dashboard. |
+| `scene` | Product scenario. | Slash-style entry or guided prompt. |
+| `command` | Atomic command entry. | Command palette or `@` command. |
+| `workflow` | Multi-step guided flow. | Wizard, checklist, or staged runtime task. |
+| `artifact` | Artifact viewer, editor, or export entry. | Artifact workspace action. |
+
+Each entry should have a stable `key`, a `kind`, a user-facing title, and enough binding metadata for the host to select Skills, Knowledge templates, Tools, Artifacts, and Evals.
+
+## Capability declarations
+
+Agent App SHOULD reference neighboring standards by name instead of redefining them:
+
+| Capability | Meaning |
 | --- | --- |
-| `home` | App landing surface. |
-| `scene` | Product scenario or slash-style entry. |
-| `command` | Atomic command entry. |
-| `workflow` | Multi-step guided flow. |
-| `artifact` | Artifact viewer, editor, or export entry. |
+| `agentskills` | The app depends on procedural Skills. |
+| `agentknowledge` | The app needs source-grounded knowledge slots. |
+| `agentruntime` | The host needs a compatible runtime to execute app entries. |
+| `agenttool` | The app requires callable tool surfaces or connectors. |
+| `agentcontext` | The app depends on explicit context assembly or budget behavior. |
+| `agentui` | The app projects structured interaction surfaces. |
+| `agentartifact` | The app produces durable deliverables. |
+| `agentevidence` | The app records support, provenance, verification, or replay. |
+| `agentpolicy` | The app has permission, risk, retention, or approval requirements. |
+| `agentqc` | The app carries quality gates or acceptance scenarios. |
+
+## Knowledge templates
+
+Knowledge templates describe required or optional slots, not customer data.
+
+A template SHOULD declare:
+
+- stable `key`
+- `standard: agentknowledge`
+- Knowledge `type`
+- `runtimeMode: data | persona`
+- `required: true | false`
+- optional grounding, freshness, or trust requirements
+
+Official apps MUST NOT embed private customer knowledge. Hosts bind concrete Agent Knowledge packs through user, tenant, or workspace overlays.
+
+## Skill references
+
+Skill references point to existing Agent Skill packages or host-provided Skills. They describe how the app does work but do not inline all procedural details into `APP.md`.
+
+A Skill reference SHOULD declare:
+
+- stable `id`
+- version or compatibility range when known
+- whether it is required
+- which entries use it
+- optional source or bundle digest
+
+## Tool and permission references
+
+Tool references declare required host capabilities and permission needs. Credentials remain in host-controlled stores.
+
+A tool reference SHOULD declare:
+
+- stable `key`
+- provider or capability family
+- required vs optional
+- permission scope
+- whether degraded operation is allowed
+
+Permission requests SHOULD be resolved by Agent Policy or host policy before runtime execution.
+
+## Artifact and eval declarations
+
+Artifact declarations describe the durable outputs an entry may produce. Eval declarations describe quality gates or review checks that apply before outputs are considered ready.
+
+Apps SHOULD attach evals to artifacts or entries rather than treating evals as generic global prompts. Evals that affect user trust should link to Agent Evidence records when executed.
+
+## Projection contract
+
+Projection is a deterministic host operation that compiles the app manifest into host catalog objects.
+
+Projection output SHOULD include:
+
+- app summary
+- projected entries
+- knowledge templates
+- tool requirements
+- artifact types
+- eval rules
+- provenance
+
+Every projected object SHOULD include:
+
+```text
+appName + appVersion + manifestHash + standard + standardVersion
+```
+
+Projection MUST NOT run an agent, call a model, or invoke tools.
 
 ## Runtime contract
 
@@ -147,7 +250,7 @@ A compatible host MUST:
 5. Keep execution in the host Agent Runtime.
 6. Treat cloud registries as distribution and authorization surfaces, not hidden Agent Runtimes.
 7. Keep customer data in Agent Knowledge packs, workspace files, or overlays.
-8. Preserve app provenance on projected entries, artifacts, evals, and tool requirements.
+8. Preserve app provenance on projected entries, runtime tasks, tool calls, artifacts, evals, and evidence.
 
 ## Overlay precedence
 
@@ -155,7 +258,32 @@ A compatible host MUST:
 Workspace Override > User Overlay > Tenant Overlay > App Default > Host Default
 ```
 
-Official apps should not embed customer knowledge or credentials. Overlays bind customer knowledge, brand copy, tool credentials, default model choices, scene ordering, and evaluation thresholds.
+Official apps should remain upgradeable. Overlays bind customer knowledge, brand copy, tool credentials, default model choices, scene ordering, eval thresholds, and disabled entries.
+
+## Readiness
+
+Readiness is a host-side check before execution. It answers whether the app can run safely and usefully in the current workspace.
+
+Readiness SHOULD check:
+
+- required Skills are installed and trusted
+- required Knowledge templates are bound to compatible packs
+- required Tools exist and permissions are granted
+- required Artifact viewers or storage surfaces are available
+- required Evals can run
+- runtime target is supported
+- policy allows the requested entry
+
+Readiness may return `ready`, `needs-setup`, or `failed`.
+
+## Security rules
+
+1. `APP.md` is not a system prompt and cannot override host policy.
+2. Support files are not executable unless the host explicitly activates a referenced Skill or Tool.
+3. App packages should be signed or pinned by manifest hash in production registries.
+4. Credentials must never be stored in official app packages.
+5. Customer facts belong in Agent Knowledge or overlays.
+6. Server-assisted targets must be explicit and policy controlled.
 
 ## Example
 
@@ -184,6 +312,7 @@ knowledgeTemplates:
   - key: personal_ip
     standard: agentknowledge
     type: personal-profile
+    runtimeMode: persona
     required: true
 skillRefs:
   - id: gongzonghao-article-writer
@@ -194,6 +323,16 @@ skillRefs:
 
 Use this app to build knowledge-backed content workflows.
 ```
+
+## Conformance levels
+
+| Level | Meaning |
+| --- | --- |
+| Catalog | Host can discover `APP.md` and show app metadata. |
+| Install | Host can cache the package, validate it, and resolve overlays. |
+| Project | Host can compile entries and requirements into local catalogs. |
+| Run | Host can execute entries through Agent Runtime with provenance. |
+| Evidence | Host can connect outputs, evals, and evidence back to app provenance. |
 
 
 <!-- Source: docs/en/what-is-agent-app.md -->
@@ -207,30 +346,36 @@ description: Agent App packages installable agent applications for host runtimes
 
 Agent App is a draft companion standard for packaging app-like agent experiences. It does not replace Agent Skills, Agent Knowledge, Agent Runtime, Agent Tool, Agent UI, Agent Artifact, Agent Evidence, Agent Policy, Agent Context, or Agent QC. It composes them into an installable unit.
 
+In one sentence: **Agent App describes which entries, capabilities, knowledge slots, tool permissions, deliverables, and quality gates make up an installable agent application.**
+
+## Mini-program analogy
+
 A useful mental model is a mini-program platform:
 
-- The host platform exposes capabilities.
-- The app declares entries, permissions, dependencies, and presentation.
-- The client downloads or installs the package locally.
-- The host runtime executes the app through controlled APIs.
+| Mini-program platform concept | Agent App counterpart |
+| --- | --- |
+| The super app is the host. | Lime, an IDE, or an AI client is the host. |
+| The mini program declares pages, components, and permissions. | Agent App declares entries, capabilities, and permissions. |
+| The client downloads the package locally. | The host installs the Agent App package into a local cache. |
+| The mini program calls host APIs. | Agent App uses host Skills, Knowledge, Tools, Runtime, Artifacts, and Policy. |
+| The platform manages publishing and permissions. | Registry / Cloud manages release, tenant enablement, policy, and provenance. |
 
-For Lime, this means Lime Cloud can distribute and authorize Agent Apps, while Lime Desktop installs, resolves, and runs them locally.
+The analogy is architectural, not a request to copy WeChat's JavaScript UI framework. Agent App is not primarily a page framework; it is an application composition layer for agent hosts.
 
-## Boundary
+## Position in Lime
 
 ```mermaid
 flowchart LR
-  App[Agent App package] --> Resolver[Host App Resolver]
-  Resolver --> Skills[Agent Skills]
-  Resolver --> Knowledge[Agent Knowledge templates]
-  Resolver --> Tools[Agent Tool surfaces]
-  Resolver --> UI[Agent UI entries]
-  Resolver --> Runtime[Agent Runtime]
+  Cloud[Lime Cloud: Catalog / Release / Tenant Enablement] --> Desktop[Lime Desktop: Installer / Cache / Resolver]
+  Desktop --> Runtime[Local Agent Runtime]
+  Runtime --> Skills[Agent Skills]
+  Runtime --> Knowledge[Agent Knowledge]
+  Runtime --> Tools[Agent Tool / ToolHub]
   Runtime --> Artifact[Agent Artifact]
   Runtime --> Evidence[Agent Evidence]
 ```
 
-Agent App owns the composition declaration. Runtime owns execution facts. Skills own procedures. Knowledge owns trusted data. Tools own callable capabilities.
+Lime Cloud can distribute and authorize Agent Apps. Lime Desktop installs, resolves, and runs them locally. Cloud services can provide models and tools, but they should not become hidden Agent Runtimes in the default chain.
 
 ## Correct use cases
 
@@ -240,6 +385,9 @@ Agent App owns the composition declaration. Runtime owns execution facts. Skills
 - Legal drafting app.
 - Research report app.
 - Internal workflow app.
+- Customer-specific private workflow app.
+
+These scenarios should not require changes to the host core. A new scenario should usually become a new Agent App.
 
 ## Non-goals
 
@@ -248,6 +396,21 @@ Agent App owns the composition declaration. Runtime owns execution facts. Skills
 - It is not a knowledge format.
 - It is not a UI component library.
 - It is not a tool protocol.
+- It is not a customer data package.
+
+## Why it exists
+
+Skills and Knowledge are not enough for a full product experience. A real app also needs to state:
+
+- where the user enters
+- which knowledge must be bound before running
+- which tools are required or optional
+- what artifacts it produces
+- which evals decide readiness
+- which host, workspace, or tenant installed it
+- how provenance is recorded for audit and upgrade
+
+Agent App defines that composition layer.
 
 
 <!-- Source: docs/en/agent-app-vs-skills-knowledge.md -->
@@ -280,15 +443,121 @@ flowchart TD
   ComposeQ -->|No| Other[Host project file]
 ```
 
-## Example
+## How they work together
 
-An AI content engineering application should package:
+```mermaid
+flowchart LR
+  User[User launches app entry] --> App[APP.md entry]
+  App --> Skill[Agent Skill: how to do it]
+  App --> KSlot[Knowledge Template: required knowledge slot]
+  KSlot --> KPack[Agent Knowledge Pack: concrete customer facts]
+  App --> Tool[Agent Tool: callable capability]
+  App --> Artifact[Agent Artifact: deliverable]
+  App --> Eval[Eval / QC: deliverability]
+```
 
-- Writing method and workflow as Agent Skills.
-- Personal IP, product facts, and content operations playbooks as Agent Knowledge.
-- `/IP Article`, `/Content Calendar`, required knowledge slots, tool requirements, artifact contracts, and quality gates as Agent App declarations.
+Agent App does not copy procedural details from Skills or factual content from Knowledge. It declares how the host combines those assets into an application.
 
-Customer data belongs in Knowledge packs or overlays, not in the official Agent App package.
+## Content engineering example
+
+| Asset | Correct place | Reason |
+| --- | --- | --- |
+| How to interview a founder and compile IP facts | Agent Skill | It is a knowledge-production method. |
+| Founder history, voice, boundaries, quotes | Agent Knowledge | It is source-grounded persona data. |
+| How to draft articles and remove AI tone | Agent Skill | It is writing and review procedure. |
+| `/IP Article`, `/Content Calendar`, `/Review Report` | Agent App | They are user-visible entries. |
+| Competitor research, image generation, Feishu export | Agent Tool | They are external capabilities. |
+| Article draft, script batch, strategy report | Agent Artifact | They are durable deliverables. |
+| Fact grounding, voice fit, publish readiness | Eval / Agent QC / Evidence | They are quality and trust checks. |
+
+## Common mistakes
+
+- Embedding customer data in an official app package.
+- Putting full writing procedures in `APP.md` instead of a Skill.
+- Treating Knowledge as executable instructions.
+- Inventing a new tool protocol for one app.
+- Letting a cloud registry become a hidden Agent Runtime.
+- Hardcoding business entries in host core instead of generating them from app projection.
+
+## Fixed conclusions
+
+- App is composition, not execution.
+- Skill is procedure, not customer fact.
+- Knowledge is data, not instruction.
+- Runtime is execution truth, not app manifest.
+- Cloud may distribute apps, but it should not run agents by default.
+
+
+<!-- Source: docs/en/authoring/quickstart.md -->
+
+---
+title: Quickstart
+description: Create a minimal Agent App package.
+---
+
+# Quickstart
+
+Create a directory with `APP.md`:
+
+```text
+my-app/
+└── APP.md
+```
+
+Add frontmatter:
+
+```markdown
+---
+name: my-app
+description: A minimal local-running agent app.
+version: 0.1.0
+status: draft
+appType: agent-app
+runtimeTargets:
+  - local
+entries:
+  - key: start
+    kind: scene
+    title: Start
+---
+
+# My App
+
+Describe when the host should show this app and what setup the user needs.
+```
+
+Validate it:
+
+```bash
+npx agentapp-ref validate ./my-app
+npx agentapp-ref project ./my-app
+```
+
+Then add references to Agent Skills, Agent Knowledge templates, Tool requirements, Artifact outputs, and Evals as the app grows.
+
+
+<!-- Source: docs/en/authoring/manifest-design.md -->
+
+---
+title: Manifest design
+description: Design APP.md frontmatter for a stable host projection.
+---
+
+# Manifest design
+
+`APP.md` should be small enough for discovery and explicit enough for a host to build a catalog projection.
+
+Good manifests:
+
+- Use stable keys for every entry.
+- Declare local runtime support when the app can run after installation.
+- Reference existing standards instead of inventing local protocols.
+- Separate required setup from optional enhancements.
+- Keep customer facts out of the official package.
+
+## Mini-program analogy
+
+WeChat Mini Programs use `app.json` to list pages and global settings. Agent App uses `APP.md` frontmatter to list host entries and capability dependencies. The analogy stops there: Agent App does not define a JavaScript UI framework or a cloud execution environment.
 
 
 <!-- Source: docs/en/client-implementation/runtime-model.md -->
@@ -327,3 +596,52 @@ sequenceDiagram
 ```
 
 Cloud services can provide registries, models, or tools, but they should not become a hidden app runtime unless the app explicitly declares a server-assisted target and the host policy permits it.
+
+
+<!-- Source: docs/en/reference/agent-ecosystem.md -->
+
+---
+title: Agent standards ecosystem
+description: How Agent App composes neighboring Agent standards.
+---
+
+# Agent standards ecosystem
+
+Agent App is a composition layer. It should link neighboring standards rather than absorb them.
+
+| Standard | Owns |
+| --- | --- |
+| Agent Skills | Procedures, workflows, scripts, and tool usage guidance. |
+| Agent Knowledge | Source-grounded knowledge packs and safe context loading. |
+| Agent Runtime | Execution facts, tasks, turns, events, recovery, and controls. |
+| Agent Tool | Tool declarations, permissions, invocations, and results. |
+| Agent Context | Context surfaces, selection, assembly, injection, and compaction. |
+| Agent UI | Interaction surface semantics and runtime projection. |
+| Agent Artifact | Durable deliverables, versions, parts, exports, and handoff. |
+| Agent Evidence | Claims, source maps, provenance, verification, replay, and export. |
+| Agent Policy | Policy decisions, approvals, permissions, risk, and retention. |
+| Agent QC | Quality gates, acceptance scenarios, and regression evidence. |
+| Agent App | Installable composition of entries, dependencies, permissions, overlays, and readiness. |
+
+Related external reference:
+
+- [Agent Skills](https://agentskills.io/) for the directory-as-package and `SKILL.md` authoring model.
+
+
+<!-- Source: docs/en/reference/mini-program-analogy.md -->
+
+---
+title: Mini-program analogy
+---
+
+# Mini-program analogy
+
+WeChat Mini Programs inspired the host-platform mental model: package downloaded locally, manifest declares entries, host provides APIs, and permissions are mediated by the platform. Agent App adapts the pattern to AI hosts and existing Agent standards rather than copying page technology.
+
+## Checklist
+
+- Keep declarations machine-readable.
+- Keep procedures in Agent Skills.
+- Keep facts in Agent Knowledge.
+- Keep execution in the host runtime.
+- Attach app provenance to projected objects.
