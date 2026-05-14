@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://limecloud.github.io/agentapp/schemas/app-readiness.schema.json",
+  "title": "Agent App Readiness Result",
+  "type": "object",
+  "required": [
+    "ok",
+    "status",
+    "checks"
+  ],
+  "properties": {
+    "ok": {
+      "type": "boolean"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "ready",
+        "needs-setup",
+        "failed"
+      ]
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    }
+  },
+  "additionalProperties": true
+}

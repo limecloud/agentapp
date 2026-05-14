@@ -1,0 +1,62 @@
+{
+  "name": "agentapp-ref",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Reference CLI and documentation for Agent App packages.",
+  "homepage": "https://limecloud.github.io/agentapp/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/limecloud/agentapp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/limecloud/agentapp/issues"
+  },
+  "license": "UNLICENSED",
+  "keywords": [
+    "agent",
+    "app",
+    "skills",
+    "knowledge",
+    "llm",
+    "cli"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "bin": {
+    "agentapp-ref": "bin/agentapp-ref.mjs"
+  },
+  "files": [
+    "bin/",
+    "llm.txt",
+    "llm-full.txt",
+    "llms.txt",
+    "llms-full.txt",
+    "docs/public/llm.txt",
+    "docs/public/llm-full.txt",
+    "docs/public/llms.txt",
+    "docs/public/llms-full.txt",
+    "docs/public/schemas/",
+    "docs/examples/",
+    "docs/index.md",
+    "docs/en/",
+    "docs/zh/",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "predev": "node scripts/sync-public-markdown.mjs",
+    "cli": "node bin/agentapp-ref.mjs",
+    "dev": "vitepress dev docs",
+    "prebuild": "node scripts/sync-public-markdown.mjs",
+    "build": "vitepress build docs",
+    "preview": "vitepress preview docs",
+    "check:links": "npm run build"
+  },
+  "devDependencies": {
+    "mermaid": "^11.14.0",
+    "vitepress": "^1.6.4"
+  }
+}

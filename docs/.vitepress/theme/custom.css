@@ -1,0 +1,96 @@
+:root {
+  --vp-c-brand-1: #3157d5;
+  --vp-c-brand-2: #496ff0;
+  --vp-c-brand-3: #6d8dff;
+  --vp-c-brand-soft: rgba(49, 87, 213, 0.14);
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: linear-gradient(135deg, #1f3ea8 0%, #496ff0 48%, #1da88a 100%);
+  --vp-home-hero-image-background-image: radial-gradient(circle at 24% 30%, rgba(73, 111, 240, 0.34), transparent 30%), radial-gradient(circle at 72% 62%, rgba(29, 168, 138, 0.22), transparent 28%);
+  --vp-home-hero-image-filter: blur(42px);
+}
+
+.VPHomeHero .text {
+  max-width: 860px;
+}
+
+.VPFeature {
+  border: 1px solid rgba(49, 87, 213, 0.14);
+}
+
+.vp-doc table {
+  display: table;
+  width: 100%;
+}
+
+.vp-doc .language-directory pre,
+.vp-doc .language-text pre {
+  white-space: pre-wrap;
+}
+
+.aa-copy-md {
+  float: right;
+  margin: 0 0 1rem 1rem;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 999px;
+  padding: 0.42rem 0.8rem;
+  background: var(--vp-c-bg-soft);
+  color: var(--vp-c-text-1);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.16s ease, color 0.16s ease, background 0.16s ease;
+}
+
+.aa-copy-md:hover {
+  border-color: var(--vp-c-brand-1);
+  color: var(--vp-c-brand-1);
+  background: var(--vp-c-brand-soft);
+}
+
+.aa-copy-md:disabled {
+  cursor: default;
+  opacity: 0.72;
+}
+
+.aa-mermaid {
+  margin: 1.5rem 0;
+  overflow-x: auto;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 18px;
+  padding: 1rem;
+  background: linear-gradient(135deg, rgba(73, 111, 240, 0.08), rgba(29, 168, 138, 0.07));
+}
+
+.aa-mermaid__canvas {
+  min-width: 680px;
+}
+
+.aa-mermaid__canvas svg {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+}
+
+.aa-mermaid__fallback {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.aa-mermaid__error {
+  margin-top: 0.75rem;
+  color: var(--vp-c-danger-1);
+  font-size: 0.82rem;
+}
+
+@media (max-width: 760px) {
+  .aa-copy-md {
+    float: none;
+    display: inline-flex;
+    margin: 0 0 1rem 0;
+  }
+
+  .aa-mermaid__canvas {
+    min-width: 520px;
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://limecloud.github.io/agentapp/schemas/app-projection.schema.json",
+  "title": "Agent App Projection",
+  "type": "object",
+  "required": [
+    "app",
+    "entries",
+    "provenance"
+  ],
+  "properties": {
+    "app": {
+      "type": "object"
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "knowledgeTemplates": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "toolRequirements": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "artifactTypes": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "evals": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "provenance": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true
+}

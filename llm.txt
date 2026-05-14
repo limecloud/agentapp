@@ -1,0 +1,15 @@
+# Agent App
+
+> Installable agent application packages for host runtimes.
+
+## Core docs
+
+- Specification: docs/en/specification.md
+- What is Agent App: docs/en/what-is-agent-app.md
+- App vs Skills and Knowledge: docs/en/agent-app-vs-skills-knowledge.md
+- Runtime model: docs/en/client-implementation/runtime-model.md
+- Reference CLI: docs/en/reference/reference-cli.md
+
+## Core boundary
+
+Agent App composes Agent Skills, Agent Knowledge, Agent Tool, Agent Context, Agent UI, Agent Artifact, Agent Evidence, Agent Policy, Agent Runtime, and Agent QC into an installable app package. It does not run agents by itself.
