@@ -11,13 +11,18 @@
     "appType"
   ],
   "properties": {
+    "manifestVersion": {
+      "type": "string"
+    },
     "name": {
       "type": "string",
-      "minLength": 1
+      "minLength": 1,
+      "maxLength": 64
     },
     "description": {
       "type": "string",
-      "minLength": 1
+      "minLength": 1,
+      "maxLength": 1024
     },
     "version": {
       "type": "string",
@@ -54,62 +59,255 @@
         ]
       }
     },
+    "requires": {
+      "type": "object",
+      "properties": {
+        "lime": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "sdk": {
+          "type": "string"
+        },
+        "capabilities": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "runtimePackage": {
+      "type": "object",
+      "properties": {
+        "ui": {
+          "$ref": "#/$defs/packageRef"
+        },
+        "worker": {
+          "$ref": "#/$defs/packageRef"
+        },
+        "tools": {
+          "$ref": "#/$defs/packageRef"
+        },
+        "storage": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "hash": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
     "entries": {
       "type": "array",
       "items": {
-        "type": "object"
+        "$ref": "#/$defs/entry"
       }
     },
     "capabilities": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
+      "oneOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": true
+        }
+      ]
     },
     "permissions": {
       "type": "array",
       "items": {
-        "type": "object"
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
+    "ui": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "storage": {
+      "$ref": "#/$defs/storage"
+    },
+    "services": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
+    "workflows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true
       }
     },
     "knowledgeTemplates": {
       "type": "array",
       "items": {
-        "type": "object"
+        "type": "object",
+        "additionalProperties": true
       }
     },
     "skillRefs": {
       "type": "array",
       "items": {
-        "type": "object"
+        "type": "object",
+        "additionalProperties": true
       }
     },
     "toolRefs": {
       "type": "array",
       "items": {
-        "type": "object"
+        "type": "object",
+        "additionalProperties": true
       }
     },
     "artifactTypes": {
       "type": "array",
       "items": {
-        "type": "object"
+        "type": "object",
+        "additionalProperties": true
       }
     },
     "evals": {
       "type": "array",
       "items": {
-        "type": "object"
+        "type": "object",
+        "additionalProperties": true
       }
     },
+    "events": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
+    "secrets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
+    "lifecycle": {
+      "type": "object",
+      "additionalProperties": true
+    },
     "presentation": {
-      "type": "object"
+      "type": "object",
+      "additionalProperties": true
     },
     "compatibility": {
-      "type": "object"
+      "type": "object",
+      "additionalProperties": true
     },
     "metadata": {
-      "type": "object"
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "$defs": {
+    "packageRef": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "hash": {
+          "type": "string"
+        },
+        "entry": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "entry": {
+      "type": "object",
+      "required": [
+        "key",
+        "kind",
+        "title"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "page",
+            "panel",
+            "expert-chat",
+            "command",
+            "workflow",
+            "artifact",
+            "background-task",
+            "settings",
+            "home",
+            "scene"
+          ]
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "route": {
+          "type": "string"
+        },
+        "command": {
+          "type": "string"
+        },
+        "workflow": {
+          "type": "string"
+        },
+        "persona": {
+          "type": "string"
+        },
+        "artifactTypes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "requiredCapabilities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "storage": {
+      "type": "object",
+      "properties": {
+        "namespace": {
+          "type": "string"
+        },
+        "schema": {
+          "type": "string"
+        },
+        "migrations": {
+          "type": "string"
+        },
+        "retention": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
     }
   },
   "additionalProperties": true

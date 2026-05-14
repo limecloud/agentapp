@@ -11,6 +11,9 @@ const enNav = [
     text: 'Version',
     items: [
       { text: 'latest', link: '/en/specification' },
+      { text: 'v0.2 overview', link: '/en/versions/v0.2/overview' },
+      { text: 'v0.2 specification', link: '/en/versions/v0.2/specification' },
+      { text: 'v0.2 changelog', link: '/en/versions/v0.2/changelog' },
       { text: 'v0.1 overview', link: '/en/versions/v0.1/overview' },
       { text: 'v0.1 specification', link: '/en/versions/v0.1/specification' },
       { text: 'v0.1 changelog', link: '/en/versions/v0.1/changelog' }
@@ -28,6 +31,9 @@ const zhNav = [
     text: '版本',
     items: [
       { text: 'latest', link: '/zh/specification' },
+      { text: 'v0.2 概览', link: '/zh/versions/v0.2/overview' },
+      { text: 'v0.2 规范', link: '/zh/versions/v0.2/specification' },
+      { text: 'v0.2 变更记录', link: '/zh/versions/v0.2/changelog' },
       { text: 'v0.1 概览', link: '/zh/versions/v0.1/overview' },
       { text: 'v0.1 规范', link: '/zh/versions/v0.1/specification' },
       { text: 'v0.1 变更记录', link: '/zh/versions/v0.1/changelog' }
@@ -52,6 +58,7 @@ const enSidebar = [
       { text: 'Quickstart', link: '/en/authoring/quickstart' },
       { text: 'Description and discovery', link: '/en/authoring/description-and-discovery' },
       { text: 'Manifest design', link: '/en/authoring/manifest-design' },
+      { text: 'Runtime package design', link: '/en/authoring/runtime-package' },
       { text: 'Best practices', link: '/en/authoring/best-practices' },
       { text: 'App engineering loop', link: '/en/authoring/app-engineering-loop' },
       { text: 'Skills and Knowledge interop', link: '/en/authoring/skills-knowledge-interop' },
@@ -67,6 +74,7 @@ const enSidebar = [
       { text: 'Adding support', link: '/en/client-implementation/adding-support' },
       { text: 'Discovery and installation', link: '/en/client-implementation/discovery-and-installation' },
       { text: 'Runtime model', link: '/en/client-implementation/runtime-model' },
+      { text: 'Capability SDK', link: '/en/client-implementation/capability-sdk' },
       { text: 'Projection and catalog', link: '/en/client-implementation/projection-and-catalog' },
       { text: 'Overlay resolver', link: '/en/client-implementation/overlay-resolver' },
       { text: 'Readiness runner', link: '/en/client-implementation/readiness-runner' },
@@ -94,6 +102,9 @@ const enSidebar = [
   {
     text: 'Versions',
     items: [
+      { text: 'v0.2 overview', link: '/en/versions/v0.2/overview' },
+      { text: 'v0.2 specification', link: '/en/versions/v0.2/specification' },
+      { text: 'v0.2 changelog', link: '/en/versions/v0.2/changelog' },
       { text: 'v0.1 overview', link: '/en/versions/v0.1/overview' },
       { text: 'v0.1 specification', link: '/en/versions/v0.1/specification' },
       { text: 'v0.1 changelog', link: '/en/versions/v0.1/changelog' }
@@ -117,6 +128,7 @@ const zhSidebar = [
       { text: '快速开始', link: '/zh/authoring/quickstart' },
       { text: '描述与发现', link: '/zh/authoring/description-and-discovery' },
       { text: 'Manifest 设计', link: '/zh/authoring/manifest-design' },
+      { text: 'Runtime Package 设计', link: '/zh/authoring/runtime-package' },
       { text: '最佳实践', link: '/zh/authoring/best-practices' },
       { text: '应用工程闭环', link: '/zh/authoring/app-engineering-loop' },
       { text: 'Skills / Knowledge 互操作', link: '/zh/authoring/skills-knowledge-interop' },
@@ -132,6 +144,7 @@ const zhSidebar = [
       { text: '接入支持', link: '/zh/client-implementation/adding-support' },
       { text: '发现与安装', link: '/zh/client-implementation/discovery-and-installation' },
       { text: '运行时模型', link: '/zh/client-implementation/runtime-model' },
+      { text: 'Capability SDK', link: '/zh/client-implementation/capability-sdk' },
       { text: '投影与目录', link: '/zh/client-implementation/projection-and-catalog' },
       { text: 'Overlay Resolver', link: '/zh/client-implementation/overlay-resolver' },
       { text: 'Readiness Runner', link: '/zh/client-implementation/readiness-runner' },
@@ -159,6 +172,9 @@ const zhSidebar = [
   {
     text: '版本',
     items: [
+      { text: 'v0.2 概览', link: '/zh/versions/v0.2/overview' },
+      { text: 'v0.2 规范', link: '/zh/versions/v0.2/specification' },
+      { text: 'v0.2 变更记录', link: '/zh/versions/v0.2/changelog' },
       { text: 'v0.1 概览', link: '/zh/versions/v0.1/overview' },
       { text: 'v0.1 规范', link: '/zh/versions/v0.1/specification' },
       { text: 'v0.1 变更记录', link: '/zh/versions/v0.1/changelog' }

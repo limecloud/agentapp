@@ -4,7 +4,7 @@ import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { basename, dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const cliVersion = '0.1.0'
+const cliVersion = '0.2.0'
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 
 function main() {
@@ -86,11 +86,14 @@ function validateApp(appPath) {
     findings.push(errorFinding('APP.md', `Unknown appType: ${properties.appType}.`))
   }
 
+  checkEntries(properties.entries, findings)
   checkDirectoryRefs(appRoot, properties.skillRefs, 'skills', findings)
   checkDirectoryRefs(appRoot, properties.knowledgeTemplates, 'knowledge-templates', findings)
   checkDirectoryRefs(appRoot, properties.toolRefs, 'tools', findings)
   checkDirectoryRefs(appRoot, properties.artifactTypes, 'artifacts', findings)
   checkDirectoryRefs(appRoot, properties.evals, 'evals', findings)
+  checkRuntimePackageRefs(appRoot, properties.runtimePackage, findings)
+  checkStorageRefs(appRoot, properties.storage, findings)
 
   const ok = findings.every((finding) => finding.severity !== 'error')
   return envelope(ok, ok ? 'passed' : 'needs-review', 'validate', properties.name || basename(appRoot), findings, { manifestHash: hashFile(appMd) })
@@ -104,7 +107,24 @@ function readProperties(appPath) {
 
 function toCatalog(appPath) {
   const properties = readProperties(appPath)
-  const allowed = ['name', 'description', 'version', 'status', 'appType', 'runtimeTargets', 'entries', 'capabilities', 'presentation', 'compatibility', 'metadata']
+  const allowed = [
+    'name',
+    'description',
+    'version',
+    'status',
+    'appType',
+    'manifestVersion',
+    'runtimeTargets',
+    'requires',
+    'entries',
+    'capabilities',
+    'ui',
+    'storage',
+    'services',
+    'presentation',
+    'compatibility',
+    'metadata'
+  ]
   return Object.fromEntries(allowed.filter((key) => properties[key] !== undefined).map((key) => [key, properties[key]]))
 }
 
@@ -130,10 +150,17 @@ function projectApp(appPath) {
       version: properties.version,
       status: properties.status,
       appType: properties.appType,
+      manifestVersion: properties.manifestVersion,
       runtimeTargets: asArray(properties.runtimeTargets),
       presentation: properties.presentation || {}
     },
+    capabilityRequirements: properties.requires || {},
     entries: withProvenance(properties.entries),
+    ui: properties.ui || {},
+    storage: properties.storage || {},
+    services: withProvenance(properties.services),
+    workflows: withProvenance(properties.workflows),
+    permissions: withProvenance(properties.permissions),
     knowledgeTemplates: withProvenance(properties.knowledgeTemplates),
     toolRequirements: withProvenance(properties.toolRefs),
     artifactTypes: withProvenance(properties.artifactTypes),
@@ -153,6 +180,9 @@ function readiness(appPath, args) {
   addRequirementChecks('tool', properties.toolRefs, checks)
   addRequirementChecks('artifact', properties.artifactTypes, checks)
   addRequirementChecks('eval', properties.evals, checks)
+  addRequirementChecks('service', properties.services, checks)
+  addRequirementChecks('workflow', properties.workflows, checks)
+  addCapabilityChecks(properties.requires?.capabilities, checks)
 
   if (workspace && (!existsSync(resolve(workspace)) || !statSync(resolve(workspace)).isDirectory())) {
     checks.push({ severity: 'error', kind: 'workspace', key: workspace, message: 'Workspace path is not a directory.' })
@@ -186,11 +216,57 @@ function addRequirementChecks(kind, items, checks) {
   }
 }
 
+function addCapabilityChecks(capabilities, checks) {
+  if (!capabilities || typeof capabilities !== 'object' || Array.isArray(capabilities)) return
+  for (const [key, range] of Object.entries(capabilities)) {
+    checks.push({
+      severity: 'info',
+      kind: 'capability',
+      key,
+      required: true,
+      version: range,
+      message: `Host must satisfy capability ${key}@${range}.`
+    })
+  }
+}
+
+function checkEntries(entries, findings) {
+  const allowed = new Set(['page', 'panel', 'expert-chat', 'command', 'workflow', 'artifact', 'background-task', 'settings', 'home', 'scene'])
+  for (const entry of asArray(entries)) {
+    const key = entry.key || entry.title || 'entry'
+    if (!entry.key) findings.push(warningFinding('entries', `Entry is missing key: ${JSON.stringify(entry)}.`))
+    if (!entry.kind) findings.push(warningFinding('entries', `Entry is missing kind: ${key}.`))
+    if (entry.kind && !allowed.has(entry.kind)) findings.push(errorFinding('entries', `Unknown entry kind for ${key}: ${entry.kind}.`))
+    if (!entry.title) findings.push(warningFinding('entries', `Entry is missing title: ${key}.`))
+  }
+}
+
 function checkDirectoryRefs(appRoot, items, directory, findings) {
   for (const item of asArray(items)) {
     if (!item.path) continue
     const absolute = join(appRoot, item.path)
     if (!existsSync(absolute)) findings.push(warningFinding(directory, `Referenced path does not exist: ${item.path}.`))
+  }
+}
+
+function checkRuntimePackageRefs(appRoot, runtimePackage, findings) {
+  if (!runtimePackage || typeof runtimePackage !== 'object' || Array.isArray(runtimePackage)) return
+  for (const [key, value] of Object.entries(runtimePackage)) {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) continue
+    for (const field of ['path', 'schema', 'migrations']) {
+      if (!value[field]) continue
+      const absolute = join(appRoot, value[field])
+      if (!existsSync(absolute)) findings.push(warningFinding('runtimePackage', `Referenced ${key}.${field} does not exist: ${value[field]}.`))
+    }
+  }
+}
+
+function checkStorageRefs(appRoot, storage, findings) {
+  if (!storage || typeof storage !== 'object' || Array.isArray(storage)) return
+  for (const field of ['schema', 'migrations']) {
+    if (!storage[field]) continue
+    const absolute = join(appRoot, storage[field])
+    if (!existsSync(absolute)) findings.push(warningFinding('storage', `Referenced ${field} does not exist: ${storage[field]}.`))
   }
 }
 

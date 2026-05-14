@@ -5,8 +5,8 @@ description: 面向 Agent 的可安装应用包标准。
 
 hero:
   name: Agent App
-  text: 可安装的智能体应用。
-  tagline: "像小程序一样安装到宿主平台，但由宿主本地 Agent Runtime 解析和运行。"
+  text: 可安装的完整智能应用。
+  tagline: "像小程序一样安装到宿主平台，拥有自己的 UI / Workflow / Storage，并通过 Lime Capability SDK 调用本地能力。"
   actions:
     - theme: brand
       text: 阅读规范
@@ -22,10 +22,10 @@ hero:
       link: ../llms-full.txt
 
 features:
-  - title: APP.md 入口
-    details: "学习 Agent Skills 的 SKILL.md：YAML frontmatter 给机器，Markdown 指南给人和 AI 客户端。"
-  - title: 本地运行边界
-    details: "云端目录可以分发和授权 App，但真正执行发生在宿主本地 Agent Runtime。"
+  - title: Runtime Package
+    details: "APP.md 只是发现入口；真实 UI、worker、storage、workflow 和业务实现属于 runtime package。"
+  - title: Capability SDK
+    details: "App 通过 lime.ui、lime.storage、lime.agent、lime.artifacts 等稳定能力调用 Lime，不依赖内部实现。"
   - title: 组合已有标准
     details: "Agent App 引用 Skills、Knowledge、Tool、Context、UI、Artifact、Evidence、Policy、Runtime、QC，不重新定义它们。"
   - title: 小程序平台心智
@@ -48,5 +48,7 @@ features:
 - [什么是 Agent App？](./what-is-agent-app.md)
 - [规范](./specification.md)
 - [App 与 Skills / Knowledge 的边界](./agent-app-vs-skills-knowledge.md)
+- [Runtime Package 设计](./authoring/runtime-package.md)
+- [Capability SDK](./client-implementation/capability-sdk.md)
 - [运行时模型](./client-implementation/runtime-model.md)
 - [AI 内容工程化示例](./examples/content-engineering.md)

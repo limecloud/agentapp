@@ -11,7 +11,7 @@ Agent Skills, Agent Knowledge, and Agent App answer different questions.
 | --- | --- | --- |
 | Agent Skills | How does the agent do the work? | `SKILL.md` |
 | Agent Knowledge | What trusted facts and context can enter the model? | `KNOWLEDGE.md` |
-| Agent App | Which capabilities, knowledge slots, entries, tools, artifacts, and evals make up an installable app? | `APP.md` |
+| Agent App | Which UI, workflows, storage, services, entries, capability dependencies, tools, artifacts, and evals make up an installable app? | `APP.md` + runtime package |
 
 ## Decision tree
 
@@ -39,7 +39,7 @@ flowchart LR
   App --> Eval[Eval / QC: deliverability]
 ```
 
-Agent App does not copy procedural details from Skills or factual content from Knowledge. It declares how the host combines those assets into an application.
+Agent App does not copy procedural details from Skills or factual content from Knowledge. It declares how those assets are composed, and may carry its own UI, workers, storage schemas, and business workflows. Runtime still happens under host authorization through the Capability SDK.
 
 ## Content engineering example
 
@@ -48,7 +48,7 @@ Agent App does not copy procedural details from Skills or factual content from K
 | How to interview a founder and compile IP facts | Agent Skill | It is a knowledge-production method. |
 | Founder history, voice, boundaries, quotes | Agent Knowledge | It is source-grounded persona data. |
 | How to draft articles and remove AI tone | Agent Skill | It is writing and review procedure. |
-| `/IP Article`, `/Content Calendar`, `/Review Report` | Agent App | They are user-visible entries. |
+| Project home, knowledge pages, content factory, `/IP Article`, `/Review Report` | Agent App | They are app UI and user-visible entries. |
 | Competitor research, image generation, Feishu export | Agent Tool | They are external capabilities. |
 | Article draft, script batch, strategy report | Agent Artifact | They are durable deliverables. |
 | Fact grounding, voice fit, publish readiness | Eval / Agent QC / Evidence | They are quality and trust checks. |
@@ -64,8 +64,8 @@ Agent App does not copy procedural details from Skills or factual content from K
 
 ## Fixed conclusions
 
-- App is composition, not execution.
+- App is a complete application package; execution happens in the host runtime and capability calls must go through the Capability SDK.
 - Skill is procedure, not customer fact.
 - Knowledge is data, not instruction.
-- Runtime is execution truth, not app manifest.
+- Runtime packages carry app implementation but must not bypass host runtime and policy.
 - Cloud may distribute apps, but it should not run agents by default.

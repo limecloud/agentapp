@@ -1,21 +1,23 @@
 ---
 title: AI content engineering app
-description: Example Agent App for content engineering workflows.
+description: Product-level Agent App example for content engineering workflows.
 ---
 
 # AI content engineering app
 
-This example packages a content engineering system as an Agent App rather than a vertical core product.
+This example packages content engineering as a product-level Agent App, not as a single “content expert”. It has its own UI, storage, workflows, worker, expert-chat entry, Knowledge bindings, Artifacts, and Evals.
 
 It declares:
 
-- Personal IP and content operations knowledge templates.
-- Article, content calendar, and strategy report entries.
-- Writer and knowledge-builder Skill references.
-- Optional competitor research and image generation tools.
-- Artifact types for article drafts, prompt batches, and review reports.
-- Evals for anti-AI tone, fact grounding, voice consistency, and publish readiness.
+- `dashboard` and `content_factory` page entries.
+- `knowledge_builder` and `content_calendar` workflows.
+- `content_strategist` expert-chat entry.
+- `content-engineering-app` storage namespace and schema.
+- Knowledge slots for `project_knowledge`, `personal_ip`, and `content_operations`.
+- Tool Broker requirements such as document parsing and competitor research.
+- Artifact types for content tables, article drafts, and strategy reports.
+- Evals for anti-AI tone and fact grounding.
 
-Customer-specific facts such as a founder profile, brand voice, or private-domain SOP belong in Agent Knowledge packs or overlays.
+Customer-specific facts such as founder stories, brand voice, private-domain SOPs, and operation data do not belong in the official app package. They should be bound as Agent Knowledge, workspace files, app storage, or overlays.
 
 Reference package: [`docs/examples/content-engineering-app/APP.md`](../examples/content-engineering-app/APP.md)

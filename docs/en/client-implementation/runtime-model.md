@@ -1,34 +1,34 @@
 ---
-title: Runtime model
-description: How an installed Agent App runs in a host.
+title: Runtime Model
 ---
 
-# Runtime model
+# Runtime Model
 
-Agent App is runtime-neutral but host-executed. It declares what should be available; the host decides how to run it through existing standards.
+Agent App is host-executed, not cloud-executed. The package may contain UI and workers, but they must run inside host-controlled runtimes and call platform capabilities through the Capability SDK.
 
-```mermaid
-sequenceDiagram
-  participant User
-  participant Host as Host app platform
-  participant Resolver as App Resolver
-  participant Runtime as Agent Runtime
-  participant Skills as Agent Skills
-  participant Knowledge as Agent Knowledge
-  participant Tools as Agent Tool
-  participant Artifact as Agent Artifact
+## Core flow
 
-  User->>Host: Launch app entry
-  Host->>Resolver: Resolve entry, overlay, permissions
-  Resolver->>Knowledge: Select bound knowledge packs
-  Resolver->>Skills: Select required skills
-  Resolver->>Tools: Check tool permissions
-  Resolver-->>Runtime: Submit task with refs and provenance
-  Runtime->>Skills: Follow activated workflow
-  Runtime->>Knowledge: Load fenced context
-  Runtime->>Tools: Invoke allowed tools
-  Runtime->>Artifact: Write deliverable
-  Runtime-->>Host: Emit events and results
+```text
+APP.md / manifest
+→ package verification
+→ projection
+→ readiness
+→ capability injection
+→ UI / worker / workflow execution
+→ artifact / evidence / eval
 ```
 
-Cloud services can provide registries, models, or tools, but they should not become a hidden app runtime unless the app explicitly declares a server-assisted target and the host policy permits it.
+## Host runtime responsibilities
+
+- Install, uninstall, upgrade, and disable apps.
+- Verify package hash, signature, and manifest.
+- Run capability negotiation.
+- Register UI routes, panels, commands, and artifact viewers.
+- Create app storage namespace and apply migrations.
+- Inject `lime.*` capability handles.
+- Intercept file, network, secret, tool, agent, and storage permissions.
+- Record provenance, evidence, telemetry, and eval results.
+
+## Cloud boundary
+
+Cloud may provide catalog, release, license, tenant enablement, gateway, and ToolHub. Cloud should not become the default Agent Runtime. If server-assisted execution is required, the app must declare it explicitly and Policy must control it.

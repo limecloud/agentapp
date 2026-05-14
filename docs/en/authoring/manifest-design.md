@@ -1,20 +1,65 @@
 ---
-title: Manifest design
-description: Design APP.md frontmatter for a stable host projection.
+title: Manifest Design
 ---
 
-# Manifest design
+# Manifest Design
 
-`APP.md` should be small enough for discovery and explicit enough for a host to build a catalog projection.
+The manifest declares what the app needs, what it provides, where implementation is loaded from, and how the host can project it safely. It is not the business implementation itself.
 
-Good manifests:
+## Principles
 
-- Use stable keys for every entry.
-- Declare local runtime support when the app can run after installation.
-- Reference existing standards instead of inventing local protocols.
-- Separate required setup from optional enhancements.
-- Keep customer facts out of the official package.
+1. Keep `APP.md` discoverable, readable, and reviewable.
+2. Put real UI, workers, storage, and workflows in the runtime package.
+3. Declare every Lime capability through `capabilities` and `requires.capabilities`.
+4. Separate required and optional capabilities so readiness can degrade gracefully.
+5. Keep customer data, credentials, and tenant overlays out of the official manifest.
+6. Every entry should trace to a UI route, worker, workflow, expert persona, or artifact type.
 
-## Mini-program analogy
+## Recommended shape
 
-WeChat Mini Programs use `app.json` to list pages and global settings. Agent App uses `APP.md` frontmatter to list host entries and capability dependencies. The analogy stops there: Agent App does not define a JavaScript UI framework or a cloud execution environment.
+```yaml
+name: example-domain-app
+version: 0.1.0
+status: ready
+appType: domain-app
+manifestVersion: 0.2.0
+runtimeTargets:
+  - local
+requires:
+  lime:
+    appRuntime: ">=0.2.0 <1.0.0"
+  capabilities:
+    lime.ui: "^0.1.0"
+    lime.storage: "^0.1.0"
+    lime.agent: "^0.1.0"
+capabilities:
+  - lime.ui
+  - lime.storage
+  - lime.agent
+  - agentskills
+runtimePackage:
+  ui:
+    path: ./dist/ui
+  worker:
+    path: ./dist/worker
+storage:
+  namespace: example-domain-app
+  schema: ./storage/schema.json
+entries:
+  - key: dashboard
+    kind: page
+    title: Dashboard
+    route: /dashboard
+  - key: advisor
+    kind: expert-chat
+    title: Advisor
+    persona: ./agents/advisor.md
+```
+
+## Common mistakes
+
+- Putting business implementation into `APP.md`.
+- Declaring only `expert-chat` while claiming to be a full app.
+- Calling Lime internals directly instead of the SDK.
+- Reimplementing files, storage, artifacts, knowledge, and Tool Broker in each app.
+- Forgetting storage migration, secret, network, and background-task permissions.

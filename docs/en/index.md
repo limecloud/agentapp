@@ -5,8 +5,8 @@ description: Installable agent application packages.
 
 hero:
   name: Agent App
-  text: Installable agent applications.
-  tagline: "A packaging standard for app-like agent experiences that run in a host runtime."
+  text: Installable intelligent applications.
+  tagline: "A packaging standard for complete intelligent apps with UI, workflows, storage, and SDK-bound host capabilities."
   actions:
     - theme: brand
       text: Read specification
@@ -22,10 +22,10 @@ hero:
       link: ../llms-full.txt
 
 features:
-  - title: APP.md entry
-    details: "Follows the Agent Skills style: YAML frontmatter for machines and Markdown guidance for humans and AI clients."
-  - title: Local runtime boundary
-    details: "Cloud catalogs may distribute apps, but the installed host resolves and executes through its local Agent Runtime."
+  - title: Runtime package
+    details: "APP.md is discovery only; real UI, workers, storage, workflows, and business implementation live in the runtime package."
+  - title: Capability SDK
+    details: "Apps call Lime through stable capabilities such as lime.ui, lime.storage, lime.agent, and lime.artifacts instead of internals."
   - title: Capability composition
     details: "References Skills, Knowledge templates, Tools, Artifacts, Evals, UI entries, Context, Evidence, Policy, and QC."
   - title: Mini-program mental model
@@ -48,5 +48,7 @@ features:
 - [What is Agent App?](./what-is-agent-app.md)
 - [Specification](./specification.md)
 - [App vs Skills and Knowledge](./agent-app-vs-skills-knowledge.md)
+- [Runtime package design](./authoring/runtime-package.md)
+- [Capability SDK](./client-implementation/capability-sdk.md)
 - [Runtime model](./client-implementation/runtime-model.md)
 - [AI content engineering example](./examples/content-engineering.md)

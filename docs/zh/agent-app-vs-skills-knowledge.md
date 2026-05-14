@@ -11,7 +11,7 @@ Agent Skills、Agent Knowledge 和 Agent App 回答的问题不同。
 | --- | --- | --- |
 | Agent Skills | Agent 应该如何完成工作？ | `SKILL.md` |
 | Agent Knowledge | 哪些可信事实和上下文可以进入模型？ | `KNOWLEDGE.md` |
-| Agent App | 哪些能力、知识槽位、入口、工具、产物和评估组成一个可安装应用？ | `APP.md` |
+| Agent App | 哪些 UI、workflow、storage、services、entries、能力依赖、工具、产物和评估组成一个可安装应用？ | `APP.md` + runtime package |
 
 ## 判断树
 
@@ -39,7 +39,7 @@ flowchart LR
   App --> Eval[Eval / QC: 是否可交付]
 ```
 
-Agent App 不把 Skill 的流程复制进来，也不把 Knowledge 的事实复制进来。它只声明这些资产如何被宿主组合成一个应用。
+Agent App 不把 Skill 的流程复制进来，也不把 Knowledge 的事实复制进来。它声明应用如何组合这些资产，并可以携带自己的 UI、worker、storage schema 和业务 workflow；真正运行时仍由宿主通过 Capability SDK 执行和授权。
 
 ## 内容工程化示例
 
@@ -50,7 +50,7 @@ AI 内容工程化应用应该这样拆：
 | 如何采访创始人并整理 IP 资料 | Agent Skill | 它是生产知识的方法。 |
 | 创始人经历、表达风格、禁忌、金句 | Agent Knowledge | 它是可溯源的 persona 数据。 |
 | 如何写公众号文章、如何去 AI 味 | Agent Skill | 它是写作流程和评审工艺。 |
-| `/IP文章`、`/内容日历`、`/复盘报告` | Agent App | 它们是用户可见入口。 |
+| 项目首页、知识库页面、内容工厂、`/IP文章`、`/复盘报告` | Agent App | 它们是 App UI 和用户可见入口。 |
 | 竞品调研、图片生成、飞书导出 | Agent Tool | 它们是外部能力。 |
 | 文章草稿、脚本批次、策略报告 | Agent Artifact | 它们是持久交付物。 |
 | 事实支撑、本人语气、可发布性 | Eval / Agent QC / Evidence | 它们是质量和信任判断。 |
@@ -66,8 +66,8 @@ AI 内容工程化应用应该这样拆：
 
 ## 固定结论
 
-- App 是组合，不是执行。
+- App 是完整应用包；执行发生在宿主 runtime，能力调用必须通过 Capability SDK。
 - Skill 是工艺，不是客户事实。
 - Knowledge 是数据，不是指令。
-- Runtime 是执行事实源，不是 App manifest。
+- Runtime package 承载 App 实现，但不能绕过宿主 runtime 和 policy。
 - Cloud 可以分发 App，但默认不运行 Agent。
