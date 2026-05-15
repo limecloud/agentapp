@@ -150,6 +150,49 @@ await lime.evidence.record({ subject: artifact.id, sources: hits })
 ```
 
 SDK calls must support stable error codes, cancellation, retries, timeouts, permission denial, cost limits, traceId, and mock implementations. Apps may depend on this contract only, not host file paths, database tables, or frontend components.
+## Host Bridge v1
+
+Host Bridge is the event boundary for `lime.ui` and the Capability SDK inside the UI runtime. It standardizes theme, locale, entry context, navigation, notifications, downloads, and capability calls instead of letting every app invent a private `postMessage` protocol.
+
+Host Bridge does not replace the Capability SDK. It is the transport layer between sandboxed UI and the host capability bridge. The host remains the only decision maker: apps may request actions, but must not directly access host DOM, Tauri, Node, filesystems, databases, or credentials.
+
+Standard message envelope:
+
+```ts
+interface LimeAgentAppBridgeMessage {
+  protocol: "lime.agentApp.bridge"
+  version: 1
+  type: string
+  requestId?: string
+  appId: string
+  entryKey?: string
+  payload?: unknown
+}
+```
+
+Host -> App events:
+
+| Event | Purpose |
+| --- | --- |
+| `host:snapshot` | Initial full snapshot with theme, locale, host metadata, entry context, and available capability summary. |
+| `theme:update` | Theme token snapshot after theme, color scheme, or system light/dark changes. |
+| `host:response` | Successful response to an app request; must include `requestId`. |
+| `host:error` | Failed response to an app request; must include stable code, user-readable message, and `requestId`. |
+| `host:visibility` | Runtime surface visibility change so the app can pause refreshes or resume light sync. |
+
+App -> Host events:
+
+| Event | Purpose |
+| --- | --- |
+| `app:ready` | App initialization completed; requests the first host snapshot. |
+| `host:getSnapshot` | Pulls the current host snapshot in case the first push was missed. |
+| `host:navigate` | Requests navigation to an Agent App entry or app-local route. |
+| `host:toast` | Requests a non-technical host notification. |
+| `host:openExternal` | Requests opening an external URL; the host must validate protocol and origin. |
+| `host:download` | Requests download of a same-origin runtime artifact; the host must validate URL and permission. |
+| `capability:invoke` | Unified capability invocation envelope; the host executes or rejects based on allowlist, readiness, and policy. |
+
+Theme synchronization must use Host Bridge. The host reads effective Lime CSS variables and sends them through `host:snapshot` and `theme:update`; the app only applies tokens to its own `document.documentElement.style`. Apps should not guess Lime themes, read the outer DOM, or persist theme tokens as business facts.
 
 ## Entry model
 

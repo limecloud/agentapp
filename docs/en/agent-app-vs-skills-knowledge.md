@@ -41,6 +41,16 @@ flowchart LR
 
 Agent App does not copy procedural details from Skills or factual content from Knowledge. It declares how those assets are composed, and may carry its own UI, workers, storage schemas, and business workflows. Runtime still happens under host authorization through the Capability SDK.
 
+## Lime Agent, Expert, and App boundary
+
+Lime Agent is not another package type in this table. It is the host runtime capability that executes tasks for apps, experts, workflows, and skills under policy. Agent App decides the business surface and state transitions; Lime Agent executes app-scoped tasks through `lime.agent` and related capabilities.
+
+| Layer | Correct responsibility | Incorrect responsibility |
+| --- | --- | --- |
+| Agent App | Own business UI, workflow state, storage schema, structured write-back, and human review. | Rebuild model gateways, credential stores, evidence stores, or tool brokers outside Lime governance. |
+| Lime Agent / Host | Run agent tasks, stream progress, apply policy, call tools, retrieve knowledge, create trace, artifact, and evidence records. | Own vertical business pages or force users into generic chat for app workflows. |
+| Expert Chat | Provide a conversational entry or embedded collaborator with access to app context. | Replace the app's business workflow or become a detached place where results are copied back manually. |
+
 ## Content Factory example
 
 | Asset | Correct place | Reason |

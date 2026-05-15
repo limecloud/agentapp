@@ -1,11 +1,11 @@
 ---
-title: APP 内容工厂
+title: 内容工厂
 description: 面向内容工厂流程的 Product-level Agent App 示例。
 ---
 
-# APP 内容工厂
+# 内容工厂
 
-APP 内容工厂说明 Agent App 是应用包，而不是单个专家或 prompt 集合。它把 UI、storage、workflow、worker、Knowledge binding、Tool、Artifact、Eval、permission 和 overlay 打包成一个可安装业务应用。
+内容工厂说明 Agent App 是应用包，而不是单个专家或 prompt 集合。它把 UI、storage、workflow、worker、Knowledge binding、Tool、Artifact、Eval、permission 和 overlay 打包成一个可安装业务应用。
 
 参考包：[`docs/examples/content-factory-app/APP.md`](../../examples/content-factory-app/APP.md)
 

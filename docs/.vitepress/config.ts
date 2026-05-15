@@ -163,7 +163,7 @@ const zhSidebar = [
   {
     text: '示例',
     items: [
-      { text: 'APP 内容工厂', link: '/zh/examples/content-factory' },
+      { text: '内容工厂', link: '/zh/examples/content-factory' },
       { text: '客服知识库应用', link: '/zh/examples/customer-support' },
       { text: '完整 APP.md', link: '/zh/examples/complete-app' }
     ]

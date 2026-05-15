@@ -51,7 +51,7 @@ features:
 - [Runtime Package 设计](./authoring/runtime-package.md)
 - [Capability SDK](./client-implementation/capability-sdk.md)
 - [运行时模型](./client-implementation/runtime-model.md)
-- [APP 内容工厂示例](./examples/content-factory.md)
+- [内容工厂示例](./examples/content-factory.md)
 
 ## 按角色阅读
 

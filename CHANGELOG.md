@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.0
+
+- Documents Host Bridge v1 as the standard `lime.agentApp.bridge` runtime event protocol for sandboxed Agent App UI.
+- Standardizes host-to-app theme, locale, visibility, response, and error events, plus app-to-host ready, snapshot, navigation, toast, download, external-open, and capability invocation requests.
+- Clarifies that Host Bridge is a transport layer for `lime.ui` and the Capability SDK, not a private app protocol and not a bypass around readiness, permission, policy, or provenance.
+
 ## 0.3.0
 
 - Promotes Agent App to an executable package standard with typed descriptors, typed SDK calls, overlays, readiness, evidence, and regression eval expectations.
@@ -7,7 +13,7 @@
 - Removes `scene` from current v0.3 entry kinds; legacy `scene` / `home` are now compatibility warnings and invalid for manifestVersion 0.3.
 - Adds package-level provenance with `packageHash` in CLI projection output.
 - Extends the reference CLI with entry-specific validation, product-level runtime package checks, executable permission checks, and overlay / secret readiness checks.
-- Replaces the industry example with `APP 内容工厂` / `content-factory-app` and keeps customer-specific facts out of the official package.
+- Replaces the industry example with `内容工厂` / `content-factory-app` and keeps customer-specific facts out of the official package.
 
 ## 0.2.0
 

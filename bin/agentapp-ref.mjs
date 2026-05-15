@@ -4,7 +4,7 @@ import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { basename, dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const cliVersion = '0.3.0'
+const cliVersion = '0.4.0'
 const currentEntryKinds = new Set(['page', 'panel', 'expert-chat', 'command', 'workflow', 'artifact', 'background-task', 'settings'])
 const legacyEntryKinds = new Set(['home', 'scene'])
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')

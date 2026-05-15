@@ -41,9 +41,19 @@ flowchart LR
 
 Agent App 不把 Skill 的流程复制进来，也不把 Knowledge 的事实复制进来。它声明应用如何组合这些资产，并可以携带自己的 UI、worker、storage schema 和业务 workflow；真正运行时仍由宿主通过 Capability SDK 执行和授权。
 
+## Lime Agent、Expert 与 App 的边界
+
+Lime Agent 不是这张表里的另一种包格式，而是宿主为 App、Expert、Workflow 和 Skill 提供的任务运行能力。Agent App 决定业务界面和状态流转；Lime Agent 通过 `lime.agent` 和相邻能力执行 App 作用域内的任务。
+
+| 层 | 正确职责 | 错误职责 |
+| --- | --- | --- |
+| Agent App | 拥有业务 UI、workflow 状态、storage schema、结构化结果写回和人工确认。 | 绕过 Lime 自建模型网关、凭证系统、证据系统或工具调度器。 |
+| Lime Agent / Host | 运行 Agent task、流式进度、强制 policy、调用工具、检索知识、生成 trace / artifact / evidence。 | 拥有垂直业务页面，或强迫用户回到通用聊天框完成 App 流程。 |
+| Expert Chat | 提供对话入口或可嵌入协作者，并读取 App 上下文。 | 替代 App 的业务 workflow，或变成用户手工复制结果回 App 的旁路。 |
+
 ## 内容工厂示例
 
-APP 内容工厂应该这样拆：
+内容工厂应该这样拆：
 
 | 资产 | 正确位置 | 原因 |
 | --- | --- | --- |

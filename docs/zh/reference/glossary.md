@@ -13,6 +13,7 @@ description: Agent App 标准中的核心术语。
 | `APP.md` | 必需发现入口，包含 YAML frontmatter 和人类可读指南。 |
 | Runtime package | `APP.md` 引用的 UI、worker、storage、workflow、artifact、eval 等文件。 |
 | Host | 安装、投影、授权并运行 App 的客户端或平台。 |
+| Host Bridge | 沙箱 UI 与宿主之间的标准事件桥，协议为 `lime.agentApp.bridge`。 |
 | Capability SDK | 宿主注入的稳定 API，例如 `lime.ui`、`lime.storage`。 |
 | Capability | App 通过 SDK 调用的宿主能力。 |
 | Entry | 宿主可见入口，例如 page、command、workflow、artifact、background-task、settings。 |
@@ -41,7 +42,7 @@ description: Agent App 标准中的核心术语。
 
 ## 命名建议
 
-标准使用 `Agent App`，具体包使用 `app`。产品示例使用 `APP 内容工厂` 这类领域名。避免把完整应用说成单个对话框。
+标准使用 `Agent App`，具体包使用 `app`。产品示例使用 `内容工厂` 这类领域名。避免把完整应用说成单个对话框。
 
 ## 术语分组
 

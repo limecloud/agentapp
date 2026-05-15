@@ -150,6 +150,49 @@ await lime.evidence.record({ subject: artifact.id, sources: hits })
 ```
 
 SDK 调用必须支持稳定错误码、取消、重试、超时、权限拒绝、成本限制、traceId 和 mock implementation。App 只能依赖这些契约，不能依赖宿主内部文件路径、数据库表或前端组件。
+## Host Bridge v1
+
+Host Bridge 是 UI runtime 内 `lime.ui` 与 Capability SDK 的事件边界。它把主题、语言、入口上下文、导航、通知、下载和能力调用统一到一个受控消息协议里，避免每个 App 自定义 `postMessage`。
+
+Host Bridge 不替代 Capability SDK；它是沙箱 UI 和宿主 capability bridge 之间的传输层。Host 仍然是唯一裁决方，App 只能请求，不能直接访问宿主 DOM、Tauri、Node、文件系统、数据库或凭证。
+
+标准消息信封：
+
+```ts
+interface LimeAgentAppBridgeMessage {
+  protocol: "lime.agentApp.bridge"
+  version: 1
+  type: string
+  requestId?: string
+  appId: string
+  entryKey?: string
+  payload?: unknown
+}
+```
+
+Host -> App 事件：
+
+| 事件 | 用途 |
+| --- | --- |
+| `host:snapshot` | 首次完整快照，包含主题、语言、宿主信息、入口上下文和可用能力摘要。 |
+| `theme:update` | 主题、配色或系统深浅色变化后的主题 token 快照。 |
+| `host:response` | 对 App 请求的成功响应，必须带 `requestId`。 |
+| `host:error` | 对 App 请求的失败响应，必须带稳定错误码、用户可读消息和 `requestId`。 |
+| `host:visibility` | runtime surface 可见性变化，供 App 暂停刷新或恢复轻量同步。 |
+
+App -> Host 事件：
+
+| 事件 | 用途 |
+| --- | --- |
+| `app:ready` | App 初始化完成，请求首包快照。 |
+| `host:getSnapshot` | 主动拉取当前 Host 快照，防止错过首次推送。 |
+| `host:navigate` | 请求切换 Agent App entry 或 App 内 route。 |
+| `host:toast` | 请求宿主展示非技术提示。 |
+| `host:openExternal` | 请求宿主打开外链；Host 必须校验协议和来源。 |
+| `host:download` | 请求下载同源 runtime 产物；Host 必须校验 URL 和权限。 |
+| `capability:invoke` | 统一能力调用信封；Host 按 capability allowlist、readiness 和 policy 决定执行或拒绝。 |
+
+主题同步必须使用 Host Bridge：Host 从当前 Lime 主题读取已生效 CSS variables，发送 `host:snapshot` 和 `theme:update`；App 只把 token 写入自己的 `document.documentElement.style`。App 不应猜测 Lime 主题，不应读取外层 DOM，也不应把主题持久化为业务事实。
 
 ## 入口模型
 
@@ -325,7 +368,7 @@ name: content-factory-app
 version: 0.3.0
 status: ready
 appType: domain-app
-description: APP 内容工厂，用于知识库构建、内容场景规划、内容生产和数据复盘。
+description: 内容工厂，用于知识库构建、内容场景规划、内容生产和数据复盘。
 runtimeTargets:
   - local
 requires:

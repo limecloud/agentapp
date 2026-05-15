@@ -68,7 +68,7 @@ npm run cli -- validate ./my-app
 From another project after publication, run:
 
 ```bash
-npx agentapp-ref@0.3.0 validate ./my-app
+npx agentapp-ref@0.4.0 validate ./my-app
 ```
 
 Validation checks the manifest shape, required fields, supported entry kinds, local references, and obvious authoring problems. A `draft` app can pass validation while still needing setup before activation.
@@ -76,7 +76,7 @@ Validation checks the manifest shape, required fields, supported entry kinds, lo
 ## 3. Project it into host catalog data
 
 ```bash
-npx agentapp-ref@0.3.0 project ./my-app
+npx agentapp-ref@0.4.0 project ./my-app
 ```
 
 Projection is the deterministic step a host uses to transform package metadata into catalog objects. It should not invent business behavior that is absent from the package. The output should include app summary, entries, requirements, permissions, storage, services, workflows, and provenance when those fields exist.
@@ -84,7 +84,7 @@ Projection is the deterministic step a host uses to transform package metadata i
 ## 4. Check readiness
 
 ```bash
-npx agentapp-ref@0.3.0 readiness ./my-app
+npx agentapp-ref@0.4.0 readiness ./my-app
 ```
 
 Readiness answers a different question from validation: can this app run in the current host/workspace? A package can be structurally valid but still report `needs-setup` when required Knowledge, Skills, Tools, capabilities, services, or secrets are not bound.

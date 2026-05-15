@@ -42,6 +42,20 @@ Each step should be inspectable. A host should be able to stop before execution 
 | Storage service | Provide app namespace, schema, migrations, and cleanup. |
 | Artifact and Evidence services | Persist outputs and provenance. |
 
+## In-app Agent task contract
+
+Business workflows should not require a handoff back to generic chat. When an app needs agent intelligence, it starts an app-scoped task through the injected SDK and renders the task inside its own page, panel, workflow step, or review queue.
+
+Minimum contract:
+
+- The app starts work with `lime.agent.startTask()` or `lime.workflow.start()` and includes app id, entry key, idempotency key, business context, requested tools, knowledge bindings, and expected output schema.
+- The host runtime streams task events such as status, progress, tool calls, knowledge citations, partial artifacts, blocked permissions, errors, cancellation, and trace id.
+- The app presents those events in its own product UI and lets the user cancel, retry, edit input, approve, or reject results without leaving the app.
+- The final result is structured data, not only chat text. The app writes it back through `lime.storage`, `lime.artifacts`, and `lime.evidence` after policy checks and any required human review.
+- Expert chat may be embedded as a collaborator, but it must share the same app context and task lifecycle. It must not become a detached place where core app work happens outside product state.
+
+This contract keeps the app from becoming a plain web app that calls models directly, and keeps Lime chat from becoming the mandatory container for every business process.
+
 ## Host runtime responsibilities
 
 - Install, uninstall, upgrade, disable, and export apps.
@@ -69,6 +83,21 @@ Each step should be inspectable. A host should be able to stop before execution 
 App UI should run in a controlled host surface. It can receive theme, locale, route, entry context, and injected SDK bridge. It should not receive raw host APIs, Node APIs, arbitrary filesystem access, or direct access to host source modules.
 
 UI runtime output should be reversible: disabling the app should remove the UI entries without changing host core routes.
+
+## Host Bridge v1
+
+After the UI host mounts an iframe or equivalent sandbox surface, it must establish Host Bridge. The bridge sends host state and controlled actions to app UI without exposing raw host APIs to the app.
+
+The first host snapshot should include at least:
+
+- `appId`, `entryKey`, `route`, and runtime origin.
+- `themeMode`, `effectiveThemeMode`, `colorSchemeId`, and theme CSS variables.
+- Non-sensitive `locale`, `timezone`, `workspaceId`, and `tenantId` summary.
+- Capability summary for the current entry and reasons for blocked capabilities.
+
+The host must validate message source: `event.source` must be the current app frame, `event.origin` must match runtime origin, and message `protocol` and `version` must match. Untrusted messages must be ignored or logged for debugging, never executed as capability calls.
+
+`capability:invoke` is only a transport envelope. Files, models, tools, downloads, external URLs, secrets, and storage writes must still pass readiness, permission, policy, allowlists, and provenance recording. Blocked calls return `host:error`; mock results must not masquerade as success.
 
 ## Workflow and worker runtime
 

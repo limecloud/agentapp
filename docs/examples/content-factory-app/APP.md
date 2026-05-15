@@ -1,7 +1,7 @@
 ---
 manifestVersion: 0.3.0
 name: content-factory-app
-description: APP 内容工厂，用于知识库构建、内容场景规划、批量生成、策略报告和运营复盘。
+description: 内容工厂，用于知识库构建、内容场景规划、批量生成、策略报告和运营复盘。
 version: 0.3.0
 status: ready
 appType: domain-app
@@ -168,7 +168,7 @@ overlayTemplates:
     required: false
 presentation:
   category: content
-  title: APP 内容工厂
+  title: 内容工厂
   summary: 面向内容团队的行业 Agent App。
 compatibility:
   minHostVersion: 0.3.0
@@ -176,7 +176,7 @@ metadata:
   example: true
 ---
 
-# APP 内容工厂
+# 内容工厂
 
 安装这个 App 后，宿主可以提供项目首页、知识库构建、内容生产、策略报告和运营复盘入口。
 

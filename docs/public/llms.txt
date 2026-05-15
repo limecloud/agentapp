@@ -10,6 +10,7 @@
 - Quickstart: docs/en/authoring/quickstart.md
 - Runtime package design: docs/en/authoring/runtime-package.md
 - Capability SDK: docs/en/client-implementation/capability-sdk.md
+- Host Bridge: docs/en/client-implementation/runtime-model.md#host-bridge-v1
 - Reference CLI: docs/en/reference/reference-cli.md
 - Content Factory example: docs/en/examples/content-factory.md
 
@@ -21,4 +22,5 @@ Agent App composes UI, workflows, storage, workers, Skills, Knowledge bindings, 
 
 - Current entry kinds: page, panel, expert-chat, command, workflow, artifact, background-task, settings.
 - Legacy entry kinds: scene and home are compatibility-only and invalid for manifestVersion 0.3.
-- Reference example: APP 内容工厂 / content-factory-app.
+- Reference example: 内容工厂 / content-factory-app.
+- Host Bridge v1: `lime.agentApp.bridge` standardizes sandbox UI theme sync, host snapshots, navigation, toast, download, and capability invocation envelopes.

@@ -6,12 +6,26 @@ Agent Skills answer **how to do work**. Agent Knowledge answers **what trusted k
 
 ## Core boundary
 
+Agent App is the business workspace. Lime Agent is the intelligent runtime capability that apps orchestrate. Users should be able to finish a business workflow inside the app surface instead of being forced back into a generic chat UI. Chat and expert entries are valid app surfaces, but they are optional interaction modes rather than the required container for product work.
+
 | Standard / layer | Owns | Entry point | Runtime behavior |
 | --- | --- | --- | --- |
 | Agent Skills | Executable workflows, scripts, tools, templates, and procedural instructions. | `SKILL.md` | Activated by an agent after trust checks. |
 | Agent Knowledge | Source-grounded knowledge assets, status, provenance, and safe context. | `KNOWLEDGE.md` | Loaded as fenced data; never executed. |
 | Agent Expert | Chat-first entry composed from persona, Skills, Tools, and data connections. | Expert entry | Runs inside a host conversation surface. |
 | Agent App | Complete installable app package: UI, workers, storage, workflows, entries, permissions, artifacts, evals, and lifecycle. | `APP.md` + runtime package | Runs in the host through `@lime/app-sdk` capability handles. |
+| Lime Agent / Host runtime | Agent tasks, model and tool execution, knowledge retrieval, permissions, traces, artifacts, evidence, secrets, and policy. | `lime.*` capabilities | Injected into apps as authorized handles; apps do not import host internals. |
+
+## App and Lime responsibilities
+
+| Area | Agent App owns | Lime owns |
+| --- | --- | --- |
+| Product experience | Business UI, pages, tables, forms, dashboards, review steps, and delivery views. | Host shell, navigation, theme, locale, installation, and app lifecycle. |
+| Business logic | Workflow state, domain rules, storage schema, structured result write-back, and human confirmation. | Agent task runtime, capability enforcement, retries, cancellation, cost limits, and telemetry. |
+| Data boundary | App-local records, package assets, overlays, and references to workspace data. | Namespaced storage, files, Knowledge binding, secrets, policy, cleanup, and audit. |
+| Agent execution | Decides when to call an agent task and how the result updates product state. | Runs `lime.agent` tasks, model calls, tools, traces, artifacts, and evidence through SDK contracts. |
+
+The boundary is intentionally strict: business should not leave the app context, and agents should not leave Lime capability governance. If an app bypasses Lime to build its own model gateway, permission system, or evidence store, it is becoming an independent SaaS instead of an Agent App. If an app sends users back to generic chat for core work, it is only a chat wrapper rather than a product-level app.
 
 ## Pack shape
 
@@ -84,10 +98,10 @@ Compatible hosts should:
 ## Reference CLI
 
 ```bash
-npx agentapp-ref@0.3.0 validate ./my-agent-app
-npx agentapp-ref@0.3.0 to-catalog ./my-agent-app
-npx agentapp-ref@0.3.0 project ./my-agent-app
-npx agentapp-ref@0.3.0 readiness ./my-agent-app --workspace ./workspace
+npx agentapp-ref@0.4.0 validate ./my-agent-app
+npx agentapp-ref@0.4.0 to-catalog ./my-agent-app
+npx agentapp-ref@0.4.0 project ./my-agent-app
+npx agentapp-ref@0.4.0 readiness ./my-agent-app --workspace ./workspace
 ```
 
 ## Local development

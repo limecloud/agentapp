@@ -72,6 +72,38 @@ Every handle should include:
 - mock implementation for app tests
 - telemetry and evidence hooks
 
+## App-scoped agent tasks
+
+`lime.agent` is the capability that lets an app use Lime Agent without sending the user back to generic chat or rebuilding agent infrastructure inside the app.
+
+`lime.agent.startTask(request)` should be app-scoped:
+
+- `request.appId`, `entryKey`, `taskKind`, `idempotencyKey`, and business context identify the app workflow that owns the task.
+- `request.input` contains product data or references, not unbounded host internals.
+- `request.expectedOutput` describes the structured result the app can write back, such as rows, records, report sections, or artifact descriptors.
+- `request.knowledge`, `tools`, `files`, and `secrets` are declared capability bindings, not direct filesystem paths or plaintext credentials.
+- The returned task exposes `taskId`, `traceId`, stream events, stable error codes, cancellation, retry, cost policy, artifact references, and evidence references.
+
+Apps decide when to start a task and how to apply the structured result to their business state. Lime decides how the agent task runs, which tools and knowledge are allowed, how permissions are enforced, and how trace, artifact, and evidence records are attached.
+
+Generic chat and expert-chat can reuse this same task contract as an interaction surface, but they must not be the only way an app completes core work.
+## Host Bridge and SDK Bridge
+
+Inside UI runtime, `getLimeRuntime()` may be transported by Host Bridge, but its semantics still belong to the Capability SDK. Implementations should keep two layers:
+
+1. `lime.agentApp.bridge`: cross-iframe or sandbox messaging for ready, snapshot, theme, toast, navigation, download, and request / response.
+2. `@lime/app-sdk`: the typed facade app authors call; it converts `lime.storage.table()`, `lime.tools.invoke()`, and similar APIs into standard bridge requests.
+
+App authors should not hand-roll private `postMessage` protocols. They should call the SDK for host capabilities. Only runtime lifecycle events such as `app:ready` and `host:getSnapshot` may be sent by a small bootstrap.
+
+Host implementors must ensure that:
+
+- every Host Bridge message has `protocol="lime.agentApp.bridge"` and `version=1`
+- every request and response is correlated by `requestId`
+- every capability call passes manifest declaration, entry readiness, permission, and policy checks
+- unavailable capabilities return stable blocked errors instead of writing fake data or returning mock success
+- theme, locale, visibility, and entry context are host snapshots, not app business state
+
 ## v0.3 minimal typed API
 
 Host implementors should provide TypeScript types, schemas, mocks, and contract tests for at least:

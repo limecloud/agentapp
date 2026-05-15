@@ -40,7 +40,7 @@ App 作者不要依赖宿主内部实现；应该声明 entries、permissions、
 
 ## 示例
 
-APP 内容工厂可以有 dashboard page、content factory page、knowledge-building workflow、expert-chat entry、storage tables、Tool requirements、Artifact outputs、Evals 和 Evidence。
+内容工厂可以有 dashboard page、content factory page、knowledge-building workflow、expert-chat entry、storage tables、Tool requirements、Artifact outputs、Evals 和 Evidence。
 
 这更像可安装应用，而不是单个聊天人设。
 

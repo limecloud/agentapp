@@ -13,6 +13,7 @@ This glossary defines terms as they are used in Agent App v0.3.
 | `APP.md` | Required discovery entry with YAML frontmatter and human-readable guide. |
 | Runtime package | UI, worker, storage, workflow, artifact, eval, and support files referenced by `APP.md`. |
 | Host | Client or platform that installs, projects, authorizes, and runs the app. |
+| Host Bridge | Standard event bridge between sandboxed UI and the host, using `lime.agentApp.bridge`. |
 | Capability SDK | Stable API surface injected by the host, such as `lime.ui` and `lime.storage`. |
 | Capability | A host-provided service an app can call through the SDK. |
 | Entry | Host-visible launch point such as page, command, workflow, artifact, background task, or settings. |

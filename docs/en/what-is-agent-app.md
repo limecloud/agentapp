@@ -11,6 +11,16 @@ In one sentence: **Agent App is an intelligent application running on Lime platf
 
 `APP.md` is only the discovery entry and manifest carrier. Real business capability comes from the runtime package and from calls through the Lime Capability SDK.
 
+## Business workspace, not a chat wrapper
+
+The product boundary is:
+
+> Business work stays inside the app context; agent execution stays inside Lime capability governance.
+
+An Agent App should be the surface where the user finishes the job: dashboards, forms, tables, review queues, artifacts, settings, and embedded assistant panels all belong there. The app can call `lime.agent`, `lime.knowledge`, `lime.tools`, `lime.storage`, `lime.artifacts`, and `lime.evidence`, but the user should not have to jump back to a generic Lime chat just to complete the app's core workflow.
+
+This also prevents the opposite failure mode. An app should not rebuild its own model gateway, credential store, permission system, evidence store, or tool broker just to avoid Lime. That would make Lime a distribution shell for independent SaaS products. Agent App exists for the middle path: the app owns business shape and business state; Lime owns the agent runtime and governed platform capabilities.
+
 ## Relationship to experts
 
 A large-company “expert” is usually:
@@ -26,6 +36,8 @@ Agent App = UI + Workflow + Storage + Services + Agent Entries + Skills + Tools 
 ```
 
 An expert is only an `expert-chat` entry. An app can contain multiple experts, or none. A Content Factory App should have project home, knowledge pages, content factory, review dashboard, and background jobs; a content strategist expert is only one entry.
+
+Expert chat is therefore an app interaction mode, not the default container for every business workflow. An app may embed an expert beside a table or review step, and that expert should read the current app context and trigger app workflows through the SDK rather than producing detached chat text that the user must copy back manually.
 
 ## Mini-program analogy
 

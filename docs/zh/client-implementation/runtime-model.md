@@ -42,6 +42,20 @@ APP.md / manifest
 | Storage service | 提供 app namespace、schema、migrations、cleanup。 |
 | Artifact / Evidence services | 持久化输出和 provenance。 |
 
+## App 内 Agent Task 契约
+
+业务流程不应该要求用户跳回通用聊天框。App 需要智能能力时，应通过注入的 SDK 启动 App 作用域内的任务，并把任务过程渲染在自己的页面、面板、workflow 步骤或人工确认队列里。
+
+最小契约：
+
+- App 通过 `lime.agent.startTask()` 或 `lime.workflow.start()` 启动任务，并传入 app id、entry key、idempotency key、业务上下文、请求的工具、知识绑定和期望输出 schema。
+- Host runtime 流式返回任务事件：状态、进度、工具调用、知识引用、局部 artifact、权限阻断、错误、取消和 trace id。
+- App 在自己的产品 UI 内展示这些事件，并允许用户取消、重试、修改输入、确认或拒绝结果，不需要离开 App。
+- 最终结果是结构化数据，不只是聊天文本。App 在 policy 检查和必要的人工确认后，通过 `lime.storage`、`lime.artifacts` 和 `lime.evidence` 写回业务状态。
+- Expert Chat 可以作为协作者嵌入，但必须共享同一份 App 上下文和任务生命周期，不能变成核心业务脱离产品状态运行的旁路。
+
+这个契约同时防止两种偏航：App 退化成直接调模型的普通 Web App，或 Lime 通用 Chat 被迫继续承载所有业务流程。
+
 ## 宿主职责
 
 - 安装、卸载、升级、禁用、导出 App。
@@ -69,6 +83,21 @@ APP.md / manifest
 App UI 应运行在受控宿主表面。它可以获得 theme、locale、route、entry context 和 injected SDK bridge，但不能获得 raw host API、Node API、任意文件系统访问或宿主源码模块。
 
 禁用 App 时，UI entry 应能从宿主中移除，而不改变 Core route。
+
+## Host Bridge v1
+
+UI Host 挂载 iframe 或等价沙箱表面后，必须建立 Host Bridge。它负责把宿主状态和受控动作传给 App UI，而不是把宿主 API 暴露给 App。
+
+Host Bridge 首包快照至少包含：
+
+- `appId`、`entryKey`、`route` 和 runtime origin。
+- `themeMode`、`effectiveThemeMode`、`colorSchemeId` 和主题 CSS variables。
+- `locale`、`timezone`、`workspaceId`、`tenantId` 的非敏感摘要。
+- 当前 entry 可用 capability 摘要和 blocked 原因。
+
+Host 必须验证消息来源：`event.source` 必须是当前 App frame，`event.origin` 必须匹配 runtime origin，消息 `protocol` 和 `version` 必须匹配。无法验证的消息必须静默丢弃或记录调试事件，不能执行能力调用。
+
+`capability:invoke` 只是一种传输信封。文件、模型、工具、下载、外链、secret、storage 写入等仍需经过 readiness、permission、policy、allowlist 和 provenance 记录；被阻断时返回 `host:error`，不能用 mock 结果伪装成功。
 
 ## Workflow / Worker Runtime
 

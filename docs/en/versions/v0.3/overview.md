@@ -15,7 +15,7 @@ v0.3 moves Agent App from a complete package draft to an executable standard lay
 - Overlay templates for tenant, workspace, user, and customer differences.
 - `scene` / `home` are compatibility-only; v0.3 apps use `page`, `panel`, `expert-chat`, `command`, `workflow`, `artifact`, `background-task`, or `settings`.
 - Projection provenance includes `packageHash` as well as `manifestHash`.
-- Reference example is `APP 内容工厂` / `content-factory-app`.
+- Reference example is `内容工厂` / `content-factory-app`.
 
 ## Why v0.3 matters
 

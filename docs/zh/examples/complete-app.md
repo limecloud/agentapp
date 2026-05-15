@@ -14,7 +14,7 @@ description: 完整 Agent App manifest 的检查表和注释结构。
 ```yaml
 manifestVersion: 0.3.0
 name: content-factory-app
-description: APP 内容工厂，用于知识库构建、内容场景规划、内容生产和数据复盘。
+description: 内容工厂，用于知识库构建、内容场景规划、内容生产和数据复盘。
 version: 0.3.0
 status: ready
 appType: domain-app

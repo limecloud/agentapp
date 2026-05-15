@@ -20,7 +20,7 @@ npm run cli -- validate docs/examples/content-factory-app
 发布到 npm 后：
 
 ```bash
-npx agentapp-ref@0.3.0 validate ./my-agent-app
+npx agentapp-ref@0.4.0 validate ./my-agent-app
 ```
 
 ## 命令
