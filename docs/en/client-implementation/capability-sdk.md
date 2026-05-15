@@ -13,7 +13,7 @@ The Capability SDK is the stable boundary between Agent Apps and Lime. It solves
 
 ```mermaid
 flowchart TD
-  App[Agent App UI / Worker] --> SDK[@lime/app-sdk]
+  App["Agent App UI / Worker"] --> SDK["@lime/app-sdk"]
   SDK --> Bridge[Lime Capability Bridge]
   Bridge --> UI[UI Host]
   Bridge --> Storage[Storage Service]

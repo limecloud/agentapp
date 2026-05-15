@@ -61,7 +61,7 @@ flowchart TD
 Catalog / Release / License / Tenant Enablement] --> Desktop[Lime Desktop
 Install / Cache / Resolver]
   Desktop --> Bridge[Capability Bridge]
-  Bridge --> SDK[@lime/app-sdk]
+  Bridge --> SDK["@lime/app-sdk"]
   SDK --> App[Agent App Runtime Package
 UI / Worker / Workflow / Storage]
   Bridge --> UI[Lime UI]
