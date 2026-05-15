@@ -26,3 +26,42 @@ features:
   - title: App-like installation
     details: "Like mini-program platforms, a host installs an app package, resolves permissions, and exposes entries to users."
 ---
+
+## What to read first
+
+Agent App is the application layer for agent hosts. If you are new to the standard, read in this order:
+
+1. [What is Agent App?](/en/what-is-agent-app) explains the boundary between complete apps, experts, Skills, and Knowledge.
+2. [Specification](/en/specification) defines the v0.3 package contract.
+3. [Quickstart](/en/authoring/quickstart) shows the smallest useful package.
+4. [Runtime package design](/en/authoring/runtime-package) explains where real UI, worker, storage, and workflow implementation lives.
+5. [Capability SDK](/en/client-implementation/capability-sdk) explains how apps call host capabilities without importing internals.
+6. [Content Factory example](/en/examples/content-factory) shows a product-level app shape.
+
+## What the standard covers
+
+| Area | Contract |
+| --- | --- |
+| Package | `APP.md`, manifest fields, runtime package folders, schemas, examples. |
+| Entries | `page`, `panel`, `expert-chat`, `command`, `workflow`, `artifact`, `background-task`, `settings`. |
+| Runtime | Host verification, projection, readiness, authorization, capability injection, execution, cleanup. |
+| Data | App storage namespace, Knowledge templates, overlays, secrets, artifacts, evidence. |
+| Quality | Evals, human review, fact grounding, provenance, readiness status. |
+| Distribution | Release metadata, package hash, manifest hash, compatibility, tenant enablement. |
+
+## Current version
+
+The current line is v0.3. It treats Agent App as an executable package standard layer. Legacy `scene` and `home` entries are compatibility-only; new apps should use current v0.3 entry kinds.
+
+## Package maturity ladder
+
+| Level | What exists | Host expectation |
+| --- | --- | --- |
+| Catalog draft | `APP.md` with identity, entries, and intended setup. | Can be indexed and reviewed, but may not activate. |
+| Runnable local app | Runtime assets, declared capabilities, storage namespace, and permissions. | Can install, project, authorize, and run under host policy. |
+| Tenant-ready app | Overlay templates, Knowledge binding plan, secrets, evals, and release metadata. | Can be enabled per workspace without forking the official package. |
+| Marketplace-ready app | Provenance hashes, migration plan, compatibility matrix, examples, and support policy. | Can be distributed, upgraded, audited, and removed predictably. |
+
+## Design boundary
+
+Agent App intentionally sits above Skills and Knowledge. A Skill describes how work is done; Knowledge supplies trusted facts; Tools call external systems; Artifacts persist deliverables. Agent App packages those pieces with UI, workflow, storage, permissions, and quality gates so the host can run a complete product experience without baking vertical business logic into host core.

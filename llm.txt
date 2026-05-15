@@ -15,7 +15,7 @@
 
 ## Core boundary
 
-Agent App is a complete installable intelligent application package. It can include UI bundles, workers, storage schemas, workflows, agent entries, Skills, Knowledge bindings, tools, artifacts, policies, evals, and overlay templates. It does not replace Agent Skills or Agent Knowledge, and it does not run agents by itself. Hosts install apps, project entries into local catalogs, inject versioned Capability SDK handles, and execute through the host Agent Runtime.
+Agent App composes UI, workflows, storage, workers, Skills, Knowledge bindings, Tools, Artifacts, Evals, permissions, overlays, and host capabilities into a complete installable intelligent app package. It does not replace Agent Skills or Agent Knowledge, and it does not run agents by itself. Hosts install apps, project entries into local catalogs, inject versioned Capability SDK handles, and execute through the host Agent Runtime.
 
 ## v0.3 current model
 

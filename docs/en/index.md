@@ -52,3 +52,28 @@ features:
 - [Capability SDK](./client-implementation/capability-sdk.md)
 - [Runtime model](./client-implementation/runtime-model.md)
 - [Content Factory example](./examples/content-factory.md)
+
+## Recommended path by role
+
+| Role | Start here | Then read |
+| --- | --- | --- |
+| App author | [Quickstart](./authoring/quickstart.md) | Runtime package, manifest design, permissions, release. |
+| Host implementor | [Runtime model](./client-implementation/runtime-model.md) | Capability SDK, projection, readiness, security. |
+| Standards reviewer | [Specification](./specification.md) | JSON Schemas, glossary, version notes. |
+| Product planner | [What is Agent App?](./what-is-agent-app.md) | App vs Skills and Knowledge, examples, mini-program analogy. |
+
+## v0.3 promise
+
+A v0.3 app should be understandable before execution, installable without changing host core, runnable through typed capability handles, and removable with a clear cleanup plan. If a package cannot explain its entries, permissions, data boundary, runtime assets, and quality gates from documentation and manifest fields, it is not ready to be distributed as an Agent App.
+
+## What a complete app page should answer
+
+Every Agent App page in this documentation should help a reader answer four questions: what boundary this concept owns, which manifest or runtime fields express it, how a host should implement it, and what makes it ready for release. If a page only defines a term but does not show its implementation, readiness, or failure mode, treat it as incomplete.
+
+## Typical implementation sequence
+
+1. Define the app boundary and user-visible entries.
+2. Declare capabilities, storage, Knowledge templates, Tools, Artifacts, permissions, and Evals.
+3. Add runtime package assets and call host services through the Capability SDK.
+4. Build projection and readiness checks before enabling execution.
+5. Release with package hashes, compatibility metadata, overlays, and rollback guidance.

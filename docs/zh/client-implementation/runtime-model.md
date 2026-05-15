@@ -1,34 +1,95 @@
 ---
 title: 运行时模型
+description: 宿主如何安装、授权、执行、观察和清理 Agent App。
 ---
 
 # 运行时模型
 
-Agent App 是 host-executed，而不是 cloud-executed。App 包可以包含 UI 和 worker，但它们必须运行在宿主受控 runtime 中，并通过 Capability SDK 调用平台能力。
+Agent App 默认由宿主执行，而不是由 registry 执行。Package 可以包含 UI bundle、worker、workflow、storage schema 和业务代码，但这些资产必须在宿主控制的 runtime 中运行，并通过 Capability SDK 调平台能力。
 
-## 核心链路
+运行时模型保护三个边界：
+
+1. 宿主拥有执行和 policy。
+2. App 拥有产品行为和 app-local state。
+3. Registry 拥有分发和 release metadata，不拥有隐藏 runtime。
+
+## 核心流程
 
 ```text
 APP.md / manifest
-→ package verification
-→ projection
-→ readiness
-→ capability injection
-→ UI / worker / workflow execution
-→ artifact / evidence / eval
+  -> package verification
+  -> projection
+  -> readiness
+  -> user or tenant authorization
+  -> capability injection
+  -> UI / workflow / worker execution
+  -> artifact / evidence / eval
+  -> cleanup or upgrade
 ```
 
-## Host 必须拥有的运行时职责
+每一步都应可检查。宿主应该能在执行前停下，并告诉用户 App 会添加什么。
 
-- 安装、卸载、升级和禁用 App。
-- 校验 package hash、签名和 manifest。
-- 执行 capability negotiation。
-- 注册 UI routes、panels、commands、artifact viewers。
-- 创建 App storage namespace 并执行 migrations。
+## Runtime 角色
+
+| 角色 | 职责 |
+| --- | --- |
+| Registry / Cloud | Catalog、release metadata、package URL、tenant enablement、license、policy defaults。 |
+| Host installer | 下载、校验、缓存、投影、readiness。 |
+| Capability bridge | 注入授权 SDK handles 并强制权限。 |
+| UI host | 在沙箱中挂载 pages、panels、settings、artifact viewers。 |
+| Workflow runtime | 执行受控 workflow steps，支持 trace、retry、cancel、evidence。 |
+| Worker runtime | 只在沙箱和 policy 边界内运行后台代码。 |
+| Storage service | 提供 app namespace、schema、migrations、cleanup。 |
+| Artifact / Evidence services | 持久化输出和 provenance。 |
+
+## 宿主职责
+
+- 安装、卸载、升级、禁用、导出 App。
+- 校验 package hash、manifest hash、signature、compatibility。
+- 做 capability negotiation。
+- 注册 UI routes、panels、commands、settings、artifact viewers。
+- 审查后创建 storage namespace 并执行 migration。
 - 注入 `lime.*` capability handles。
-- 拦截文件、网络、secret、tool、agent 和 storage 权限。
-- 记录 provenance、evidence、telemetry 和 eval 结果。
+- 拦截 file、network、secret、tool、agent、storage、export permissions。
+- 记录 provenance、evidence、telemetry、eval results、cleanup records。
+- 保持 app state 和宿主 global state 分离。
+
+## 执行模式
+
+| 模式 | 含义 | 要求 |
+| --- | --- | --- |
+| `local` | App 在本地宿主 runtime 中运行。 | Host capability bridge、本地 storage、本地 policy。 |
+| `hybrid` | 本地 runtime 使用远端 registry、gateway 或 ToolHub。 | 明确 tool 和 gateway policy。 |
+| `server-assisted` | 部分执行在服务端发生。 | Manifest 声明、租户 policy、audit、data boundary。 |
+
+`local` 是默认心智；server-assisted 必须显式声明。
+
+## UI Runtime
+
+App UI 应运行在受控宿主表面。它可以获得 theme、locale、route、entry context 和 injected SDK bridge，但不能获得 raw host API、Node API、任意文件系统访问或宿主源码模块。
+
+禁用 App 时，UI entry 应能从宿主中移除，而不改变 Core route。
+
+## Workflow / Worker Runtime
+
+执行任意 worker code 前，应先支持受控 workflow runtime。Allowlisted workflow DSL 可以调用 storage、Knowledge、agent task、Artifact、Evidence 等 SDK 能力。
+
+Raw worker 需要额外沙箱：资源限制、文件限制、网络 policy、secret handling、cancel / timeout、audit logs、package provenance。
+
+## 数据生命周期
+
+App runtime 可能创建 storage records、artifacts、evidence、tasks、traces、logs、telemetry、cache、indexes、secret bindings。这些都需要 app provenance 和 cleanup 行为。
 
 ## Cloud 边界
 
-Cloud 可以做 catalog、release、license、tenant enablement、gateway 和 ToolHub；但 Cloud 不应该成为默认 Agent Runtime。需要 server-assisted execution 时，App 必须显式声明，并由 Policy 控制。
+Cloud 可以提供 catalog、release、license、tenant enablement、gateway、ToolHub，但不应默认成为 Agent Runtime。需要 server-assisted 时，App 必须声明，并由 Policy 控制。
+
+## 验收标准
+
+- verification、projection、readiness、authorization 前不执行 App code。
+- 每个 capability call 都经过 injected SDK handles。
+- Policy 在 bridge 层强制执行。
+- Artifact 和 Evidence 带 package provenance。
+- App data namespace 化。
+- Disable 和 uninstall 可用。
+- Registry 故障不影响已安装本地 App，除非 policy 要求禁用。

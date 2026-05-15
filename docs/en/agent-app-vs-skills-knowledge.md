@@ -69,3 +69,20 @@ Agent App does not copy procedural details from Skills or factual content from K
 - Knowledge is data, not instruction.
 - Runtime packages carry app implementation but must not bypass host runtime and policy.
 - Cloud may distribute apps, but it should not run agents by default.
+
+## Packaging patterns
+
+| Situation | Package as | Reason |
+| --- | --- | --- |
+| A reusable writing method or review rubric | Skill | It changes agent behavior but does not own product UI or storage. |
+| A verified product handbook, brand rule set, or policy library | Knowledge | It is grounded data with provenance and update lifecycle. |
+| A CRM, search, export, parser, or generator integration | Tool | It is an external callable capability with auth and side effects. |
+| A dashboard, guided workflow, settings, artifacts, evals, and storage | Agent App | It is a complete installed product experience. |
+| A one-off local project file | Workspace asset | It belongs to one workspace, not to a reusable app release. |
+
+## Review questions
+
+- Can this asset be reused by another app without bringing along the current UI? If yes, consider Skill, Knowledge, Tool, or Artifact first.
+- Does it need installation, permissions, entries, storage, and lifecycle? If yes, it likely belongs in Agent App.
+- Would placing it in host core make the host vertical-specific? If yes, package it as an app.
+- Would bundling it leak customer facts or credentials? If yes, use Knowledge, overlays, workspace files, or secrets instead.

@@ -1,24 +1,65 @@
 ---
 title: v0.3 changelog
+description: Changes introduced in Agent App v0.3.0.
 ---
 
 # v0.3 changelog
 
 ## Added
 
-- Typed descriptor schemas for v0.3 manifest fields.
-- `overlayTemplates` for tenant / workspace / user / customer customization.
-- SDK typed-call expectations and stable runtime semantics.
-- Package-level `packageHash` in projection provenance.
-- Reference `APP 内容工厂` / `content-factory-app` fixture.
+- `manifestVersion: 0.3.0` current contract.
+- Stronger `app-manifest`, `app-projection`, and `app-readiness` schemas.
+- Descriptor coverage for entries, permissions, services, workflows, workflow states, Knowledge templates, Skill refs, Tool refs, Artifact types, Evals, events, secrets, lifecycle, and overlay templates.
+- `packageHash` provenance in projection output.
+- Typed SDK expectations: error codes, cancellation, retries, idempotency, traceability, and mocks.
+- Overlay template model for tenant and workspace customization.
+- `content-factory-app` reference fixture.
+- v0.3 versioned documentation pages.
 
 ## Changed
 
-- `scene` and `home` entries are compatibility-only and invalid for manifestVersion 0.3.
-- Reference CLI now checks entry-specific required fields and warns when product-level apps lack runtime packages or permissions.
-- Current docs frame Agent App as executable standard, not only installable package metadata.
+- Agent App is framed as an executable app package standard, not only a declaration format.
+- `APP.md` remains required but runtime implementation belongs in the package assets.
+- Reference CLI validation now warns about product-level apps without runtime package declarations.
+- Readiness now includes services, workflows, secrets, overlays, and capability version checks.
+- Documentation now consistently treats Expert as one `expert-chat` entry, not the app itself.
 
-## Compatibility
+## Deprecated compatibility
 
-- v0.1 and v0.2 documents remain in versioned docs.
-- Legacy manifests can still be read by the reference CLI, but current v0.3 manifests should not use legacy entry kinds.
+- `scene` and `home` entries are compatibility-only and invalid for `manifestVersion: 0.3.0`.
+- New apps should use `page`, `panel`, `expert-chat`, `command`, `workflow`, `artifact`, `background-task`, and `settings`.
+
+## Reference validation
+
+```bash
+npm run cli -- validate docs/examples/content-factory-app
+npm run cli -- project docs/examples/content-factory-app
+npm run cli -- readiness docs/examples/content-factory-app
+npm run build
+```
+
+## Operational impact
+
+v0.3 changes host implementation work from “show a document in the UI” to “install and run a governed app package.” Hosts now need deterministic projection, permission review, runtime capability injection, readiness output, and package cleanup semantics.
+
+## Release validation set
+
+A v0.3 release should be checked with:
+
+```bash
+npm run cli -- validate docs/examples/content-factory-app
+npm run cli -- project docs/examples/content-factory-app
+npm run cli -- readiness docs/examples/content-factory-app
+npm run build
+npm pack --dry-run
+```
+
+If the package is distributed through a registry, add signature, hash, license, compatibility, and tenant policy checks.
+
+## Compatibility note
+
+v0.3 does not require hosts to execute every runtime asset immediately. A host can adopt v0.3 in phases: first validate and project packages, then add readiness, then open selected SDK capabilities. The important requirement is that no new current work depends on legacy entry naming or hidden host internals.
+
+## Documentation impact
+
+The docs now treat every major concept as a page-level contract: background, manifest fields, host behavior, readiness, examples, and failure modes. This makes the standard reviewable by app authors and client implementors without private context.

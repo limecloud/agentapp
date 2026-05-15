@@ -71,3 +71,26 @@ entries:
 - App 直接调用 Lime 内部模块而不是 SDK。
 - 每个 App 自己实现文件、存储、Artifact、Knowledge、Tool Broker。
 - 忘记声明 storage migration、secret、network 和 background-task 权限。
+
+## Entry 设计表
+
+| Entry kind | 适用场景 | 必须指向 |
+| --- | --- | --- |
+| `page` | Dashboard 或 workspace 等 App 自有完整页面。 | Route 或 UI bundle registration。 |
+| `panel` | 嵌入宿主 UI 的上下文侧栏。 | Route、panel placement 和 data contract。 |
+| `expert-chat` | App 内的聊天式专家入口。 | Persona 文件以及必需 Skills / Knowledge。 |
+| `command` | Command palette 或 slash-command action。 | Command handler 或 workflow start。 |
+| `workflow` | 多步骤业务状态机。 | Workflow descriptor 和可选 worker。 |
+| `artifact` | 持久输出的 viewer 或 creator。 | Artifact type descriptor 和 UI viewer。 |
+| `background-task` | 定时或事件驱动任务。 | Worker/service descriptor 和 permissions。 |
+| `settings` | App 配置界面。 | Settings route 和 overlay/storage policy。 |
+
+## Manifest Review 检查表
+
+- Identity 字段足够稳定，可支持 registry、cache 和 upgrade。
+- Runtime code 使用能力前，`requires` 已声明 SDK 和 host capability 版本。
+- Optional capability 的降级行为写在 guide body 中。
+- 每个 entry 有唯一 key，并能追到 runtime implementation。
+- Permissions 描述用户影响，而不只是内部技术 scope。
+- Overlay templates 表达 tenant/workspace customization，不复制官方 package。
+- Compatibility metadata 说明最低 host 版本和迁移约束。

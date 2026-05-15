@@ -71,3 +71,26 @@ entries:
 - Calling Lime internals directly instead of the SDK.
 - Reimplementing files, storage, artifacts, knowledge, and Tool Broker in each app.
 - Forgetting storage migration, secret, network, and background-task permissions.
+
+## Entry design table
+
+| Entry kind | Use it for | Must point to |
+| --- | --- | --- |
+| `page` | App-owned full page such as dashboard or workspace. | Route or UI bundle registration. |
+| `panel` | Contextual side panel embedded in host UI. | Route, panel placement, and data contract. |
+| `expert-chat` | Chat-first specialist inside the app. | Persona file plus required Skills / Knowledge. |
+| `command` | Command palette or slash-command action. | Command handler or workflow start. |
+| `workflow` | Multi-step business state machine. | Workflow descriptor and optional worker. |
+| `artifact` | Viewer or creator for durable outputs. | Artifact type descriptor and UI viewer. |
+| `background-task` | Scheduled or event-driven work. | Worker/service descriptor and permissions. |
+| `settings` | App configuration surface. | Settings route and overlay/storage policy. |
+
+## Manifest review checklist
+
+- Identity fields are stable enough for registry, cache, and upgrade logic.
+- `requires` declares SDK and host capability versions before runtime code uses them.
+- Optional capabilities have degraded behavior documented in the guide body.
+- Each entry has a unique key and can be traced to runtime implementation.
+- Permissions describe user impact, not just internal technical scope.
+- Overlay templates describe tenant/workspace customization without duplicating official packages.
+- Compatibility metadata explains minimum host version and migration constraints.

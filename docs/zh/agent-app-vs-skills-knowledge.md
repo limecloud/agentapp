@@ -71,3 +71,20 @@ APP 内容工厂应该这样拆：
 - Knowledge 是数据，不是指令。
 - Runtime package 承载 App 实现，但不能绕过宿主 runtime 和 policy。
 - Cloud 可以分发 App，但默认不运行 Agent。
+
+## 打包模式
+
+| 情况 | 应打包为 | 原因 |
+| --- | --- | --- |
+| 可复用写作方法或 review rubric | Skill | 它改变 agent 行为，但不拥有产品 UI 和 storage。 |
+| 已验证产品手册、品牌规则或政策库 | Knowledge | 它是有 provenance 和更新生命周期的可信数据。 |
+| CRM、搜索、导出、解析器或生成器集成 | Tool | 它是带 auth 和副作用的外部可调用能力。 |
+| Dashboard、guided workflow、settings、artifacts、evals、storage | Agent App | 它是完整安装后的产品体验。 |
+| 一次性本地项目文件 | Workspace asset | 它只属于某个 workspace，不属于可复用 app release。 |
+
+## Review 问题
+
+- 这个资产能否脱离当前 UI 被另一个 App 复用？如果能，优先考虑 Skill、Knowledge、Tool 或 Artifact。
+- 它是否需要 installation、permissions、entries、storage 和 lifecycle？如果需要，通常属于 Agent App。
+- 如果放进 host core，会不会让宿主变成垂直业务系统？如果会，应打包成 App。
+- 如果打进官方包，是否会泄露客户事实或凭证？如果会，用 Knowledge、overlays、workspace files 或 secrets。

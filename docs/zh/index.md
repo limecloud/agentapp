@@ -52,3 +52,28 @@ features:
 - [Capability SDK](./client-implementation/capability-sdk.md)
 - [运行时模型](./client-implementation/runtime-model.md)
 - [APP 内容工厂示例](./examples/content-factory.md)
+
+## 按角色阅读
+
+| 角色 | 先读 | 再读 |
+| --- | --- | --- |
+| App 作者 | [快速开始](./authoring/quickstart.md) | Runtime Package、Manifest 设计、权限、发布。 |
+| 宿主实现者 | [运行时模型](./client-implementation/runtime-model.md) | Capability SDK、投影、Readiness、安全模型。 |
+| 标准审查者 | [规范](./specification.md) | JSON Schemas、术语表、版本说明。 |
+| 产品规划者 | [什么是 Agent App？](./what-is-agent-app.md) | App 与 Skills / Knowledge 的边界、示例、小程序类比。 |
+
+## v0.3 承诺
+
+v0.3 App 应该在执行前可理解，不修改宿主 Core 也能安装，通过 typed capability handles 运行，并且有明确 cleanup plan。如果一个 package 不能从文档和 manifest 字段说明 entry、权限、数据边界、runtime assets 和质量门禁，它还不适合作为 Agent App 分发。
+
+## 完整页面应回答什么
+
+本 docs 中每个 Agent App 页面都应帮助读者回答四个问题：这个概念负责什么边界、manifest 或 runtime 用哪些字段表达、宿主应如何实现、达到发布级需要哪些检查。如果一个页面只解释术语，却没有实现线索、readiness 或失败模式，就应继续补齐。
+
+## 典型实现顺序
+
+1. 定义 App 边界和用户可见 entries。
+2. 声明 capabilities、storage、Knowledge templates、Tools、Artifacts、permissions 和 Evals。
+3. 增加 runtime package assets，并通过 Capability SDK 调宿主能力。
+4. 先做 projection 和 readiness，再开放执行。
+5. 发布时带 package hashes、compatibility metadata、overlays 和 rollback guidance。
