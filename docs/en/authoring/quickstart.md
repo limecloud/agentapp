@@ -16,17 +16,21 @@ Add frontmatter:
 
 ```markdown
 ---
+manifestVersion: 0.3.0
 name: my-app
 description: A minimal local-running agent app.
-version: 0.1.0
+version: 0.3.0
 status: draft
 appType: agent-app
 runtimeTargets:
   - local
+requires:
+  sdk: "@lime/app-sdk@^0.3.0"
 entries:
   - key: start
-    kind: scene
+    kind: command
     title: Start
+    command: /start
 ---
 
 # My App
@@ -34,11 +38,12 @@ entries:
 Describe when the host should show this app and what setup the user needs.
 ```
 
-Validate it:
+Validate and project it:
 
 ```bash
-npx agentapp-ref validate ./my-app
-npx agentapp-ref project ./my-app
+npx agentapp-ref@0.3.0 validate ./my-app
+npx agentapp-ref@0.3.0 project ./my-app
+npx agentapp-ref@0.3.0 readiness ./my-app
 ```
 
-Then add references to Agent Skills, Agent Knowledge templates, Tool requirements, Artifact outputs, and Evals as the app grows.
+Then add runtime package references, Skills, Knowledge templates, Tool requirements, Artifact outputs, overlays, and Evals as the app grows.

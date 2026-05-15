@@ -1,7 +1,7 @@
 ---
 name: customer-support-app
 description: Customer support Agent App for grounded replies, policy lookup, and escalation notes.
-version: 0.1.0
+version: 0.3.0
 status: draft
 appType: agent-app
 runtimeTargets:
@@ -13,9 +13,9 @@ capabilities:
   - agentpolicy
 entries:
   - key: draft_reply
-    kind: scene
+    kind: command
     title: Draft Reply
-    command: /Draft Reply
+    command: /draft-reply
 knowledgeTemplates:
   - key: product_facts
     standard: agentknowledge

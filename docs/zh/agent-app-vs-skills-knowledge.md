@@ -41,9 +41,9 @@ flowchart LR
 
 Agent App 不把 Skill 的流程复制进来，也不把 Knowledge 的事实复制进来。它声明应用如何组合这些资产，并可以携带自己的 UI、worker、storage schema 和业务 workflow；真正运行时仍由宿主通过 Capability SDK 执行和授权。
 
-## 内容工程化示例
+## 内容工厂示例
 
-AI 内容工程化应用应该这样拆：
+APP 内容工厂应该这样拆：
 
 | 资产 | 正确位置 | 原因 |
 | --- | --- | --- |

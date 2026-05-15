@@ -1,9 +1,0 @@
-{
-  "namespace": "content-engineering-app",
-  "tables": [
-    { "name": "projects", "primaryKey": "id" },
-    { "name": "knowledge_items", "primaryKey": "id" },
-    { "name": "scenes", "primaryKey": "id" },
-    { "name": "content_assets", "primaryKey": "id" }
-  ]
-}

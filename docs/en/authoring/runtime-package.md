@@ -54,7 +54,7 @@ Apps may declare their own namespace and schema, while the host owns the physica
 
 ```yaml
 storage:
-  namespace: shenlan-content-engineering
+  namespace: content-factory-app
   schema: ./storage/schema.json
   migrations: ./storage/migrations
 ```

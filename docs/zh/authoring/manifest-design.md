@@ -19,19 +19,20 @@ Manifest 的职责是声明 App 需要什么、提供什么、从哪里加载实
 
 ```yaml
 name: example-domain-app
-version: 0.1.0
+version: 0.3.0
 status: ready
 appType: domain-app
-manifestVersion: 0.2.0
+manifestVersion: 0.3.0
 runtimeTargets:
   - local
 requires:
   lime:
-    appRuntime: ">=0.2.0 <1.0.0"
+    appRuntime: ">=0.3.0 <1.0.0"
+  sdk: "@lime/app-sdk@^0.3.0"
   capabilities:
-    lime.ui: "^0.1.0"
-    lime.storage: "^0.1.0"
-    lime.agent: "^0.1.0"
+    lime.ui: "^0.3.0"
+    lime.storage: "^0.3.0"
+    lime.agent: "^0.3.0"
 capabilities:
   - lime.ui
   - lime.storage
@@ -55,6 +56,13 @@ entries:
     title: Advisor
     persona: ./agents/advisor.md
 ```
+
+## v0.3 额外要求
+
+- `scene` / `home` 只作为 v0.1 兼容入口；新 App 使用 `page`、`command`、`workflow`、`artifact`、`background-task` 或 `settings`。
+- Product-level App 应声明 `runtimePackage`，并让每个 entry 能追溯到 UI、worker、workflow、expert 或 artifact。
+- 有可执行 entry、worker、tool adapter 或 secret 时，必须声明 `permissions`。
+- 客户差异进入 `overlayTemplates`，不要 fork 官方包。
 
 ## 常见错误
 

@@ -5,8 +5,8 @@ description: Installable agent application packages.
 
 hero:
   name: Agent App
-  text: Installable intelligent applications.
-  tagline: "A packaging standard for complete intelligent apps with UI, workflows, storage, and SDK-bound host capabilities."
+  text: Executable intelligent applications.
+  tagline: "A v0.3 package standard for complete intelligent apps with UI, workflows, storage, typed SDK calls, overlays, and readiness checks."
   actions:
     - theme: brand
       text: Read specification
@@ -37,7 +37,7 @@ features:
 | Contract | Question answered |
 | --- | --- |
 | App package | What installable app is this and what does it contain? |
-| Entries | Which scenes, commands, homes, workflows, or artifact surfaces can the host expose? |
+| Entries | Which pages, commands, workflows, artifacts, background tasks, or settings can the host expose? |
 | Capabilities | Which host standards and capability surfaces does this app need? |
 | Knowledge templates | Which Agent Knowledge slots must the user or tenant bind? |
 | Projection | How does a host compile the app into a catalog without inventing a second runtime? |
@@ -51,4 +51,4 @@ features:
 - [Runtime package design](./authoring/runtime-package.md)
 - [Capability SDK](./client-implementation/capability-sdk.md)
 - [Runtime model](./client-implementation/runtime-model.md)
-- [AI content engineering example](./examples/content-engineering.md)
+- [Content Factory example](./examples/content-factory.md)

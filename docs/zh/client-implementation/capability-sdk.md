@@ -35,10 +35,11 @@ SDK 是 facade，不是 Lime 内部模块重导出。App 不能 import `lime/src
 
 ```yaml
 requires:
+  sdk: "@lime/app-sdk@^0.3.0"
   capabilities:
-    lime.ui: "^0.1.0"
-    lime.storage: "^0.1.0"
-    lime.agent: "^0.1.0"
+    lime.ui: "^0.3.0"
+    lime.storage: "^0.3.0"
+    lime.agent: "^0.3.0"
 ```
 
 Host 决策：
@@ -57,7 +58,10 @@ App 运行时不携带宿主实现。Host 注入 capability handles：
 ```ts
 const lime = await getLimeRuntime()
 const table = lime.storage.table('content_assets')
-const task = await lime.agent.startTask({ entry: 'batch_copy', input })
+const task = await lime.agent.startTask({ entry: 'batch_copy', input, idempotencyKey })
+const hits = await lime.knowledge.search({ template: 'project_knowledge', query, topK: 8 })
+const artifact = await lime.artifacts.create({ type: 'strategy_report', data: task.output })
+await lime.evidence.record({ subject: artifact.id, sources: hits })
 ```
 
 每个 handle 都应具备：
@@ -67,6 +71,27 @@ const task = await lime.agent.startTask({ entry: 'batch_copy', input })
 - provenance 自动附加。
 - mock implementation，用于 App 单测。
 - telemetry 和 evidence hook。
+
+## v0.3 最小 typed API
+
+Host 实现者至少要为这些调用提供类型、schema、mock 和 contract tests：
+
+```ts
+lime.ui.registerRoute(route)
+lime.storage.table(name).get(id)
+lime.storage.table(name).insert(record)
+lime.files.read(ref)
+lime.agent.startTask(request)
+lime.knowledge.search(request)
+lime.tools.invoke(request)
+lime.artifacts.create(request)
+lime.workflow.start(request)
+lime.policy.requestPermission(request)
+lime.secrets.getRef(key)
+lime.evidence.record(event)
+```
+
+所有调用必须返回稳定错误码，并支持权限拒绝、取消、重试、超时、成本限制和 traceId。
 
 ## Capability 版本规则
 

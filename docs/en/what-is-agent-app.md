@@ -25,7 +25,7 @@ Agent App is a higher-level package:
 Agent App = UI + Workflow + Storage + Services + Agent Entries + Skills + Tools + Knowledge + Artifacts + Policy
 ```
 
-An expert is only an `expert-chat` entry. An app can contain multiple experts, or none. An AI content engineering app should have project home, knowledge pages, content factory, review dashboard, and background jobs; a content strategist expert is only one entry.
+An expert is only an `expert-chat` entry. An app can contain multiple experts, or none. A Content Factory App should have project home, knowledge pages, content factory, review dashboard, and background jobs; a content strategist expert is only one entry.
 
 ## Mini-program analogy
 
@@ -66,7 +66,7 @@ Lime Cloud may distribute, authorize, and enable Agent Apps. Lime Desktop instal
 
 ## Good fits
 
-- AI content engineering systems.
+- Content Factory systems.
 - Customer support knowledge workbenches.
 - Sales SOP applications.
 - Legal contract review products.

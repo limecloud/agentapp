@@ -17,7 +17,8 @@
     "name": {
       "type": "string",
       "minLength": 1,
-      "maxLength": 64
+      "maxLength": 64,
+      "pattern": "^[a-z0-9][a-z0-9-_.]*$"
     },
     "description": {
       "type": "string",
@@ -57,7 +58,8 @@
           "hybrid",
           "server-assisted"
         ]
-      }
+      },
+      "uniqueItems": true
     },
     "requires": {
       "type": "object",
@@ -96,8 +98,12 @@
           "type": "object",
           "additionalProperties": true
         },
-        "hash": {
+        "lockfile": {
           "type": "string"
+        },
+        "hash": {
+          "type": "string",
+          "pattern": "^sha256:[a-fA-F0-9]{64}$"
         }
       },
       "additionalProperties": true
@@ -114,7 +120,8 @@
           "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "uniqueItems": true
         },
         {
           "type": "object",
@@ -125,13 +132,11 @@
     "permissions": {
       "type": "array",
       "items": {
-        "type": "object",
-        "additionalProperties": true
+        "$ref": "#/$defs/permission"
       }
     },
     "ui": {
-      "type": "object",
-      "additionalProperties": true
+      "$ref": "#/$defs/ui"
     },
     "storage": {
       "$ref": "#/$defs/storage"
@@ -139,64 +144,61 @@
     "services": {
       "type": "array",
       "items": {
-        "type": "object",
-        "additionalProperties": true
+        "$ref": "#/$defs/service"
       }
     },
     "workflows": {
       "type": "array",
       "items": {
-        "type": "object",
-        "additionalProperties": true
+        "$ref": "#/$defs/workflow"
       }
     },
     "knowledgeTemplates": {
       "type": "array",
       "items": {
-        "type": "object",
-        "additionalProperties": true
+        "$ref": "#/$defs/knowledgeTemplate"
       }
     },
     "skillRefs": {
       "type": "array",
       "items": {
-        "type": "object",
-        "additionalProperties": true
+        "$ref": "#/$defs/skillRef"
       }
     },
     "toolRefs": {
       "type": "array",
       "items": {
-        "type": "object",
-        "additionalProperties": true
+        "$ref": "#/$defs/toolRef"
       }
     },
     "artifactTypes": {
       "type": "array",
       "items": {
-        "type": "object",
-        "additionalProperties": true
+        "$ref": "#/$defs/artifactType"
       }
     },
     "evals": {
       "type": "array",
       "items": {
-        "type": "object",
-        "additionalProperties": true
+        "$ref": "#/$defs/eval"
       }
     },
     "events": {
       "type": "array",
       "items": {
-        "type": "object",
-        "additionalProperties": true
+        "$ref": "#/$defs/event"
       }
     },
     "secrets": {
       "type": "array",
       "items": {
-        "type": "object",
-        "additionalProperties": true
+        "$ref": "#/$defs/secret"
+      }
+    },
+    "overlayTemplates": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/overlayTemplate"
       }
     },
     "lifecycle": {
@@ -219,15 +221,34 @@
   "$defs": {
     "packageRef": {
       "type": "object",
+      "required": [
+        "path"
+      ],
       "properties": {
         "path": {
-          "type": "string"
+          "type": "string",
+          "minLength": 1
         },
         "hash": {
-          "type": "string"
+          "type": "string",
+          "pattern": "^sha256:[a-fA-F0-9]{64}$"
         },
         "entry": {
           "type": "string"
+        },
+        "module": {
+          "type": "string"
+        },
+        "format": {
+          "type": "string",
+          "enum": [
+            "esm",
+            "cjs",
+            "static",
+            "json",
+            "wasm",
+            "other"
+          ]
         }
       },
       "additionalProperties": true
@@ -242,7 +263,8 @@
       "properties": {
         "key": {
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:-]+$"
         },
         "kind": {
           "type": "string",
@@ -254,16 +276,20 @@
             "workflow",
             "artifact",
             "background-task",
-            "settings",
-            "home",
-            "scene"
+            "settings"
           ]
         },
         "title": {
           "type": "string",
           "minLength": 1
         },
+        "description": {
+          "type": "string"
+        },
         "route": {
+          "type": "string"
+        },
+        "panel": {
           "type": "string"
         },
         "command": {
@@ -275,13 +301,179 @@
         "persona": {
           "type": "string"
         },
+        "service": {
+          "type": "string"
+        },
         "artifactTypes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "requiredCapabilities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "permissions": {
           "type": "array",
           "items": {
             "type": "string"
           }
         },
-        "requiredCapabilities": {
+        "visibility": {
+          "type": "string",
+          "enum": [
+            "default",
+            "hidden",
+            "admin",
+            "workspace",
+            "tenant"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "page"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "route"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "panel"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "panel"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "command"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "command"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "workflow"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "workflow"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "expert-chat"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "persona"
+            ]
+          }
+        }
+      ],
+      "additionalProperties": true
+    },
+    "permission": {
+      "type": "object",
+      "required": [
+        "key",
+        "scope"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scope": {
+          "type": "string",
+          "enum": [
+            "filesystem",
+            "network",
+            "model",
+            "tool",
+            "secret",
+            "storage",
+            "workflow",
+            "artifact",
+            "tenant",
+            "workspace",
+            "export"
+          ]
+        },
+        "access": {
+          "type": "string",
+          "enum": [
+            "read",
+            "write",
+            "execute",
+            "read-write",
+            "admin"
+          ]
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "domains": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "paths": {
           "type": "array",
           "items": {
             "type": "string"
@@ -290,11 +482,49 @@
       },
       "additionalProperties": true
     },
-    "storage": {
+    "ui": {
       "type": "object",
       "properties": {
+        "routes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "panels": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "settings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "artifactViewers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "storage": {
+      "type": "object",
+      "required": [
+        "namespace"
+      ],
+      "properties": {
         "namespace": {
-          "type": "string"
+          "type": "string",
+          "minLength": 1
         },
         "schema": {
           "type": "string"
@@ -305,6 +535,410 @@
         "retention": {
           "type": "object",
           "additionalProperties": true
+        },
+        "uninstallPolicy": {
+          "type": "string",
+          "enum": [
+            "retain",
+            "delete",
+            "export-then-delete",
+            "ask"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "service": {
+      "type": "object",
+      "required": [
+        "key",
+        "kind"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "worker",
+            "background-task",
+            "scheduler",
+            "tool-adapter",
+            "webhook"
+          ]
+        },
+        "entry": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "schedule": {
+          "type": "string"
+        },
+        "requiredCapabilities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "permissions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "workflow": {
+      "type": "object",
+      "required": [
+        "key"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "path": {
+          "type": "string"
+        },
+        "entry": {
+          "type": "string"
+        },
+        "states": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/workflowState"
+          }
+        },
+        "inputs": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "outputs": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "humanReview": {
+          "type": "boolean"
+        },
+        "retryPolicy": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "timeoutMs": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "artifactOutputs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "workflowState": {
+      "type": "object",
+      "required": [
+        "key",
+        "kind"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "start",
+            "agent-task",
+            "tool-call",
+            "human-review",
+            "storage-write",
+            "artifact-create",
+            "branch",
+            "wait",
+            "end"
+          ]
+        },
+        "next": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "uses": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "knowledgeTemplate": {
+      "type": "object",
+      "required": [
+        "key",
+        "standard",
+        "type"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "standard": {
+          "type": "string",
+          "enum": [
+            "agentknowledge"
+          ]
+        },
+        "type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "runtimeMode": {
+          "type": "string",
+          "enum": [
+            "data",
+            "retrieval",
+            "export"
+          ]
+        },
+        "path": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "skillRef": {
+      "type": "object",
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "path": {
+          "type": "string"
+        },
+        "standard": {
+          "type": "string",
+          "enum": [
+            "agentskills"
+          ]
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "activation": {
+          "type": "string",
+          "enum": [
+            "explicit",
+            "implicit",
+            "entry"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "toolRef": {
+      "type": "object",
+      "required": [
+        "key",
+        "provider"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provider": {
+          "type": "string",
+          "minLength": 1
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "permissions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "capability": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "artifactType": {
+      "type": "object",
+      "required": [
+        "key"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "standard": {
+          "type": "string"
+        },
+        "schema": {
+          "type": "string"
+        },
+        "viewer": {
+          "type": "string"
+        },
+        "exporters": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "required": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true
+    },
+    "eval": {
+      "type": "object",
+      "required": [
+        "key"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "readiness",
+            "quality",
+            "regression",
+            "safety",
+            "human-review"
+          ]
+        },
+        "path": {
+          "type": "string"
+        },
+        "threshold": {
+          "type": "number"
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "evidenceRequired": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true
+    },
+    "event": {
+      "type": "object",
+      "required": [
+        "key",
+        "direction"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "direction": {
+          "type": "string",
+          "enum": [
+            "publish",
+            "subscribe",
+            "both"
+          ]
+        },
+        "schema": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "secret": {
+      "type": "object",
+      "required": [
+        "key"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provider": {
+          "type": "string"
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "scope": {
+          "type": "string",
+          "enum": [
+            "workspace",
+            "tenant",
+            "user",
+            "app"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "overlayTemplate": {
+      "type": "object",
+      "required": [
+        "key",
+        "scope"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scope": {
+          "type": "string",
+          "enum": [
+            "tenant",
+            "workspace",
+            "user",
+            "customer"
+          ]
+        },
+        "schema": {
+          "type": "string"
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "description": {
+          "type": "string"
         }
       },
       "additionalProperties": true

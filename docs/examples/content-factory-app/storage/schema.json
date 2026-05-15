@@ -1,0 +1,14 @@
+{
+  "namespace": "content-factory-app",
+  "tables": [
+    { "name": "projects", "primaryKey": "id" },
+    { "name": "knowledge_items", "primaryKey": "id" },
+    { "name": "content_scenarios", "primaryKey": "id" },
+    { "name": "content_assets", "primaryKey": "id" },
+    { "name": "review_reports", "primaryKey": "id" }
+  ],
+  "indexes": [
+    { "table": "knowledge_items", "fields": ["project_id", "section_tag"] },
+    { "table": "content_assets", "fields": ["project_id", "platform", "status"] }
+  ]
+}

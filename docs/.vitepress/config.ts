@@ -5,12 +5,15 @@ const base = process.env.VITEPRESS_BASE || '/'
 const enNav = [
   { text: 'Guide', link: '/en/what-is-agent-app' },
   { text: 'Specification', link: '/en/specification' },
-  { text: 'Examples', link: '/en/examples/content-engineering' },
+  { text: 'Examples', link: '/en/examples/content-factory' },
   { text: 'Ecosystem', link: '/en/reference/agent-ecosystem' },
   {
     text: 'Version',
     items: [
       { text: 'latest', link: '/en/specification' },
+      { text: 'v0.3 overview', link: '/en/versions/v0.3/overview' },
+      { text: 'v0.3 specification', link: '/en/versions/v0.3/specification' },
+      { text: 'v0.3 changelog', link: '/en/versions/v0.3/changelog' },
       { text: 'v0.2 overview', link: '/en/versions/v0.2/overview' },
       { text: 'v0.2 specification', link: '/en/versions/v0.2/specification' },
       { text: 'v0.2 changelog', link: '/en/versions/v0.2/changelog' },
@@ -25,12 +28,15 @@ const enNav = [
 const zhNav = [
   { text: '指南', link: '/zh/what-is-agent-app' },
   { text: '规范', link: '/zh/specification' },
-  { text: '示例', link: '/zh/examples/content-engineering' },
+  { text: '示例', link: '/zh/examples/content-factory' },
   { text: '生态', link: '/zh/reference/agent-ecosystem' },
   {
     text: '版本',
     items: [
       { text: 'latest', link: '/zh/specification' },
+      { text: 'v0.3 概览', link: '/zh/versions/v0.3/overview' },
+      { text: 'v0.3 规范', link: '/zh/versions/v0.3/specification' },
+      { text: 'v0.3 变更记录', link: '/zh/versions/v0.3/changelog' },
       { text: 'v0.2 概览', link: '/zh/versions/v0.2/overview' },
       { text: 'v0.2 规范', link: '/zh/versions/v0.2/specification' },
       { text: 'v0.2 变更记录', link: '/zh/versions/v0.2/changelog' },
@@ -84,7 +90,7 @@ const enSidebar = [
   {
     text: 'Examples',
     items: [
-      { text: 'AI content engineering app', link: '/en/examples/content-engineering' },
+      { text: 'Content Factory App', link: '/en/examples/content-factory' },
       { text: 'Customer support app', link: '/en/examples/customer-support' },
       { text: 'Complete APP.md', link: '/en/examples/complete-app' }
     ]
@@ -102,6 +108,9 @@ const enSidebar = [
   {
     text: 'Versions',
     items: [
+      { text: 'v0.3 overview', link: '/en/versions/v0.3/overview' },
+      { text: 'v0.3 specification', link: '/en/versions/v0.3/specification' },
+      { text: 'v0.3 changelog', link: '/en/versions/v0.3/changelog' },
       { text: 'v0.2 overview', link: '/en/versions/v0.2/overview' },
       { text: 'v0.2 specification', link: '/en/versions/v0.2/specification' },
       { text: 'v0.2 changelog', link: '/en/versions/v0.2/changelog' },
@@ -154,7 +163,7 @@ const zhSidebar = [
   {
     text: '示例',
     items: [
-      { text: 'AI 内容工程化应用', link: '/zh/examples/content-engineering' },
+      { text: 'APP 内容工厂', link: '/zh/examples/content-factory' },
       { text: '客服知识库应用', link: '/zh/examples/customer-support' },
       { text: '完整 APP.md', link: '/zh/examples/complete-app' }
     ]
@@ -172,6 +181,9 @@ const zhSidebar = [
   {
     text: '版本',
     items: [
+      { text: 'v0.3 概览', link: '/zh/versions/v0.3/overview' },
+      { text: 'v0.3 规范', link: '/zh/versions/v0.3/specification' },
+      { text: 'v0.3 变更记录', link: '/zh/versions/v0.3/changelog' },
       { text: 'v0.2 概览', link: '/zh/versions/v0.2/overview' },
       { text: 'v0.2 规范', link: '/zh/versions/v0.2/specification' },
       { text: 'v0.2 变更记录', link: '/zh/versions/v0.2/changelog' },

@@ -11,7 +11,7 @@ title: v0.2 changelog
 - `page`, `panel`, `expert-chat`, `background-task`, and `settings` entry types.
 - `requires`, `runtimePackage`, `ui`, `storage`, `services`, `events`, `secrets`, and `lifecycle` manifest fields.
 - Product-level conformance level.
-- Upgraded `content-engineering-app` example with UI, worker, storage, and workflows.
+- Upgraded `content-factory-app` example with UI, worker, storage, and workflows.
 
 ## Changed
 

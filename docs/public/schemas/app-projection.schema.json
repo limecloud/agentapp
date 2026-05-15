@@ -9,6 +9,12 @@
     "provenance"
   ],
   "properties": {
+    "ok": {
+      "type": "boolean"
+    },
+    "command": {
+      "type": "string"
+    },
     "app": {
       "type": "object"
     },
@@ -63,6 +69,24 @@
         "type": "object"
       }
     },
+    "events": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "secrets": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "overlayTemplates": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
     "permissions": {
       "type": "array",
       "items": {
@@ -73,7 +97,44 @@
       "type": "object"
     },
     "provenance": {
-      "type": "object"
+      "$ref": "#/$defs/provenance"
+    }
+  },
+  "$defs": {
+    "provenance": {
+      "type": "object",
+      "required": [
+        "appName",
+        "appVersion",
+        "packageHash",
+        "manifestHash",
+        "standard",
+        "standardVersion"
+      ],
+      "properties": {
+        "appName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "appVersion": {
+          "type": "string",
+          "minLength": 1
+        },
+        "packageHash": {
+          "type": "string"
+        },
+        "manifestHash": {
+          "type": "string"
+        },
+        "standard": {
+          "const": "agentapp"
+        },
+        "standardVersion": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": true
     }
   },
   "additionalProperties": true

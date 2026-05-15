@@ -5,8 +5,8 @@ description: 面向 Agent 的可安装应用包标准。
 
 hero:
   name: Agent App
-  text: 可安装的完整智能应用。
-  tagline: "像小程序一样安装到宿主平台，拥有自己的 UI / Workflow / Storage，并通过 Lime Capability SDK 调用本地能力。"
+  text: 可执行的完整智能应用。
+  tagline: "像小程序一样安装到宿主平台，拥有自己的 UI / Workflow / Storage；v0.3 通过 typed SDK、overlay 和 readiness 保证可运行。"
   actions:
     - theme: brand
       text: 阅读规范
@@ -37,7 +37,7 @@ features:
 | 契约 | 回答的问题 |
 | --- | --- |
 | App 包 | 这是哪个可安装应用，包含什么？ |
-| 入口 | 宿主应暴露哪些 scene、command、home、workflow 或 artifact surface？ |
+| 入口 | 宿主应暴露哪些 page、command、workflow、artifact、background-task 或 settings？ |
 | 能力 | 这个 App 依赖哪些宿主标准和能力表面？ |
 | 知识模板 | 用户或租户需要绑定哪些 Agent Knowledge 槽位？ |
 | 投影 | 宿主如何把 App 编译成目录，而不发明第二套 Runtime？ |
@@ -51,4 +51,4 @@ features:
 - [Runtime Package 设计](./authoring/runtime-package.md)
 - [Capability SDK](./client-implementation/capability-sdk.md)
 - [运行时模型](./client-implementation/runtime-model.md)
-- [AI 内容工程化示例](./examples/content-engineering.md)
+- [APP 内容工厂示例](./examples/content-factory.md)

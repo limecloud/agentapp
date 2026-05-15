@@ -19,19 +19,20 @@ The manifest declares what the app needs, what it provides, where implementation
 
 ```yaml
 name: example-domain-app
-version: 0.1.0
+version: 0.3.0
 status: ready
 appType: domain-app
-manifestVersion: 0.2.0
+manifestVersion: 0.3.0
 runtimeTargets:
   - local
 requires:
   lime:
-    appRuntime: ">=0.2.0 <1.0.0"
+    appRuntime: ">=0.3.0 <1.0.0"
+  sdk: "@lime/app-sdk@^0.3.0"
   capabilities:
-    lime.ui: "^0.1.0"
-    lime.storage: "^0.1.0"
-    lime.agent: "^0.1.0"
+    lime.ui: "^0.3.0"
+    lime.storage: "^0.3.0"
+    lime.agent: "^0.3.0"
 capabilities:
   - lime.ui
   - lime.storage
@@ -55,6 +56,13 @@ entries:
     title: Advisor
     persona: ./agents/advisor.md
 ```
+
+## v0.3 extra requirements
+
+- `scene` / `home` are v0.1 compatibility entries only; new apps use `page`, `command`, `workflow`, `artifact`, `background-task`, or `settings`.
+- Product-level apps should declare `runtimePackage` and make every entry traceable to UI, worker, workflow, expert, or artifact implementation.
+- Executable entries, workers, tool adapters, or secrets must declare `permissions`.
+- Customer differences belong in `overlayTemplates`; do not fork official packages.
 
 ## Common mistakes
 

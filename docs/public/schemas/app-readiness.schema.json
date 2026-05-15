@@ -20,34 +20,69 @@
         "failed"
       ]
     },
+    "command": {
+      "type": "string"
+    },
+    "app": {
+      "type": "string"
+    },
+    "workspace": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "checks": {
       "type": "array",
       "items": {
-        "type": "object",
-        "properties": {
-          "severity": {
-            "type": "string",
-            "enum": [
-              "info",
-              "warning",
-              "error"
-            ]
-          },
-          "kind": {
-            "type": "string"
-          },
-          "key": {
-            "type": "string"
-          },
-          "required": {
-            "type": "boolean"
-          },
-          "message": {
-            "type": "string"
-          }
-        },
-        "additionalProperties": true
+        "$ref": "#/$defs/check"
       }
+    }
+  },
+  "$defs": {
+    "check": {
+      "type": "object",
+      "required": [
+        "severity",
+        "kind",
+        "key",
+        "message"
+      ],
+      "properties": {
+        "severity": {
+          "type": "string",
+          "enum": [
+            "info",
+            "warning",
+            "error"
+          ]
+        },
+        "kind": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string"
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "version": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        },
+        "blocking": {
+          "type": "boolean"
+        },
+        "message": {
+          "type": "string"
+        },
+        "remediation": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
     }
   },
   "additionalProperties": true

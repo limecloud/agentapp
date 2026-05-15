@@ -35,10 +35,11 @@ During install, the host reads the manifest:
 
 ```yaml
 requires:
+  sdk: "@lime/app-sdk@^0.3.0"
   capabilities:
-    lime.ui: "^0.1.0"
-    lime.storage: "^0.1.0"
-    lime.agent: "^0.1.0"
+    lime.ui: "^0.3.0"
+    lime.storage: "^0.3.0"
+    lime.agent: "^0.3.0"
 ```
 
 Host decisions:
@@ -57,7 +58,10 @@ Apps do not carry host implementations. The host injects capability handles:
 ```ts
 const lime = await getLimeRuntime()
 const table = lime.storage.table('content_assets')
-const task = await lime.agent.startTask({ entry: 'batch_copy', input })
+const task = await lime.agent.startTask({ entry: 'batch_copy', input, idempotencyKey })
+const hits = await lime.knowledge.search({ template: 'project_knowledge', query, topK: 8 })
+const artifact = await lime.artifacts.create({ type: 'strategy_report', data: task.output })
+await lime.evidence.record({ subject: artifact.id, sources: hits })
 ```
 
 Every handle should include:
@@ -67,6 +71,27 @@ Every handle should include:
 - automatic provenance
 - mock implementation for app tests
 - telemetry and evidence hooks
+
+## v0.3 minimal typed API
+
+Host implementors should provide TypeScript types, schemas, mocks, and contract tests for at least:
+
+```ts
+lime.ui.registerRoute(route)
+lime.storage.table(name).get(id)
+lime.storage.table(name).insert(record)
+lime.files.read(ref)
+lime.agent.startTask(request)
+lime.knowledge.search(request)
+lime.tools.invoke(request)
+lime.artifacts.create(request)
+lime.workflow.start(request)
+lime.policy.requestPermission(request)
+lime.secrets.getRef(key)
+lime.evidence.record(event)
+```
+
+Every call must return stable error codes and support permission denial, cancellation, retries, timeouts, cost limits, and traceId.
 
 ## Capability version rules
 

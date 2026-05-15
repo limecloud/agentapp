@@ -33,6 +33,8 @@ my-agent-app/
 ├── artifacts/                # optional: output contracts, viewers, exporters
 ├── evals/                    # optional: readiness and quality checks
 ├── policies/                 # optional: permissions and data boundaries
+├── overlay-templates/        # optional: tenant / workspace overlay schemas
+├── app.lock.json             # optional: package file hashes and signatures
 └── examples/                 # optional: sample workspaces, prompts, outputs
 ```
 
@@ -54,7 +56,7 @@ Compatible hosts should expose versioned, authorized, mockable capabilities such
 - `lime.evidence` for provenance and replay
 - `lime.secrets` for credentials without plaintext app access
 
-Apps must not import host internals. They declare capability requirements in the manifest and receive runtime handles from the host.
+Apps must not import host internals. They declare capability requirements in the manifest and receive runtime handles from the host. v0.3 treats SDK calls as typed contracts with stable error codes, cancellation, retries, idempotency, provenance, and mock implementations.
 
 ## Runtime contract
 
@@ -82,10 +84,10 @@ Compatible hosts should:
 ## Reference CLI
 
 ```bash
-npx agentapp-ref@0.1.0 validate ./my-agent-app
-npx agentapp-ref@0.1.0 to-catalog ./my-agent-app
-npx agentapp-ref@0.1.0 project ./my-agent-app
-npx agentapp-ref@0.1.0 readiness ./my-agent-app --workspace ./workspace
+npx agentapp-ref@0.3.0 validate ./my-agent-app
+npx agentapp-ref@0.3.0 to-catalog ./my-agent-app
+npx agentapp-ref@0.3.0 project ./my-agent-app
+npx agentapp-ref@0.3.0 readiness ./my-agent-app --workspace ./workspace
 ```
 
 ## Local development

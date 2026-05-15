@@ -4,7 +4,7 @@ title: v0.1 changelog
 
 # v0.1 changelog
 
-Initial release: APP.md manifest, reference CLI, schemas, VitePress docs, content engineering example, customer support example, and Lime host model guidance.
+Initial release: APP.md manifest, reference CLI, schemas, VitePress docs, content factory example, customer support example, and Lime host model guidance.
 
 ## Checklist
 

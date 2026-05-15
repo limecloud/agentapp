@@ -17,4 +17,4 @@ v0.2 upgrades Agent App from a declarative composition package to a complete ins
 
 ## Good fits
 
-v0.2 targets product-level Agent Apps such as content engineering, support workbenches, legal contract systems, research workbenches, and enterprise workflow apps.
+v0.2 targets product-level Agent Apps such as content factory, support workbenches, legal contract systems, research workbenches, and enterprise workflow apps.

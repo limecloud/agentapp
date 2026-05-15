@@ -4,7 +4,9 @@ import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { basename, dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const cliVersion = '0.2.0'
+const cliVersion = '0.3.0'
+const currentEntryKinds = new Set(['page', 'panel', 'expert-chat', 'command', 'workflow', 'artifact', 'background-task', 'settings'])
+const legacyEntryKinds = new Set(['home', 'scene'])
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 
 function main() {
@@ -86,14 +88,17 @@ function validateApp(appPath) {
     findings.push(errorFinding('APP.md', `Unknown appType: ${properties.appType}.`))
   }
 
-  checkEntries(properties.entries, findings)
+  checkEntries(properties.entries, properties, findings)
+  checkProductRuntime(properties, findings)
   checkDirectoryRefs(appRoot, properties.skillRefs, 'skills', findings)
   checkDirectoryRefs(appRoot, properties.knowledgeTemplates, 'knowledge-templates', findings)
   checkDirectoryRefs(appRoot, properties.toolRefs, 'tools', findings)
   checkDirectoryRefs(appRoot, properties.artifactTypes, 'artifacts', findings)
   checkDirectoryRefs(appRoot, properties.evals, 'evals', findings)
+  checkDirectoryRefs(appRoot, properties.overlayTemplates, 'overlay-templates', findings)
   checkRuntimePackageRefs(appRoot, properties.runtimePackage, findings)
   checkStorageRefs(appRoot, properties.storage, findings)
+  checkExecutablePolicy(properties, findings)
 
   const ok = findings.every((finding) => finding.severity !== 'error')
   return envelope(ok, ok ? 'passed' : 'needs-review', 'validate', properties.name || basename(appRoot), findings, { manifestHash: hashFile(appMd) })
@@ -133,9 +138,11 @@ function projectApp(appPath) {
   const properties = readProperties(appRoot)
   const appMd = join(appRoot, 'APP.md')
   const manifestHash = hashFile(appMd)
+  const packageHash = properties.runtimePackage?.hash || hashDirectory(appRoot)
   const provenance = {
     appName: properties.name || basename(appRoot),
     appVersion: properties.version || '0.0.0',
+    packageHash,
     manifestHash,
     standard: 'agentapp',
     standardVersion: cliVersion
@@ -165,6 +172,10 @@ function projectApp(appPath) {
     toolRequirements: withProvenance(properties.toolRefs),
     artifactTypes: withProvenance(properties.artifactTypes),
     evals: withProvenance(properties.evals),
+    events: withProvenance(properties.events),
+    secrets: withProvenance(properties.secrets),
+    overlayTemplates: withProvenance(properties.overlayTemplates),
+    lifecycle: properties.lifecycle || {},
     provenance
   }
 }
@@ -182,6 +193,8 @@ function readiness(appPath, args) {
   addRequirementChecks('eval', properties.evals, checks)
   addRequirementChecks('service', properties.services, checks)
   addRequirementChecks('workflow', properties.workflows, checks)
+  addRequirementChecks('secret', properties.secrets, checks)
+  addRequirementChecks('overlay', properties.overlayTemplates, checks)
   addCapabilityChecks(properties.requires?.capabilities, checks)
 
   if (workspace && (!existsSync(resolve(workspace)) || !statSync(resolve(workspace)).isDirectory())) {
@@ -189,6 +202,7 @@ function readiness(appPath, args) {
   }
   if (!asArray(properties.entries).length) checks.push({ severity: 'warning', kind: 'entry', key: 'entries', message: 'No app entries declared.' })
   if (!asArray(properties.runtimeTargets).includes('local')) checks.push({ severity: 'warning', kind: 'runtime', key: 'runtimeTargets', message: 'App does not explicitly declare local runtime support.' })
+  if (!properties.runtimePackage && isProductLevel(properties)) checks.push({ severity: 'warning', kind: 'runtimePackage', key: 'runtimePackage', required: true, message: 'Product-level apps should declare a runtime package.' })
 
   const hasError = checks.some((check) => check.severity === 'error')
   const hasWarning = checks.some((check) => check.severity === 'warning')
@@ -230,15 +244,45 @@ function addCapabilityChecks(capabilities, checks) {
   }
 }
 
-function checkEntries(entries, findings) {
-  const allowed = new Set(['page', 'panel', 'expert-chat', 'command', 'workflow', 'artifact', 'background-task', 'settings', 'home', 'scene'])
+function checkEntries(entries, properties, findings) {
   for (const entry of asArray(entries)) {
     const key = entry.key || entry.title || 'entry'
     if (!entry.key) findings.push(warningFinding('entries', `Entry is missing key: ${JSON.stringify(entry)}.`))
     if (!entry.kind) findings.push(warningFinding('entries', `Entry is missing kind: ${key}.`))
-    if (entry.kind && !allowed.has(entry.kind)) findings.push(errorFinding('entries', `Unknown entry kind for ${key}: ${entry.kind}.`))
+    if (entry.kind && !currentEntryKinds.has(entry.kind)) {
+      if (legacyEntryKinds.has(entry.kind)) {
+        findings.push(compatFinding('entries', `Deprecated legacy entry kind for ${key}: ${entry.kind}. Use page, command, workflow, artifact, background-task, or settings for manifestVersion 0.3.`))
+        if (String(properties.manifestVersion || '').startsWith('0.3')) findings.push(errorFinding('entries', `entry kind ${entry.kind} is not valid for manifestVersion 0.3: ${key}.`))
+      } else {
+        findings.push(errorFinding('entries', `Unknown entry kind for ${key}: ${entry.kind}.`))
+      }
+    }
     if (!entry.title) findings.push(warningFinding('entries', `Entry is missing title: ${key}.`))
+    if (entry.kind === 'page' && !entry.route) findings.push(warningFinding('entries', `Page entry is missing route: ${key}.`))
+    if (entry.kind === 'panel' && !entry.panel) findings.push(warningFinding('entries', `Panel entry is missing panel id: ${key}.`))
+    if (entry.kind === 'command' && !entry.command) findings.push(warningFinding('entries', `Command entry is missing command: ${key}.`))
+    if (entry.kind === 'workflow' && !entry.workflow) findings.push(warningFinding('entries', `Workflow entry is missing workflow path or key: ${key}.`))
+    if (entry.kind === 'expert-chat' && !entry.persona) findings.push(warningFinding('entries', `Expert-chat entry is missing persona: ${key}.`))
   }
+}
+
+function checkProductRuntime(properties, findings) {
+  if (!isProductLevel(properties)) return
+  if (!properties.runtimePackage) findings.push(warningFinding('runtimePackage', 'Product-level apps should declare runtimePackage so hosts can load UI, worker, storage, and workflow implementation.'))
+  if (!asArray(properties.entries).length) findings.push(warningFinding('entries', 'Product-level apps should expose at least one entry.'))
+}
+
+function checkExecutablePolicy(properties, findings) {
+  const executableEntries = asArray(properties.entries).filter((entry) => ['command', 'workflow', 'background-task'].includes(entry.kind))
+  const executableServices = asArray(properties.services).filter((service) => ['worker', 'background-task', 'scheduler', 'tool-adapter'].includes(service.kind))
+  const hasPermissions = asArray(properties.permissions).length > 0
+  if ((executableEntries.length || executableServices.length || asArray(properties.secrets).length) && !hasPermissions) {
+    findings.push(warningFinding('permissions', 'Executable entries, services, or secrets should declare permissions for host policy review.'))
+  }
+}
+
+function isProductLevel(properties) {
+  return ['agent-app', 'workflow-app', 'domain-app', 'customer-app'].includes(properties.appType)
 }
 
 function checkDirectoryRefs(appRoot, items, directory, findings) {
@@ -355,6 +399,30 @@ function hashFile(path) {
   return `sha256:${createHash('sha256').update(readFileSync(path)).digest('hex')}`
 }
 
+function hashDirectory(path) {
+  const hash = createHash('sha256')
+  for (const file of listFiles(path)) {
+    const rel = relative(path, file)
+    hash.update(rel)
+    hash.update('\0')
+    hash.update(readFileSync(file))
+    hash.update('\0')
+  }
+  return `sha256:${hash.digest('hex')}`
+}
+
+function listFiles(path) {
+  const result = []
+  for (const entry of readdirSync(path).sort()) {
+    if (entry === 'node_modules' || entry === '.git') continue
+    const absolute = join(path, entry)
+    const stats = statSync(absolute)
+    if (stats.isDirectory()) result.push(...listFiles(absolute))
+    else result.push(absolute)
+  }
+  return result
+}
+
 function asArray(value) {
   return Array.isArray(value) ? value : []
 }
@@ -380,6 +448,10 @@ function errorFinding(path, message) {
 
 function warningFinding(path, message) {
   return { severity: 'warning', path, message }
+}
+
+function compatFinding(path, message) {
+  return { severity: 'warning', code: 'deprecated-compat', path, message }
 }
 
 function writeJson(value) {

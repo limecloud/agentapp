@@ -11,7 +11,7 @@ title: v0.2 变更记录
 - `page`、`panel`、`expert-chat`、`background-task`、`settings` entry 类型。
 - `requires`、`runtimePackage`、`ui`、`storage`、`services`、`events`、`secrets`、`lifecycle` manifest 字段。
 - Product-level conformance level。
-- `content-engineering-app` 示例升级为 UI + worker + storage + workflow 形态。
+- `content-factory-app` 示例升级为 UI + worker + storage + workflow 形态。
 
 ## Changed
 

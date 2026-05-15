@@ -41,7 +41,7 @@ flowchart LR
 
 Agent App does not copy procedural details from Skills or factual content from Knowledge. It declares how those assets are composed, and may carry its own UI, workers, storage schemas, and business workflows. Runtime still happens under host authorization through the Capability SDK.
 
-## Content engineering example
+## Content Factory example
 
 | Asset | Correct place | Reason |
 | --- | --- | --- |
