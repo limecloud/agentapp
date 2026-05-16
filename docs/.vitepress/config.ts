@@ -4,6 +4,7 @@ const base = process.env.VITEPRESS_BASE || '/'
 
 const enNav = [
   { text: 'Guide', link: '/en/what-is-agent-app' },
+  { text: 'Architecture', link: '/en/architecture' },
   { text: 'Specification', link: '/en/specification' },
   { text: 'Examples', link: '/en/examples/content-factory' },
   { text: 'Ecosystem', link: '/en/reference/agent-ecosystem' },
@@ -11,6 +12,12 @@ const enNav = [
     text: 'Version',
     items: [
       { text: 'latest', link: '/en/specification' },
+      { text: 'v0.5 overview', link: '/en/versions/v0.5/overview' },
+      { text: 'v0.5 specification', link: '/en/versions/v0.5/specification' },
+      { text: 'v0.5 changelog', link: '/en/versions/v0.5/changelog' },
+      { text: 'v0.4 overview', link: '/en/versions/v0.4/overview' },
+      { text: 'v0.4 specification', link: '/en/versions/v0.4/specification' },
+      { text: 'v0.4 changelog', link: '/en/versions/v0.4/changelog' },
       { text: 'v0.3 overview', link: '/en/versions/v0.3/overview' },
       { text: 'v0.3 specification', link: '/en/versions/v0.3/specification' },
       { text: 'v0.3 changelog', link: '/en/versions/v0.3/changelog' },
@@ -27,6 +34,7 @@ const enNav = [
 
 const zhNav = [
   { text: '指南', link: '/zh/what-is-agent-app' },
+  { text: '架构', link: '/zh/architecture' },
   { text: '规范', link: '/zh/specification' },
   { text: '示例', link: '/zh/examples/content-factory' },
   { text: '生态', link: '/zh/reference/agent-ecosystem' },
@@ -34,6 +42,12 @@ const zhNav = [
     text: '版本',
     items: [
       { text: 'latest', link: '/zh/specification' },
+      { text: 'v0.5 概览', link: '/zh/versions/v0.5/overview' },
+      { text: 'v0.5 规范', link: '/zh/versions/v0.5/specification' },
+      { text: 'v0.5 变更记录', link: '/zh/versions/v0.5/changelog' },
+      { text: 'v0.4 概览', link: '/zh/versions/v0.4/overview' },
+      { text: 'v0.4 规范', link: '/zh/versions/v0.4/specification' },
+      { text: 'v0.4 变更记录', link: '/zh/versions/v0.4/changelog' },
       { text: 'v0.3 概览', link: '/zh/versions/v0.3/overview' },
       { text: 'v0.3 规范', link: '/zh/versions/v0.3/specification' },
       { text: 'v0.3 变更记录', link: '/zh/versions/v0.3/changelog' },
@@ -54,6 +68,7 @@ const enSidebar = [
     items: [
       { text: 'Overview', link: '/en/' },
       { text: 'What is Agent App?', link: '/en/what-is-agent-app' },
+      { text: 'Architecture overview', link: '/en/architecture' },
       { text: 'App vs Skills and Knowledge', link: '/en/agent-app-vs-skills-knowledge' },
       { text: 'Specification', link: '/en/specification' }
     ]
@@ -108,6 +123,12 @@ const enSidebar = [
   {
     text: 'Versions',
     items: [
+      { text: 'v0.5 overview', link: '/en/versions/v0.5/overview' },
+      { text: 'v0.5 specification', link: '/en/versions/v0.5/specification' },
+      { text: 'v0.5 changelog', link: '/en/versions/v0.5/changelog' },
+      { text: 'v0.4 overview', link: '/en/versions/v0.4/overview' },
+      { text: 'v0.4 specification', link: '/en/versions/v0.4/specification' },
+      { text: 'v0.4 changelog', link: '/en/versions/v0.4/changelog' },
       { text: 'v0.3 overview', link: '/en/versions/v0.3/overview' },
       { text: 'v0.3 specification', link: '/en/versions/v0.3/specification' },
       { text: 'v0.3 changelog', link: '/en/versions/v0.3/changelog' },
@@ -127,6 +148,7 @@ const zhSidebar = [
     items: [
       { text: '概览', link: '/zh/' },
       { text: '什么是 Agent App', link: '/zh/what-is-agent-app' },
+      { text: '架构概览', link: '/zh/architecture' },
       { text: 'App 与 Skills / Knowledge 的边界', link: '/zh/agent-app-vs-skills-knowledge' },
       { text: '规范', link: '/zh/specification' }
     ]
@@ -181,6 +203,12 @@ const zhSidebar = [
   {
     text: '版本',
     items: [
+      { text: 'v0.5 概览', link: '/zh/versions/v0.5/overview' },
+      { text: 'v0.5 规范', link: '/zh/versions/v0.5/specification' },
+      { text: 'v0.5 变更记录', link: '/zh/versions/v0.5/changelog' },
+      { text: 'v0.4 概览', link: '/zh/versions/v0.4/overview' },
+      { text: 'v0.4 规范', link: '/zh/versions/v0.4/specification' },
+      { text: 'v0.4 变更记录', link: '/zh/versions/v0.4/changelog' },
       { text: 'v0.3 概览', link: '/zh/versions/v0.3/overview' },
       { text: 'v0.3 规范', link: '/zh/versions/v0.3/specification' },
       { text: 'v0.3 变更记录', link: '/zh/versions/v0.3/changelog' },

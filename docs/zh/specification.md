@@ -11,6 +11,8 @@ Agent App 定义安装到 Agent 宿主中的完整智能应用包。它不是一
 
 v0.5 借鉴 [Agent Skills 标准](https://agentskills.io) 的发现与编写纪律：`APP.md` frontmatter 保持精简，详细配置下沉到独立文件；新增 `triggers`、`quickstart` 字段提升 AI 自动发现准确率；标准化 `skills/` 目录支持 Agent Skills 复用；新增 readiness 自检、错误码、签名验证、多语言、健康检查等独立配置文件，让作者按需启用。
 
+> 项目级的标准架构图、安装时序图、Host Bridge 时序图、Readiness 流程图、Workflow 状态机集中在 [架构概览](./architecture) 中，本规范只保留与具体章节绑定的图。
+
 ## 设计目标
 
 1. 让真实业务应用可以安装到 Lime，而不是把业务分支写进 Lime Core。
@@ -261,6 +263,36 @@ App -> Host 事件：
 
 主题同步必须使用 Host Bridge：Host 从当前 Lime 主题读取已生效 CSS variables，发送 `host:snapshot` 和 `theme:update`；App 只把 token 写入自己的 `document.documentElement.style`。App 不应猜测 Lime 主题，不应读取外层 DOM，也不应把主题持久化为业务事实。
 
+### Host Bridge 消息时序
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant App as App iframe
+  participant Bridge as Host Bridge v1
+  participant Policy as Policy / Readiness
+  participant Cap as Capability Handler
+
+  App->>Bridge: app:ready
+  Bridge-->>App: host:snapshot（主题 / 语言 / 入口上下文 / 能力摘要）
+  Note over App,Bridge: 主题或语言变化
+  Bridge-->>App: theme:update
+  Note over App,Bridge: 业务调用
+  App->>Bridge: capability:invoke (capability, method, args, requestId)
+  Bridge->>Policy: 检查 allowlist / readiness / policy
+  alt 允许执行
+    Policy-->>Bridge: 通过
+    Bridge->>Cap: 路由到对应 capability handler
+    Cap-->>Bridge: 结果 + traceId + evidenceId
+    Bridge-->>App: host:response (requestId, value)
+  else 拒绝
+    Policy-->>Bridge: 拒绝（错误码）
+    Bridge-->>App: host:error (requestId, code, message)
+  end
+  Note over App,Bridge: surface 不可见
+  Bridge-->>App: host:visibility { visible: false }
+```
+
 ## 入口模型
 
 Entry 是宿主暴露给用户或系统的启动点，不等于单一聊天专家。
@@ -455,6 +487,27 @@ readiness:
 | `performance` | 信息提示 | `ready` 或 `ready-degraded` |
 
 宿主必须把检查结果暴露给用户，并提供 `setupActions[]` 指向修复入口。
+
+### Readiness 流程图
+
+```mermaid
+flowchart TD
+  Start([App 启动请求]) --> Required{required 全部通过?}
+  Required -- 否 --> Blocker{是否有 blocker?}
+  Blocker -- 是 --> Blocked[blocked<br/>列出 blockers + setupActions]
+  Blocker -- 否 --> NeedsSetup[needs-setup<br/>列出 setupActions]
+  Required -- 是 --> Recommended{recommended 全部通过?}
+  Recommended -- 否 --> Degraded[ready-degraded<br/>列出 warnings]
+  Recommended -- 是 --> Performance{performance 满足?}
+  Performance -- 否 --> Degraded
+  Performance -- 是 --> Ready[ready<br/>允许启动]
+  Blocked --> SetupFlow{用户完成 setup?}
+  NeedsSetup --> SetupFlow
+  SetupFlow -- 是 --> Required
+  SetupFlow -- 否 --> Stop([中止启动])
+  Degraded --> Launch[启动并提示 warnings]
+  Ready --> Launch
+```
 
 ## v0.5 健康检查
 

@@ -11,6 +11,8 @@ Agent App defines a complete installable application package for agent hosts. It
 
 v0.5 absorbs the discovery and authoring discipline of the [Agent Skills standard](https://agentskills.io). `APP.md` frontmatter stays small while detailed configuration moves into independent files. New `triggers` and `quickstart` fields drive AI auto-discovery and first-launch UX. The `skills/` directory standardizes how apps bundle or reference Agent Skills. New independent files cover readiness self-check, error codes, signature, i18n, and runtime health, so authors opt in only what they need.
 
+> Project-level architecture, sequence, flow, and state-machine diagrams live in [Architecture overview](./architecture). This specification only embeds diagrams that bind to specific clauses.
+
 ## Goals
 
 1. Let real business apps install into Lime without adding vertical branches to Lime Core.
