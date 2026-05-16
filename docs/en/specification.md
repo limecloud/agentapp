@@ -90,6 +90,101 @@ The frontmatter is the machine entry for installation and projection. The body i
 | `status` | `draft`, `ready`, `needs-review`, `deprecated`, or `archived`. |
 | `appType` | `agent-app`, `workflow-app`, `domain-app`, `customer-app`, or `custom`. |
 
+### v0.5 open-platform metadata
+
+For open-platform distribution, v0.5 promotes "app identity, version, timeline, links, and compliance" into structured top-level fields. All fields are author-fillable except those marked "host-decided".
+
+#### Identity and presentation
+
+| Field | Purpose |
+| --- | --- |
+| `displayName` | 1-128 chars, human-readable name shown in catalogs and launchers. |
+| `displayNameI18n` | locale -> displayName overrides. |
+| `shortDescription` | 1-140 chars, one-line catalog tagline. |
+| `shortDescriptionI18n` | locale -> shortDescription overrides. |
+| `keywords` | Catalog search keywords (max 32), complementary to `triggers.keywords`. |
+| `categories` | Top-level catalog categories (max 8). |
+| `publisher.publisherId` | **Required for open platform**: globally unique publisher id issued by the registry; not user-claimable. |
+| `publisher.name` / `publisher.displayName` | Publisher machine name / display name. |
+| `publisher.kind` | `individual / organization / team / platform`. |
+| `publisher.verified` | **Host-decided**: written by the registry after verification; ignored if self-declared. |
+| `publisher.verifiedDomain` | Domain verified through DNS / .well-known / DID. |
+| `publisher.did` | Decentralized identifier. |
+| `publisher.homepage` / `publisher.email` / `publisher.logoUrl` | Public publisher links. |
+| `publisher.country` | ISO 3166-1 alpha-2. |
+| `author` | npm-style string or `{ name, email, url }`. |
+| `maintainers[]` | `{ name, email, url, role }`. |
+| `contributors[]` | `{ name, email, url }`. |
+
+#### Version and timeline
+
+| Field | Purpose |
+| --- | --- |
+| `manifestVersion` | Manifest protocol version; v0.5 should set `0.5.0`. |
+| `version` | App package version (SemVer). |
+| `createdAt` | ISO 8601; first appearance in any registry. |
+| `updatedAt` | ISO 8601; manifest last updated. |
+| `releasedAt` | ISO 8601; this version became publicly installable. |
+| `deprecatedAt` | ISO 8601; entered deprecation. |
+| `endOfLifeAt` | ISO 8601; host support ends; readiness blocks afterward. |
+| `supportWindow.channel` | `stable / lts / preview / experimental`. |
+| `supportWindow.supportedUntil` | ISO 8601 support end date. |
+| `supportWindow.supersededBy` | Successor version string. |
+
+#### Links and support
+
+| Field | Purpose |
+| --- | --- |
+| `homepage` | App home URL. |
+| `repository` | string or `{ type, url, directory }`. |
+| `documentation` | Documentation URL. |
+| `issues` | Issue tracker URL. |
+| `changelog` | URL or in-package relative path. |
+| `license` | SPDX identifier (`Apache-2.0`, `MIT`, `UNLICENSED`, `proprietary`, …). |
+| `licenseUrl` | Full license URL. |
+| `copyright` | 1-256 chars copyright statement. |
+| `support.email` / `support.url` | Support entry (at least one). |
+| `support.statusPageUrl` | Status page. |
+| `support.discordUrl` / `support.slackUrl` / `support.discussionsUrl` | Community channels. |
+| `support.responseSla` | Free-text SLA description. |
+
+#### Distribution and compliance
+
+`distribution` is reserved metadata for the open platform in v0.5; billing logic is not part of this standard. Hosts and platforms decide payment flow based on these hints.
+
+| Field | Purpose |
+| --- | --- |
+| `distribution.channel` | `stable / preview / beta / alpha / internal`. |
+| `distribution.visibility` | `public / unlisted / private / invite-only`. |
+| `distribution.pricing` | `free / freemium / paid / contact_sales / custom`. |
+| `distribution.billingModel` | `one_time / subscription / usage_based / tiered / contact_sales / none`. |
+| `distribution.trialDays` | Trial days (0-365). |
+| `distribution.regions` | ISO 3166-1 alpha-2 region codes. |
+| `compliance.dataResidency` | `global / cn / eu / us / apac / sg / jp / kr / in` array. |
+| `compliance.dataRetention` | Free-text retention policy. |
+| `compliance.certifications` | `soc2 / iso27001 / gdpr / hipaa / pci-dss / ccpa / csa-star` array. |
+| `compliance.privacyPolicyUrl` | Privacy policy. |
+| `compliance.termsOfServiceUrl` | Terms of service. |
+| `compliance.dpaUrl` | Data processing agreement. |
+| `compliance.subprocessorsUrl` | Subprocessors list. |
+| `compliance.exportControl` | Export-control statement. |
+
+#### Metadata lifecycle
+
+```text
+Draft (status=draft, createdAt set)
+  ↓ Internal testing
+Preview (status=needs-review, distribution.channel=preview)
+  ↓ Approved + publisher.verified=true (set by registry)
+Released (status=ready, releasedAt set, distribution.channel=stable)
+  ↓ New version ships
+Deprecated (status=deprecated, deprecatedAt set, supersededBy points to successor)
+  ↓ EOL reached
+Archived (status=archived, endOfLifeAt set; readiness blocks)
+```
+
+Hosts must mark apps with `endOfLifeAt < now` as `blocked` in readiness and surface `supersededBy`; `deprecatedAt < now` shows a deprecation warning without blocking.
+
 ### Recommended fields
 
 | Field | Purpose |

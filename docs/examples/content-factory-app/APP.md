@@ -1,10 +1,96 @@
 ---
 manifestVersion: 0.5.0
 name: content-factory-app
+displayName: 内容工厂
+displayNameI18n:
+  en-US: Content Factory
+  zh-CN: 内容工厂
+shortDescription: 内容团队的一站式策划 / 生产 / 复盘工作台
+shortDescriptionI18n:
+  en-US: One-stop planning, production, and review workspace for content teams.
+  zh-CN: 内容团队的一站式策划 / 生产 / 复盘工作台
 description: 内容工厂帮助团队规划、生产和管理营销内容。使用场景："创建内容日历"、"批量生成文案"、"内容资产管理"、"知识库构建"。
 version: 0.5.0
 status: ready
 appType: domain-app
+keywords:
+  - content
+  - marketing
+  - copywriting
+  - calendar
+  - asset
+  - knowledge
+categories:
+  - content
+  - marketing
+  - productivity
+publisher:
+  publisherId: lime-official
+  name: Lime Cloud
+  displayName: Lime Cloud
+  kind: platform
+  verified: true
+  verifiedDomain: limecloud.example
+  homepage: https://limecloud.example
+  email: apps@limecloud.example
+  logoUrl: https://limecloud.example/brand/lime.svg
+  country: CN
+author:
+  name: Lime Cloud Content Team
+  email: content-apps@limecloud.example
+  url: https://limecloud.example/team/content
+maintainers:
+  - name: Lime Cloud App Maintainers
+    email: app-maintainers@limecloud.example
+    role: lead
+  - name: Lime Cloud Content Quality
+    email: content-quality@limecloud.example
+    role: quality
+createdAt: 2026-01-08T00:00:00Z
+updatedAt: 2026-05-16T00:00:00Z
+releasedAt: 2026-05-16T00:00:00Z
+supportWindow:
+  channel: stable
+  supportedUntil: 2027-05-16T00:00:00Z
+homepage: https://limecloud.example/apps/content-factory
+repository:
+  type: git
+  url: https://github.com/limecloud/agentapp.git
+  directory: docs/examples/content-factory-app
+documentation: https://limecloud.github.io/agentapp/zh/examples/content-factory
+issues: https://github.com/limecloud/agentapp/issues
+changelog: ./CHANGELOG.md
+license: Apache-2.0
+licenseUrl: https://www.apache.org/licenses/LICENSE-2.0
+copyright: Copyright (c) 2026 Lime Cloud. All rights reserved.
+support:
+  email: support@limecloud.example
+  url: https://limecloud.example/support
+  statusPageUrl: https://status.limecloud.example
+  discussionsUrl: https://github.com/limecloud/agentapp/discussions
+  responseSla: 工作时间内 1 个工作日响应；P0 故障 4 小时内响应。
+distribution:
+  channel: stable
+  visibility: public
+  pricing: free
+  billingModel: none
+  regions:
+    - cn
+    - us
+    - jp
+compliance:
+  dataResidency:
+    - cn
+    - global
+  dataRetention: 内容场景与资产保留 365 天；evidence 保留 90 天；任务执行日志保留 30 天。
+  certifications:
+    - soc2
+    - iso27001
+    - gdpr
+  privacyPolicyUrl: https://limecloud.example/legal/privacy
+  termsOfServiceUrl: https://limecloud.example/legal/terms
+  dpaUrl: https://limecloud.example/legal/dpa
+  subprocessorsUrl: https://limecloud.example/legal/subprocessors
 runtimeTargets:
   - local
   - hybrid

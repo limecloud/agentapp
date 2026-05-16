@@ -489,6 +489,7 @@ function checkV05Conventions(appRoot, properties, findings) {
   if (!properties.quickstart || !properties.quickstart.entry) {
     findings.push(warningFinding('APP.md', 'v0.5 recommends declaring quickstart.entry for first-launch UX.'))
   }
+  checkV05OpenPlatformMetadata(properties, findings)
   const skillsDir = join(appRoot, 'skills')
   if (existsSync(skillsDir) && statSync(skillsDir).isDirectory()) {
     for (const entry of readdirSync(skillsDir)) {
@@ -499,6 +500,35 @@ function checkV05Conventions(appRoot, properties, findings) {
         findings.push(errorFinding(`skills/${entry}/SKILL.md`, 'Bundled Skill must include SKILL.md per Agent Skills standard.'))
       }
     }
+  }
+}
+
+function checkV05OpenPlatformMetadata(properties, findings) {
+  if (!properties.publisher || !properties.publisher.publisherId) {
+    findings.push(warningFinding('APP.md', 'v0.5 open-platform: publisher.publisherId is required for catalog identity. Set publisher: { publisherId, name } in the frontmatter.'))
+  } else if (!properties.publisher.name) {
+    findings.push(warningFinding('APP.md', 'publisher.name is required when publisher.publisherId is set.'))
+  }
+  if (!properties.displayName) {
+    findings.push(warningFinding('APP.md', 'v0.5 catalog: displayName is recommended so launchers can show a human-readable name.'))
+  }
+  if (!properties.shortDescription) {
+    findings.push(warningFinding('APP.md', 'v0.5 catalog: shortDescription is recommended for catalog cards (<= 140 chars).'))
+  }
+  if (!properties.license) {
+    findings.push(warningFinding('APP.md', 'v0.5 open-platform: license is recommended (SPDX id, e.g. Apache-2.0, MIT, UNLICENSED).'))
+  }
+  if (!properties.homepage && !properties.documentation && !properties.repository) {
+    findings.push(warningFinding('APP.md', 'v0.5 open-platform: at least one of homepage / documentation / repository is recommended.'))
+  }
+  if (!properties.support || (!properties.support.email && !properties.support.url)) {
+    findings.push(warningFinding('APP.md', 'v0.5 open-platform: support.email or support.url is recommended for ongoing user support.'))
+  }
+  if (!properties.updatedAt) {
+    findings.push(warningFinding('APP.md', 'v0.5 open-platform: updatedAt (ISO 8601) is recommended so catalogs can sort by freshness.'))
+  }
+  if (!properties.compliance || !properties.compliance.privacyPolicyUrl) {
+    findings.push(warningFinding('APP.md', 'v0.5 open-platform: compliance.privacyPolicyUrl is recommended; users / tenants need to review privacy before install.'))
   }
 }
 

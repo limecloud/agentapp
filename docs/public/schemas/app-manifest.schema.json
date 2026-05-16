@@ -227,6 +227,339 @@
         }
       ]
     },
+    "displayName": {
+      "type": "string",
+      "description": "v0.5: human-readable app name shown in catalogs and launchers.",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "shortDescription": {
+      "type": "string",
+      "description": "v0.5: one-line marketing tagline (<= 140 chars) for catalog cards.",
+      "minLength": 1,
+      "maxLength": 140
+    },
+    "displayNameI18n": {
+      "type": "object",
+      "description": "v0.5: locale -> displayName overrides.",
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128
+      }
+    },
+    "shortDescriptionI18n": {
+      "type": "object",
+      "description": "v0.5: locale -> shortDescription overrides.",
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 140
+      }
+    },
+    "keywords": {
+      "type": "array",
+      "description": "v0.5: catalog search keywords; complementary to triggers.keywords.",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 32
+      },
+      "uniqueItems": true,
+      "maxItems": 32
+    },
+    "categories": {
+      "type": "array",
+      "description": "v0.5: top-level catalog categories such as content / support / sales.",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 32
+      },
+      "uniqueItems": true,
+      "maxItems": 8
+    },
+    "publisher": {
+      "type": "object",
+      "description": "v0.5: open-platform publisher identity. publisherId is the global unique key.",
+      "required": ["publisherId", "name"],
+      "properties": {
+        "publisherId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-z0-9][a-z0-9-_.]*$",
+          "description": "Globally unique publisher identifier issued by the registry; not user-claimable."
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "displayName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "verified": {
+          "type": "boolean",
+          "description": "Set by the registry after identity verification; do not self-declare."
+        },
+        "verifiedDomain": {
+          "type": "string",
+          "description": "Domain verified through DNS / .well-known / DID."
+        },
+        "did": {
+          "type": "string",
+          "description": "Optional DID (Decentralized Identifier) for the publisher."
+        },
+        "homepage": {
+          "type": "string",
+          "format": "uri"
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "logoUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "country": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 2,
+          "description": "ISO 3166-1 alpha-2 country code."
+        },
+        "kind": {
+          "type": "string",
+          "enum": ["individual", "organization", "team", "platform"]
+        }
+      },
+      "additionalProperties": true
+    },
+    "author": {
+      "oneOf": [
+        {
+          "type": "string",
+          "description": "Shorthand author string (npm style)."
+        },
+        {
+          "type": "object",
+          "required": ["name"],
+          "properties": {
+            "name": { "type": "string", "minLength": 1 },
+            "email": { "type": "string", "format": "email" },
+            "url": { "type": "string", "format": "uri" }
+          },
+          "additionalProperties": true
+        }
+      ]
+    },
+    "maintainers": {
+      "type": "array",
+      "description": "v0.5: people responsible for ongoing maintenance.",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "email": { "type": "string", "format": "email" },
+          "url": { "type": "string", "format": "uri" },
+          "role": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "contributors": {
+      "type": "array",
+      "description": "v0.5: contributors beyond maintainers.",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "email": { "type": "string", "format": "email" },
+          "url": { "type": "string", "format": "uri" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "v0.5: ISO 8601 timestamp the app first appeared in any registry."
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "v0.5: ISO 8601 timestamp this manifest was last updated."
+    },
+    "releasedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "v0.5: ISO 8601 timestamp this version became publicly installable."
+    },
+    "deprecatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "v0.5: ISO 8601 timestamp this version entered deprecation."
+    },
+    "endOfLifeAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "v0.5: ISO 8601 timestamp host support ends; readiness blocks after."
+    },
+    "supportWindow": {
+      "type": "object",
+      "description": "v0.5: declared support window for this version.",
+      "properties": {
+        "channel": {
+          "type": "string",
+          "enum": ["stable", "lts", "preview", "experimental"]
+        },
+        "supportedUntil": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "supersededBy": {
+          "type": "string",
+          "description": "Version string that supersedes this one."
+        }
+      },
+      "additionalProperties": false
+    },
+    "homepage": {
+      "type": "string",
+      "format": "uri"
+    },
+    "repository": {
+      "oneOf": [
+        { "type": "string", "format": "uri" },
+        {
+          "type": "object",
+          "required": ["url"],
+          "properties": {
+            "type": { "type": "string", "enum": ["git", "svn", "hg", "other"] },
+            "url": { "type": "string", "format": "uri" },
+            "directory": { "type": "string" }
+          },
+          "additionalProperties": true
+        }
+      ]
+    },
+    "documentation": {
+      "type": "string",
+      "format": "uri"
+    },
+    "issues": {
+      "type": "string",
+      "format": "uri"
+    },
+    "changelog": {
+      "type": "string",
+      "description": "URL or relative path to the changelog file."
+    },
+    "license": {
+      "type": "string",
+      "description": "SPDX license identifier (e.g. MIT, Apache-2.0, UNLICENSED, proprietary)."
+    },
+    "licenseUrl": {
+      "type": "string",
+      "format": "uri"
+    },
+    "copyright": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "support": {
+      "type": "object",
+      "description": "v0.5: support channels for users and operators.",
+      "properties": {
+        "email": { "type": "string", "format": "email" },
+        "url": { "type": "string", "format": "uri" },
+        "discordUrl": { "type": "string", "format": "uri" },
+        "slackUrl": { "type": "string", "format": "uri" },
+        "statusPageUrl": { "type": "string", "format": "uri" },
+        "discussionsUrl": { "type": "string", "format": "uri" },
+        "responseSla": {
+          "type": "string",
+          "description": "Plain-text SLA description, e.g. 'business-hours, 24h response'."
+        }
+      },
+      "additionalProperties": true
+    },
+    "distribution": {
+      "type": "object",
+      "description": "v0.5: distribution and pricing fields reserved for the open platform; billing logic lives outside the standard.",
+      "properties": {
+        "channel": {
+          "type": "string",
+          "enum": ["stable", "preview", "beta", "alpha", "internal"]
+        },
+        "visibility": {
+          "type": "string",
+          "enum": ["public", "unlisted", "private", "invite-only"]
+        },
+        "pricing": {
+          "type": "string",
+          "enum": ["free", "freemium", "paid", "contact_sales", "custom"],
+          "description": "v0.5 reserves enum values; concrete billing lives outside the standard."
+        },
+        "billingModel": {
+          "type": "string",
+          "enum": ["one_time", "subscription", "usage_based", "tiered", "contact_sales", "none"]
+        },
+        "trialDays": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 365
+        },
+        "regions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "description": "ISO 3166-1 alpha-2 region codes."
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "compliance": {
+      "type": "object",
+      "description": "v0.5: privacy, residency, and certification metadata for the open platform.",
+      "properties": {
+        "dataResidency": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["global", "cn", "eu", "us", "apac", "sg", "jp", "kr", "in"]
+          },
+          "uniqueItems": true
+        },
+        "dataRetention": {
+          "type": "string",
+          "description": "Plain-text retention policy, e.g. '90 days for evidence, 7 days for tasks'."
+        },
+        "certifications": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["soc2", "iso27001", "gdpr", "hipaa", "pci-dss", "ccpa", "csa-star"]
+          },
+          "uniqueItems": true
+        },
+        "privacyPolicyUrl": { "type": "string", "format": "uri" },
+        "termsOfServiceUrl": { "type": "string", "format": "uri" },
+        "dpaUrl": { "type": "string", "format": "uri", "description": "Data Processing Agreement URL." },
+        "subprocessorsUrl": { "type": "string", "format": "uri" },
+        "exportControl": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
     "permissions": {
       "type": "array",
       "items": {

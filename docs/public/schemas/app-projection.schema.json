@@ -153,6 +153,86 @@
       },
       "additionalProperties": false
     },
+    "publisher": {
+      "type": "object",
+      "description": "v0.5: publisher identity projected from manifest.",
+      "additionalProperties": true
+    },
+    "author": {
+      "description": "v0.5: author info; string or object form passed through.",
+      "oneOf": [
+        { "type": "string" },
+        { "type": "object", "additionalProperties": true }
+      ]
+    },
+    "maintainers": {
+      "type": "array",
+      "description": "v0.5: maintainers projected from manifest.",
+      "items": { "type": "object" }
+    },
+    "contributors": {
+      "type": "array",
+      "description": "v0.5: contributors projected from manifest.",
+      "items": { "type": "object" }
+    },
+    "timeline": {
+      "type": "object",
+      "description": "v0.5: lifecycle timestamps projected from manifest.",
+      "properties": {
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" },
+        "releasedAt": { "type": "string" },
+        "deprecatedAt": { "type": "string" },
+        "endOfLifeAt": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "supportWindow": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "links": {
+      "type": "object",
+      "description": "v0.5: aggregated catalog links (homepage, repository, documentation, issues, changelog).",
+      "properties": {
+        "homepage": { "type": "string" },
+        "repository": {
+          "oneOf": [
+            { "type": "string" },
+            { "type": "object", "additionalProperties": true }
+          ]
+        },
+        "documentation": { "type": "string" },
+        "issues": { "type": "string" },
+        "changelog": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "license": {
+      "type": "object",
+      "description": "v0.5: license metadata projected from manifest.",
+      "properties": {
+        "spdx": { "type": "string" },
+        "licenseUrl": { "type": "string" },
+        "copyright": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "support": {
+      "type": "object",
+      "description": "v0.5: support channels projected from manifest.",
+      "additionalProperties": true
+    },
+    "distribution": {
+      "type": "object",
+      "description": "v0.5: distribution and pricing metadata projected from manifest.",
+      "additionalProperties": true
+    },
+    "compliance": {
+      "type": "object",
+      "description": "v0.5: privacy and compliance metadata projected from manifest.",
+      "additionalProperties": true
+    },
     "errors": {
       "type": "array",
       "description": "v0.5: standardized error catalog projected from app.errors.yaml.",
