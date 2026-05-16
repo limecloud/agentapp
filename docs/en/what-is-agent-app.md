@@ -53,6 +53,62 @@ Agent App can be understood as a mini-program-like model for AI agents, without 
 
 The important part is not how it looks, but that the host opens capabilities and apps call those capabilities through a stable SDK.
 
+## What regular users see
+
+Regular users do not need to understand manifests, SDKs, or runtimes. An Agent App should feel like a business app with an intelligent assistant inside it: open the app, complete the setup checklist, choose a task, confirm important actions, and receive a durable result.
+
+### From install to completed work
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant User as User
+  participant Lime as Lime app center
+  participant App as Agent App
+  participant Assistant as Assistant
+  participant Result as Results and history
+
+  User->>Lime: Search for or open an app
+  Lime-->>User: Show purpose, permissions, and example outputs
+  User->>Lime: Install the app
+  Lime->>App: Install and prepare the workspace
+  App-->>User: Show home page and setup checklist
+  User->>App: Bind knowledge, choose an entry, enter a goal
+  App->>Assistant: Ask for generation, analysis, or checks
+  Assistant-->>App: Return progress, questions, and drafts
+  App-->>User: Show draft, citations, and risk hints
+  User->>App: Edit, approve, or reject
+  App->>Result: Save final artifact, evidence, and history
+  Result-->>User: Download, reuse, audit, or continue
+```
+
+### User decision flow
+
+```mermaid
+flowchart TD
+  Start([I want to finish a business task]) --> Find[Find a suitable Agent App]
+  Find --> Understand{Do I understand the purpose and output?}
+  Understand -- No --> Stop[Do not install yet<br/>choose a clearer app]
+  Understand -- Yes --> Permission{Are permissions and data scope acceptable?}
+  Permission -- No --> Stop
+  Permission -- Yes --> Setup[Complete first-time setup<br/>bind data / choose tools / connect accounts]
+  Setup --> Ready{Does setup check pass?}
+  Ready -- No --> Fix[Follow the prompts<br/>or ask an admin for access]
+  Fix --> Ready
+  Ready -- Yes --> Run[Start the task]
+  Run --> Review{Does the result need human review?}
+  Review -- Yes --> Approve[Check citations, risks, and draft<br/>then edit or approve]
+  Review -- No --> Save[Save the result]
+  Approve --> Save
+  Save --> Next[Download, share, continue, or view history]
+```
+
+Regular users only need to remember three things:
+
+- Before installing, check what the app does, which permissions it needs, and what output it creates.
+- During execution, read confirmation prompts for citations, risks, and the action about to run.
+- After completion, the result should stay in the app as something traceable, editable, and reusable.
+
 ## Position in Lime
 
 ```mermaid

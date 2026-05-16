@@ -53,6 +53,62 @@ Agent App = UI + Workflow + Storage + Services + Agent Entries + Skills + Tools 
 
 关键不是“像小程序一样长什么样”，而是“宿主开放能力，App 通过稳定 SDK 调用能力”。
 
+## 普通用户怎么看
+
+对普通用户来说，Agent App 不需要理解 manifest、SDK 或运行时。它更像一个“带智能助手的业务应用”：打开应用、按提示完成设置、选择一个任务、确认关键动作、最后拿到可保存和可追溯的结果。
+
+### 从安装到完成任务
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant User as 用户
+  participant Lime as Lime 应用中心
+  participant App as Agent App
+  participant Assistant as 智能助手
+  participant Result as 结果与记录
+
+  User->>Lime: 搜索或打开一个应用
+  Lime-->>User: 展示用途、需要的权限和示例结果
+  User->>Lime: 点击安装
+  Lime->>App: 安装应用并准备工作区
+  App-->>User: 显示首页和首次设置清单
+  User->>App: 绑定资料、选择入口、输入目标
+  App->>Assistant: 请求生成、分析或检查
+  Assistant-->>App: 返回进度、需要确认的问题和草稿
+  App-->>User: 展示草稿、引用来源和风险提示
+  User->>App: 修改、批准或拒绝
+  App->>Result: 保存最终交付物、证据和历史记录
+  Result-->>User: 可下载、复用、审计或继续下一步
+```
+
+### 使用时的决策流程
+
+```mermaid
+flowchart TD
+  Start([我想完成一个业务任务]) --> Find[找到合适的 Agent App]
+  Find --> Understand{看得懂用途和结果吗?}
+  Understand -- 否 --> Stop[先不要安装<br/>换一个更清楚的应用]
+  Understand -- 是 --> Permission{权限和数据范围能接受吗?}
+  Permission -- 否 --> Stop
+  Permission -- 是 --> Setup[完成首次设置<br/>绑定资料 / 选择工具 / 配置账号]
+  Setup --> Ready{设置检查通过吗?}
+  Ready -- 否 --> Fix[按提示补资料或找管理员授权]
+  Fix --> Ready
+  Ready -- 是 --> Run[开始任务]
+  Run --> Review{结果需要人工确认吗?}
+  Review -- 是 --> Approve[查看引用、风险和草稿<br/>修改或批准]
+  Review -- 否 --> Save[保存结果]
+  Approve --> Save
+  Save --> Next[下载、分享、继续下一步或查看历史]
+```
+
+普通用户只需要记住三点：
+
+- 安装前看清“这个应用做什么、要哪些权限、会产生什么结果”。
+- 运行中遇到确认提示时，先看引用、风险和将要执行的动作。
+- 完成后结果应该留在 App 里，可追溯、可修改、可继续使用。
+
 ## 在 Lime 里的位置
 
 ```mermaid
