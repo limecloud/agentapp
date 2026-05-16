@@ -42,7 +42,7 @@ The manifest schema covers fields such as:
 - runtime package descriptors
 - entries
 - UI, storage, services, workflows
-- Knowledge, Skills, Tools, Artifacts, Evals
+- Runtime, UI, Context, Knowledge, Skills, Tools / Connectors, Artifacts, Evidence, Policy, QC, Evals
 - permissions, secrets, lifecycle, overlays
 - v0.6 `agentRuntime` shorthand for task control-plane intent
 - v0.7 `requirements`, `boundary`, `integrations`, and `operations` shorthands

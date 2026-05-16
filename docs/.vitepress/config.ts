@@ -81,7 +81,7 @@ const enSidebar = [
       { text: 'Overview', link: '/en/' },
       { text: 'What is Agent App?', link: '/en/what-is-agent-app' },
       { text: 'Architecture overview', link: '/en/architecture' },
-      { text: 'App vs Skills and Knowledge', link: '/en/agent-app-vs-skills-knowledge' },
+      { text: 'Standards ecosystem boundary', link: '/en/agent-standards-boundary' },
       { text: 'Specification', link: '/en/specification' }
     ]
   },
@@ -94,7 +94,7 @@ const enSidebar = [
       { text: 'Runtime package design', link: '/en/authoring/runtime-package' },
       { text: 'Best practices', link: '/en/authoring/best-practices' },
       { text: 'App engineering loop', link: '/en/authoring/app-engineering-loop' },
-      { text: 'Skills and Knowledge interop', link: '/en/authoring/skills-knowledge-interop' },
+      { text: 'Standards interop', link: '/en/authoring/standards-interop' },
       { text: 'Permissions and policy', link: '/en/authoring/permissions-and-policy' },
       { text: 'Overlay model', link: '/en/authoring/overlay-model' },
       { text: 'Readiness and evals', link: '/en/authoring/readiness-and-evals' },
@@ -170,7 +170,7 @@ const zhSidebar = [
       { text: '概览', link: '/zh/' },
       { text: '什么是 Agent App', link: '/zh/what-is-agent-app' },
       { text: '架构概览', link: '/zh/architecture' },
-      { text: 'App 与 Skills / Knowledge 的边界', link: '/zh/agent-app-vs-skills-knowledge' },
+      { text: 'App 与 Agent 标准生态边界', link: '/zh/agent-standards-boundary' },
       { text: '规范', link: '/zh/specification' }
     ]
   },
@@ -183,7 +183,7 @@ const zhSidebar = [
       { text: 'Runtime Package 设计', link: '/zh/authoring/runtime-package' },
       { text: '最佳实践', link: '/zh/authoring/best-practices' },
       { text: '应用工程闭环', link: '/zh/authoring/app-engineering-loop' },
-      { text: 'Skills / Knowledge 互操作', link: '/zh/authoring/skills-knowledge-interop' },
+      { text: '标准互操作', link: '/zh/authoring/standards-interop' },
       { text: '权限与 Policy', link: '/zh/authoring/permissions-and-policy' },
       { text: 'Overlay 模型', link: '/zh/authoring/overlay-model' },
       { text: 'Readiness 与评估', link: '/zh/authoring/readiness-and-evals' },

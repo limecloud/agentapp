@@ -5,7 +5,7 @@ description: Agent App v0.7 可执行应用包、Capability SDK 契约、Agent t
 
 # 规范
 
-Agent App 定义安装到 Agent 宿主中的完整智能应用包。它不是一个 Markdown prompt，也不是单个对话专家；它可以包含真实 UI bundle、worker / service 代码、数据模型、迁移脚本、业务 workflow、Agent entries、Skills、Knowledge 绑定、Tools、Artifacts、Policies 和 Evals。
+Agent App 定义安装到 Agent 宿主中的完整智能应用包。它不是一个 Markdown prompt，也不是单个对话专家；它可以包含真实 UI bundle、worker / service 代码、数据模型、迁移脚本、业务 workflow、Agent entries、Runtime 意图、Context 需求、Knowledge 绑定、Skill 引用、Tool / Connector 需求、Artifacts、Evidence、Policies、QC 和 Evals。
 
 `APP.md` 仍然是必需发现入口：宿主先通过它读取 manifest、说明和渐进加载线索。但 `APP.md` 只负责声明和指南，不负责承载业务系统实现。真实功能必须由 App 包内的 runtime package 和 Lime Capability SDK 调用完成。
 
@@ -822,10 +822,10 @@ Agent App 可以引用相邻标准，也可以声明 Lime platform capability。
 
 | 类型 | 示例 | 含义 |
 | --- | --- | --- |
-| Agent 标准 | `agentskills`、`agentknowledge`、`agentartifact`、`agentevidence` | App 组合的生态资源和协议。 |
-| Lime Capability | `lime.ui`、`lime.storage`、`lime.agent`、`lime.tools` | App 运行时通过 SDK 调用的宿主能力。 |
+| Agent 标准 | `agentruntime`、`agentui`、`agentcontext`、`agentknowledge`、`agentskills`、`agenttool`、`agentartifact`、`agentevidence`、`agentpolicy`、`agentqc` | App 组合的生态资源和协议。 |
+| Lime Capability | `lime.ui`、`lime.storage`、`lime.agent`、`lime.tools`、`lime.connectors`、`lime.artifacts`、`lime.evidence`、`lime.policy` | App 运行时通过 SDK 调用的宿主能力。 |
 
-App 不应重新定义 Skills、Knowledge、Runtime、Tool、UI、Artifact、Evidence、Policy 或 QC；但可以声明自己如何调用它们，并提供业务实现代码。
+App 不应重新定义 Runtime、UI、Context、Knowledge、Skills、Tool / Connector、Artifact、Evidence、Policy 或 QC；但可以声明自己如何调用它们，并提供业务实现代码。
 
 ## Storage 与数据边界
 

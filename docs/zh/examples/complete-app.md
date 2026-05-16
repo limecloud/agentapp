@@ -172,4 +172,4 @@ npm run cli -- project docs/examples/content-factory-app
 npm run cli -- readiness docs/examples/content-factory-app
 ```
 
-完整 App 仍可能在 readiness 中返回 `needs-setup`，因为宿主还没有绑定 required Skill、Knowledge、Tool 或 Eval。这是正常状态。
+完整 App 仍可能在 readiness 中返回 `needs-setup`，因为宿主还没有绑定 required Runtime、Context、Knowledge、Skill、Tool / Connector、Artifact、Evidence、Policy 或 QC 资产。这是正常状态。

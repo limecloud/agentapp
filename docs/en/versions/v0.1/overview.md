@@ -14,7 +14,7 @@ v0.1 should be read as a foundation release. It proved that app-like agent syste
 - `APP.md` is the required discovery entry.
 - Apps are installed into a host, not executed by a hidden registry runtime.
 - Hosts project app declarations into local catalog entries.
-- Skills and Knowledge remain separate standards.
+- Adjacent standards remain separate instead of being collapsed into the app package.
 - Customer data stays outside official packages.
 - Readiness checks setup before execution.
 - Overlays allow tenant and workspace customization.

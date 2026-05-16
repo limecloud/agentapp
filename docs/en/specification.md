@@ -5,7 +5,7 @@ description: Agent App v0.7 executable package, Capability SDK contract, Agent t
 
 # Specification
 
-Agent App defines a complete installable application package for agent hosts. It is not a Markdown prompt and not a single chat expert. An app may include real UI bundles, worker or service code, data models, migrations, business workflows, agent entries, Skills, Knowledge bindings, Tools, Artifacts, Policies, and Evals.
+Agent App defines a complete installable application package for agent hosts. It is not a Markdown prompt and not a single chat expert. An app may include real UI bundles, worker or service code, data models, migrations, business workflows, agent entries, Runtime intent, Context needs, Knowledge bindings, Skill references, Tool / Connector requirements, Artifacts, Evidence, Policies, QC, and Evals.
 
 `APP.md` remains the required discovery entry. Hosts read it first for manifest data, human guidance, and progressive loading hints. But `APP.md` is only declaration and guidance; business capability must be implemented by the runtime package and by calls through the Lime Capability SDK.
 
@@ -792,10 +792,10 @@ Agent Apps may reference adjacent standards and Lime platform capabilities. They
 
 | Type | Examples | Meaning |
 | --- | --- | --- |
-| Agent standards | `agentskills`, `agentknowledge`, `agentartifact`, `agentevidence` | Ecosystem resources and protocols composed by the app. |
-| Lime capabilities | `lime.ui`, `lime.storage`, `lime.agent`, `lime.tools` | Host capabilities called by the app through the SDK. |
+| Agent standards | `agentruntime`, `agentui`, `agentcontext`, `agentknowledge`, `agentskills`, `agenttool`, `agentartifact`, `agentevidence`, `agentpolicy`, `agentqc` | Ecosystem resources and protocols composed by the app. |
+| Lime capabilities | `lime.ui`, `lime.storage`, `lime.agent`, `lime.tools`, `lime.connectors`, `lime.artifacts`, `lime.evidence`, `lime.policy` | Host capabilities called by the app through the SDK. |
 
-Apps must not redefine Skills, Knowledge, Runtime, Tool, UI, Artifact, Evidence, Policy, or QC. They can declare how they call them and provide business implementation code.
+Apps must not redefine Runtime, UI, Context, Knowledge, Skills, Tool / Connector, Artifact, Evidence, Policy, or QC. They can declare how they call them and provide business implementation code.
 
 ## Storage and data boundary
 

@@ -5,7 +5,7 @@ description: Agent App is a complete installable intelligent application package
 
 # What is Agent App?
 
-Agent App is a draft standard for complete installable applications in agent hosts. An app may include real UI, business workflows, data storage, background jobs, agent entries, Skills, Tools, Knowledge bindings, Artifacts, Policies, and Evals.
+Agent App is a draft standard for complete installable applications in agent hosts. An app may include real UI, business workflows, data storage, background jobs, agent entries, Runtime intent, Context needs, Knowledge bindings, Skill references, Tool / Connector requirements, Artifacts, Evidence, Policies, and QC / Evals.
 
 In one sentence: **Agent App is an intelligent application running on Lime platform capabilities. It is not a Markdown file and not a single chat expert.**
 
@@ -17,7 +17,7 @@ The product boundary is:
 
 > Business work stays inside the app context; agent execution stays inside Lime capability governance.
 
-An Agent App should be the surface where the user finishes the job: dashboards, forms, tables, review queues, artifacts, settings, and embedded assistant panels all belong there. The app can call `lime.agent`, `lime.knowledge`, `lime.tools`, `lime.storage`, `lime.artifacts`, and `lime.evidence`, but the user should not have to jump back to a generic Lime chat just to complete the app's core workflow.
+An Agent App should be the surface where the user finishes the job: dashboards, forms, tables, review queues, artifacts, settings, and embedded assistant panels all belong there. The app can declare Context needs and call `lime.agent`, `lime.knowledge`, `lime.tools`, `lime.connectors`, `lime.storage`, `lime.artifacts`, and `lime.evidence`, but the user should not have to jump back to a generic Lime chat just to complete the app's core workflow.
 
 This also prevents the opposite failure mode. An app should not rebuild its own model gateway, credential store, permission system, evidence store, or tool broker just to avoid Lime. That would make Lime a distribution shell for independent SaaS products. Agent App exists for the middle path: the app owns business shape and business state; Lime owns the agent runtime and governed platform capabilities.
 
@@ -31,7 +31,7 @@ The Lime Experts module is closer to a conversational specialist: useful for qui
 | Best fit | Q&A, consultation, ad hoc analysis, lightweight execution. | Content factories, support workbenches, contract review, research workspaces, and other complete workflows. |
 | State | Mostly conversation context and bound knowledge. | Own app storage, workflow state, artifacts, and evidence. |
 | Output | Usually answers, suggestions, or drafts. | Durable business objects and deliverables that can be saved, reused, and audited. |
-| Extension model | Configure persona, Knowledge, Skills, and Tools. | Package UI, workers, storage schemas, workflows, permissions, and runtime contracts. |
+| Extension model | Configure persona, context, Knowledge, Skills, and Tools. | Package UI, workers, storage schemas, workflows, permissions, runtime contracts, and delivery boundaries. |
 
 Simple rule: if the user wants to ask a specialist, use Lime Experts. If the user needs to finish a business workflow inside a product surface, use Agent App. An Agent App may include expert entries, but an expert entry is only one interaction mode, not the whole app.
 
@@ -119,11 +119,13 @@ UI / Worker / Workflow / Storage]
   Bridge --> UI[Lime UI]
   Bridge --> Storage[Lime Storage]
   Bridge --> Runtime[Local Agent Runtime]
+  Bridge --> Context[Agent Context]
   Bridge --> Knowledge[Agent Knowledge]
-  Bridge --> Tools[Tool Broker / ToolHub]
+  Bridge --> Tools[Tool / Connector Broker]
   Bridge --> Artifact[Agent Artifact]
   Bridge --> Evidence[Agent Evidence]
   Bridge --> Policy[Policy / Secrets]
+  Bridge --> QC[Agent QC]
 ```
 
 Lime Cloud may distribute, authorize, and enable Agent Apps. Lime Desktop installs, authorizes, injects capabilities, and runs them locally. Cloud should not become a hidden Agent Runtime by default.
@@ -154,13 +156,13 @@ Agent App is not:
 
 ## Why it exists
 
-Skills, Knowledge, and Tools are not enough for real business applications. Apps also need:
+Reusable agent assets alone are not enough for real business applications. Apps also need:
 
 - their own UI pages, panels, and settings
 - their own data models, indexes, migrations, and caches
 - business workflows, background jobs, and human review nodes
 - multiple chat or non-chat entries
-- traceable Artifacts, Evidence, and Evals
+- explicit Runtime, Context, Tool / Connector, Artifact, Evidence, Policy, and QC boundaries
 - permissions, costs, credentials, tenant overlays, upgrade policies
 - an SDK boundary that decouples apps from Lime internals
 

@@ -103,7 +103,7 @@ For ordinary users this means the app shows what it can do in the workspace, wha
 
 ## Readiness behavior
 
-The fixture validates successfully, but readiness can report `needs-setup` because required Skills, Knowledge, Tools, Evals, and services must be satisfied by the host.
+The fixture validates successfully, but readiness can report `needs-setup` because required Runtime, Context, Knowledge, Skills, Tools / Connectors, Artifacts, Evidence, Policy, QC, and services must be satisfied by the host.
 
 That is correct behavior. The package is structurally valid; the workspace may still need setup before execution.
 

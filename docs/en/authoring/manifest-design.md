@@ -78,7 +78,7 @@ entries:
 | --- | --- | --- |
 | `page` | App-owned full page such as dashboard or workspace. | Route or UI bundle registration. |
 | `panel` | Contextual side panel embedded in host UI. | Route, panel placement, and data contract. |
-| `expert-chat` | Chat-first specialist inside the app. | Persona file plus required Skills / Knowledge. |
+| `expert-chat` | Chat-first specialist inside the app. | Persona file plus declared context, tools, policy, and optional reusable standards. |
 | `command` | Command palette or slash-command action. | Command handler or workflow start. |
 | `workflow` | Multi-step business state machine. | Workflow descriptor and optional worker. |
 | `artifact` | Viewer or creator for durable outputs. | Artifact type descriptor and UI viewer. |

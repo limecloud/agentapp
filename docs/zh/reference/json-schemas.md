@@ -32,7 +32,7 @@ Schema 不替代 runtime policy，只校验结构。
 
 ## Manifest Schema
 
-Manifest schema 覆盖 identity、runtime targets、SDK/capability requirements、runtime package、entries、UI、storage、services、workflows、Knowledge、Skills、Tools、Artifacts、Evals、permissions、secrets、lifecycle、overlays、v0.6 `agentRuntime` 简写、v0.7 `requirements` / `boundary` / `integrations` / `operations` 简写、presentation、compatibility。
+Manifest schema 覆盖 identity、runtime targets、SDK/capability requirements、runtime package、entries、Runtime、UI、Context、storage、services、workflows、Knowledge、Skills、Tools / Connectors、Artifacts、Evidence、Policy、QC、Evals、permissions、secrets、lifecycle、overlays、v0.6 `agentRuntime` 简写、v0.7 `requirements` / `boundary` / `integrations` / `operations` 简写、presentation、compatibility。
 
 v0.3 current entry kinds 是 `page`、`panel`、`expert-chat`、`command`、`workflow`、`artifact`、`background-task`、`settings`。
 

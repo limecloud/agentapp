@@ -87,7 +87,7 @@ Projection is the deterministic step a host uses to transform package metadata i
 npx agentapp-ref@0.4.0 readiness ./my-app
 ```
 
-Readiness answers a different question from validation: can this app run in the current host/workspace? A package can be structurally valid but still report `needs-setup` when required Knowledge, Skills, Tools, capabilities, services, or secrets are not bound.
+Readiness answers a different question from validation: can this app run in the current host/workspace? A package can be structurally valid but still report `needs-setup` when required Runtime, UI, Context, Knowledge, Skills, Tools / Connectors, Artifacts, Evidence, Policy, QC, capabilities, services, or secrets are not bound.
 
 ## Minimal vs production app
 

@@ -34,7 +34,7 @@ It helps explain why Agent App is not just a prompt:
 
 ## Where the analogy stops
 
-Agent App is built for AI hosts. It must compose Agent Skills, Knowledge, Tools, Artifacts, Evidence, Policy, Runtime, and QC. It also must handle model tasks, context assembly, evidence, and evals, which traditional mini-programs do not define.
+Agent App is built for AI hosts. It must compose Agent Runtime, UI, Context, Knowledge, Skills, Tools / Connectors, Artifacts, Evidence, Policy, QC, and optional domain standards. It also must handle model tasks, context assembly, external side effects, evidence, and evals, which traditional mini-programs do not define.
 
 Do not import assumptions about page technology, rendering engines, or app stores from any specific mini-program ecosystem.
 
@@ -53,9 +53,11 @@ A Content Factory App can have:
 - a knowledge-building workflow
 - an expert-chat entry
 - app storage tables
-- Tool requirements
-- Artifact outputs
-- Evals and Evidence
+- Context and Knowledge bindings
+- Skill references
+- Tool / Connector requirements
+- Artifact outputs and viewers
+- Evidence, Policy, and QC gates
 
 This is closer to an installable mini-program than to a single chatbot persona.
 
@@ -77,4 +79,4 @@ The analogy should push implementation toward platform capabilities, not toward 
 - Can entries be projected from manifest data rather than hardcoded navigation?
 - Can SDK calls be authorized, audited, cancelled, and mocked?
 - Can tenants customize with overlays without forking the package?
-- Can the user understand what data, Tools, and secrets the app requires before activation?
+- Can the user understand what data, Context, Tools / Connectors, permissions, evidence, and secrets the app requires before activation?

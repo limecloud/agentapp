@@ -18,7 +18,7 @@ Good `APP.md` content:
 - capability requirements
 - runtime package locations and hashes
 - storage namespace and migrations
-- Knowledge templates, Skills, Tools, Artifacts, Evals
+- Runtime, UI, Context, Knowledge, Skill, Tool / Connector, Artifact, Evidence, Policy, and QC bindings
 - permissions, secrets, lifecycle, overlays
 - human-readable guide and non-goals
 

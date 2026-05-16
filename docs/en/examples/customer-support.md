@@ -5,7 +5,7 @@ description: Example Agent App for support workflows.
 
 # Customer support app
 
-The customer support example shows a smaller workflow app. It is intentionally less complete than the Content Factory fixture, but it demonstrates how Agent App applies outside content production.
+The customer support example shows a smaller workflow app. It is intentionally less complete than the Content Factory fixture, but it demonstrates how Agent App applies outside content production and still composes Runtime, UI, Context, Knowledge, Skills, Tools / Connectors, Artifacts, Evidence, Policy, and QC.
 
 Reference package: [`docs/examples/customer-support-app/APP.md`](../../examples/customer-support-app/APP.md)
 
@@ -17,9 +17,10 @@ A support team wants grounded replies and escalation notes that follow product f
 
 The example declares:
 
+- Runtime intent for structured reply drafting
 - product and policy Knowledge templates
 - a `draft_reply` command entry
-- optional ticket lookup Tool requirement
+- optional ticket lookup Tool / Connector requirement
 - `reply_draft` Artifact type
 - `policy_compliance` Eval
 - v0.6 `app.runtime.yaml` for structured reply drafts, approval, session, tool discovery, checkpoints, and observability

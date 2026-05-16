@@ -7,7 +7,7 @@ description: 把业务流程打磨成完整 Agent App 包的可重复方法。
 
 一个好的 Agent App 不是一次写完的 `APP.md`。它需要在产品目标、运行时实现、宿主能力、权限、数据边界和验收证据之间反复闭环。
 
-Agent App 同时涉及 UI、workflow、storage、worker、Skills、Knowledge、Tools、Artifacts、Evals、Policy 和宿主 Runtime。任何一层单独设计，都会让 App 退化成 prompt 包、单个专家，或者不安全的插件。
+Agent App 同时涉及 Runtime、UI、Context、workflow、storage、worker、Knowledge、Skills、Tools、Connectors、Artifacts、Evidence、Policy、QC 和宿主能力。任何一层单独设计，都会让 App 退化成 prompt 包、单个专家、隐藏 runtime，或者不安全的插件。
 
 ## 闭环总览
 
@@ -54,16 +54,21 @@ Agent App 同时涉及 UI、workflow、storage、worker、Skills、Knowledge、T
 
 如果某个入口只是实现细节，就不要暴露成用户 entry。
 
-## 3. 拆清 Skills、Knowledge、Tools 和 App 代码
+## 3. 拆清相邻标准和 App 代码
 
 Agent App 应该组合已有标准，而不是复制它们。
 
-- 工作方法放进 Agent Skills。
+- 任务执行语义放进 Agent Runtime。
+- 交互表面放进 Agent UI。
+- 上下文装配和预算放进 Agent Context。
 - 可信事实和素材放进 Agent Knowledge。
-- 外部调用声明为 Tool requirements，并交给宿主 Policy 授权。
-- UI、workflow state、storage schema、worker 和产品组合属于 Agent App。
+- 工作方法放进 Agent Skills。
+- 外部调用声明为 Tool / Connector requirements，并交给宿主 Policy 授权。
+- 持久交付物放进 Agent Artifact。
+- provenance、授权和质量门禁放进 Evidence、Policy 和 QC。
+- workflow state、storage schema、worker、lifecycle 和产品组合属于 Agent App。
 
-这样才能保证官方 App 可升级，客户数据和工艺又能独立演进。
+这样才能保证 Runtime、UI、Context 策略、Skill、Knowledge Pack、connector、artifact viewer、policy gate 和 QC rule 都能独立升级，而不需要 fork 官方 App 包。
 
 ## 4. 起草 `APP.md`
 
@@ -119,10 +124,11 @@ Readiness 回答：这个 App 现在能不能安全运行？
 
 - 宿主 runtime 和 SDK 版本是否匹配
 - 必需 capability 是否存在
+- Runtime、UI、Context 需求是否可解析
 - Knowledge slot 是否已绑定
-- Tool 是否可用并授权
+- Tool / Connector 是否可用并授权
 - permission 是否声明并可解析
-- Artifact viewer 和 Eval 是否存在
+- Artifact viewer、Evidence capture 和 Eval 是否存在
 - storage namespace 和 migration 是否可接受
 - secret 是否通过 Secret Manager 绑定
 

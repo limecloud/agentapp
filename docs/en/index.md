@@ -25,9 +25,9 @@ features:
   - title: Runtime package
     details: "APP.md is discovery only; real UI, workers, storage, workflows, and business implementation live in the runtime package."
   - title: Capability SDK
-    details: "Apps call Lime through stable capabilities such as lime.ui, lime.storage, lime.agent, and lime.artifacts instead of internals."
+    details: "Apps call Lime through stable capabilities such as lime.ui, lime.storage, lime.agent, lime.connectors, lime.artifacts, and lime.evidence instead of internals."
   - title: Capability composition
-    details: "References Skills, Knowledge templates, Tools, Artifacts, Evals, UI entries, Context, Evidence, Policy, and QC."
+    details: "References Runtime, UI, Context, Knowledge, Skills, Tools / Connectors, Artifacts, Evidence, Policy, QC, and Evals."
   - title: Mini-program mental model
     details: "A host platform opens capabilities; apps declare entries and permissions; users install apps into a local environment."
 ---
@@ -39,15 +39,15 @@ features:
 | App package | What installable app is this and what does it contain? |
 | Entries | Which pages, commands, workflows, artifacts, background tasks, or settings can the host expose? |
 | Capabilities | Which host standards and capability surfaces does this app need? |
-| Knowledge templates | Which Agent Knowledge slots must the user or tenant bind? |
+| Bindings and context | Which Context, Knowledge, Skill, Tool, Connector, Artifact, Evidence, Policy, and QC dependencies must the user or tenant satisfy? |
 | Projection | How does a host compile the app into a catalog without inventing a second runtime? |
-| Readiness | What must be installed, authorized, or reviewed before the app can run? |
+| Readiness | Which runtime, connector, permission, evidence, and quality gates must pass before the app can run? |
 
 ## Quick links
 
 - [What is Agent App?](./what-is-agent-app.md)
 - [Specification](./specification.md)
-- [App vs Skills and Knowledge](./agent-app-vs-skills-knowledge.md)
+- [Standards ecosystem boundary](./agent-standards-boundary.md)
 - [Runtime package design](./authoring/runtime-package.md)
 - [Capability SDK](./client-implementation/capability-sdk.md)
 - [Runtime model](./client-implementation/runtime-model.md)
@@ -61,7 +61,7 @@ features:
 | App author | [Quickstart](./authoring/quickstart.md) | Runtime package, manifest design, permissions, release. |
 | Host implementor | [Runtime model](./client-implementation/runtime-model.md) | Capability SDK, projection, readiness, security. |
 | Standards reviewer | [Specification](./specification.md) | JSON Schemas, glossary, version notes. |
-| Product planner | [What is Agent App?](./what-is-agent-app.md) | App vs Skills and Knowledge, examples, mini-program analogy. |
+| Product planner | [What is Agent App?](./what-is-agent-app.md) | Standards ecosystem boundary, examples, mini-program analogy. |
 
 ## v0.7 promise
 
@@ -75,7 +75,7 @@ Every Agent App page in this documentation should help a reader answer four ques
 
 1. Define the app boundary and user-visible entries.
 2. Write the v0.7 requirement, boundary, integration, and operation files.
-3. Declare capabilities, storage, Knowledge templates, Tools, Artifacts, permissions, and Evals.
+3. Declare capabilities, storage, Runtime, UI, Context, Knowledge, Skills, Tools / Connectors, Artifacts, Evidence, Policy, QC, permissions, and Evals.
 4. Add runtime package assets and call host services through the Capability SDK.
 5. Build projection and readiness checks before enabling execution.
 6. Release with package hashes, compatibility metadata, overlays, and rollback guidance.

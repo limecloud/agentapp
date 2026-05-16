@@ -101,7 +101,7 @@ App 拥有 dashboard、content factory page、workflow entries 和 expert-chat e
 
 ## Readiness 行为
 
-Fixture 可以 validate 通过，但 readiness 可能返回 `needs-setup`，因为 required Skills、Knowledge、Tools、Evals 和 services 需要宿主满足。
+Fixture 可以 validate 通过，但 readiness 可能返回 `needs-setup`，因为 required Runtime、Context、Knowledge、Skills、Tools / Connectors、Artifacts、Evidence、Policy、QC 和 services 需要宿主满足。
 
 这正是正确行为：package 结构有效，但 workspace 还需要设置。
 

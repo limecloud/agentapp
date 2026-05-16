@@ -1,8 +1,8 @@
 # Agent App
 
-Agent App is a draft standard for complete installable intelligent applications in the Agent Skills ecosystem. It packages real app implementation - UI bundles, workers, storage schemas, workflows, agent entries, Skills, Knowledge bindings, tool requirements, artifact contracts, policies, evals, presentation metadata, and v0.7 requirement-boundary files - without moving agent execution into the cloud.
+Agent App is a draft standard for complete installable intelligent applications in the Agent standards ecosystem. It packages real app implementation - UI bundles, workers, storage schemas, workflows, agent entries, Skills, Knowledge bindings, tool requirements, artifact contracts, policies, evals, presentation metadata, and v0.7 requirement-boundary files - without moving agent execution into the cloud.
 
-Agent Skills answer **how to do work**. Agent Knowledge answers **what trusted knowledge assets are**. Agent App answers **how a complete installable application uses host capabilities, owns UI and data boundaries, exposes entries, and runs through a stable Capability SDK**.
+Agent Runtime answers **how tasks execute**. Agent UI answers **how interaction surfaces render**. Agent Context answers **how context is assembled**. Skills answer **how reusable work is done**. Knowledge answers **what trusted facts are**. Tools connect external capabilities; Artifacts persist deliverables; Evidence, Policy, and QC make results trustworthy. Agent App answers **how all of those become a complete installable application with host capabilities, UI, data boundaries, entries, lifecycle, and v0.7 requirement handoff**.
 
 ## Core boundary
 
@@ -10,11 +10,17 @@ Agent App is the business workspace. Lime Agent is the intelligent runtime capab
 
 | Standard / layer | Owns | Entry point | Runtime behavior |
 | --- | --- | --- | --- |
-| Agent Skills | Executable workflows, scripts, tools, templates, and procedural instructions. | `SKILL.md` | Activated by an agent after trust checks. |
-| Agent Knowledge | Source-grounded knowledge assets, status, provenance, and safe context. | `KNOWLEDGE.md` | Loaded as fenced data; never executed. |
-| Agent Expert | Chat-first entry composed from persona, Skills, Tools, and data connections. | Expert entry | Runs inside a host conversation surface. |
-| Agent App | Complete installable app package: UI, workers, storage, workflows, entries, permissions, artifacts, evals, and lifecycle. | `APP.md` + runtime package | Runs in the host through `@lime/app-sdk` capability handles. |
-| Lime Agent / Host runtime | Agent tasks, model and tool execution, knowledge retrieval, permissions, traces, artifacts, evidence, secrets, and policy. | `lime.*` capabilities | Injected into apps as authorized handles; apps do not import host internals. |
+| Agent Runtime | Task lifecycle, model routing, sessions, checkpoints, event streams, structured output. | Runtime contract | Runs under host policy; App declares intent through `app.runtime.yaml`. |
+| Agent UI | Pages, panels, commands, viewers, Host Bridge interaction surfaces. | UI descriptors / entries | Rendered in host-controlled surfaces through `lime.ui`. |
+| Agent Context | Context assembly, budget, priority, compression, missing-context requests. | Context descriptors | Resolved by host/runtime for each entry or task. |
+| Agent Skills | Reusable procedures, scripts, rubrics, and executable process fragments. | `SKILL.md` | Activated by an agent after trust checks. |
+| Agent Knowledge | Source-grounded facts, status, provenance, freshness, and safe context. | `KNOWLEDGE.md` | Loaded as fenced data or retrieval context; never executed. |
+| Agent Tool / Connector | External callable capabilities, MCP, CLI, API, browser adapters, auth, side effects. | Tool / connector descriptor | Invoked by Host/Cloud policy and evidence surfaces. |
+| Agent Artifact | Durable deliverables, schemas, viewers, exporters, state. | Artifact schema | Stored and displayed by host artifact services. |
+| Agent Evidence / Policy / QC | Provenance, permissions, risk, quality gates, audits, waivers. | Evidence, policy, eval descriptors | Enforced and recorded by Host/Cloud; App declares inputs and gates. |
+| Agent Expert | Chat-first entry composed from persona, context, tools, and app state. | Expert entry | Runs inside a host conversation surface; optional App entry, not the App itself. |
+| Agent App | Complete installable app package: UI, workers, storage, workflows, entries, permissions, artifacts, evals, lifecycle, and v0.7 boundaries. | `APP.md` + runtime package | Runs in the host through `@lime/app-sdk` capability handles. |
+| Lime Host / Cloud | Local execution, sandbox, secrets, registry, tenant policy, OAuth, webhook, scheduled sync. | `lime.*` capabilities | Injected into apps as authorized handles; apps do not import host internals. |
 
 ## App and Lime responsibilities
 
@@ -69,6 +75,7 @@ Compatible hosts should expose versioned, authorized, mockable capabilities such
 - `lime.agent` for local agent tasks, streaming, retries, traces
 - `lime.knowledge` for Knowledge Pack binding and retrieval
 - `lime.tools` for Tool Broker / ToolHub invocation
+- `lime.connectors` for Host/Cloud-managed MCP, CLI, API, browser, OAuth, webhook, and sync adapters
 - `lime.artifacts` for persistent deliverables
 - `lime.workflow` for business state and background tasks
 - `lime.policy` for permissions, cost, risk, data boundary
@@ -84,7 +91,7 @@ Compatible hosts should:
 1. Discover apps by `APP.md`.
 2. Verify package hash, signatures, manifest shape, and capability versions.
 3. Install or activate an app only after user, tenant, or workspace consent.
-4. Resolve declared UI, storage, workers, Skills, Knowledge templates, Tools, Artifacts, Evals, and permissions into host catalogs.
+4. Resolve declared UI, storage, workers, Runtime, Context, Skills, Knowledge templates, Tools, Connectors, Artifacts, Evidence, Policy, Evals, and permissions into host catalogs.
 5. Inject Capability SDK handles at runtime instead of exposing host internals.
 6. Keep agent execution inside the host runtime; cloud registries may distribute and authorize apps but must not become a hidden Agent Runtime.
 7. Keep customer data in Agent Knowledge packs, workspace files, app storage namespaces, secrets, or overlays rather than official app packages.
@@ -96,7 +103,7 @@ Compatible hosts should:
 - [What is Agent App?](docs/en/what-is-agent-app.md)
 - [Runtime package design](docs/en/authoring/runtime-package.md)
 - [Capability SDK](docs/en/client-implementation/capability-sdk.md)
-- [Agent App vs Skills and Knowledge](docs/en/agent-app-vs-skills-knowledge.md)
+- [Agent App and Standards Ecosystem Boundary](docs/en/agent-standards-boundary.md)
 - [Runtime model](docs/en/client-implementation/runtime-model.md)
 - [中文规范](docs/zh/specification.md)
 

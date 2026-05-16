@@ -78,7 +78,7 @@ entries:
 | --- | --- | --- |
 | `page` | Dashboard 或 workspace 等 App 自有完整页面。 | Route 或 UI bundle registration。 |
 | `panel` | 嵌入宿主 UI 的上下文侧栏。 | Route、panel placement 和 data contract。 |
-| `expert-chat` | App 内的聊天式专家入口。 | Persona 文件以及必需 Skills / Knowledge。 |
+| `expert-chat` | App 内的聊天式专家入口。 | Persona 文件，以及声明的上下文、工具、策略和可选复用标准。 |
 | `command` | Command palette 或 slash-command action。 | Command handler 或 workflow start。 |
 | `workflow` | 多步骤业务状态机。 | Workflow descriptor 和可选 worker。 |
 | `artifact` | 持久输出的 viewer 或 creator。 | Artifact type descriptor 和 UI viewer。 |

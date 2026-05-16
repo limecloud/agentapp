@@ -1,26 +1,31 @@
 # Agent App
 
-> v0.3 executable Agent App package standard for host runtimes.
+> v0.7 installable Agent App package standard for host runtimes and the wider Agent standards ecosystem.
 
 ## Core docs
 
 - Specification: docs/en/specification.md
 - What is Agent App: docs/en/what-is-agent-app.md
-- App vs Skills and Knowledge: docs/en/agent-app-vs-skills-knowledge.md
+- Standards ecosystem boundary: docs/en/agent-standards-boundary.md
+- Standards interop: docs/en/authoring/standards-interop.md
+- Architecture: docs/en/architecture.md
+- Responsibility boundary: docs/en/reference/responsibility-boundary.md
+- App Fit Report: docs/en/reference/app-fit-report.md
 - Quickstart: docs/en/authoring/quickstart.md
 - Runtime package design: docs/en/authoring/runtime-package.md
 - Capability SDK: docs/en/client-implementation/capability-sdk.md
-- Host Bridge: docs/en/client-implementation/runtime-model.md#host-bridge-v1
 - Reference CLI: docs/en/reference/reference-cli.md
 - Content Factory example: docs/en/examples/content-factory.md
+- Lightweight Content Ops example: docs/en/examples/lightweight-content-ops.md
 
 ## Core boundary
 
-Agent App composes UI, workflows, storage, workers, Skills, Knowledge bindings, Tools, Artifacts, Evals, permissions, overlays, and host capabilities into a complete installable intelligent app package. It does not replace Agent Skills or Agent Knowledge, and it does not run agents by itself. Hosts install apps, project entries into local catalogs, inject versioned Capability SDK handles, and execute through the host Agent Runtime.
+Agent App is the composition layer for installable intelligent applications. It packages UI, workflows, storage, workers, Runtime intent, Context needs, Knowledge bindings, Skill references, Tool/Connector requirements, Artifacts, Evidence, Policy, QC, permissions, overlays, and v0.7 requirement-boundary files. It does not replace adjacent standards and does not run agents by itself. Hosts install apps, project entries into local catalogs, inject versioned Capability SDK handles, execute through the host Agent Runtime, and mediate connectors, secrets, policy, and evidence.
 
-## v0.3 current model
+## v0.7 current model
 
 - Current entry kinds: page, panel, expert-chat, command, workflow, artifact, background-task, settings.
-- Legacy entry kinds: scene and home are compatibility-only and invalid for manifestVersion 0.3.
-- Reference example: 内容工厂 / content-factory-app.
+- v0.7 layered files: app.requirements.yaml, app.boundary.yaml, app.integrations.yaml, app.operations.yaml.
+- v0.6 runtime layer remains: app.runtime.yaml for lime.agent task control.
+- Reference examples: content-factory-app and lightweight-content-ops-app.
 - Host Bridge v1: `lime.agentApp.bridge` standardizes sandbox UI theme sync, host snapshots, navigation, toast, download, and capability invocation envelopes.

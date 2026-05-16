@@ -5,7 +5,7 @@ description: 面向客服流程的 Agent App 示例。
 
 # 客服知识库应用
 
-客服示例展示 Agent App 不只适用于内容生产。它是一个更小的 workflow app，用于测试 draft package、Knowledge slot、Tool requirement、Artifact 和 Eval 的组合。
+客服示例展示 Agent App 不只适用于内容生产。它是一个更小的 workflow app，用于测试 Runtime、UI、Context、Knowledge、Skills、Tools / Connectors、Artifacts、Evidence、Policy 和 QC 的组合。
 
 参考包：[`docs/examples/customer-support-app/APP.md`](../../examples/customer-support-app/APP.md)
 
@@ -17,9 +17,10 @@ description: 面向客服流程的 Agent App 示例。
 
 示例声明：
 
+- 结构化回复草稿的 Runtime 意图
 - 产品事实和客服政策 Knowledge templates
 - `draft_reply` command entry
-- 可选 ticket lookup Tool
+- 可选 ticket lookup Tool / Connector
 - `reply_draft` Artifact type
 - `policy_compliance` Eval
 - v0.6 `app.runtime.yaml`：声明结构化回复草稿、审批、session、工具发现、checkpoint 与可观测性

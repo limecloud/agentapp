@@ -57,7 +57,7 @@ Projection 输出 app summary、entries、capability requirements、storage、se
 npm run cli -- readiness docs/examples/content-factory-app
 ```
 
-Readiness 报告 required 和 optional setup。结构有效的 package 可能返回 `needs-setup`，表示宿主还没满足必需 Skill、Knowledge、Tool、service、integration、operation 或 eval。
+Readiness 报告 required 和 optional setup。结构有效的 package 可能返回 `needs-setup`，表示宿主还没满足必需 Runtime、UI、Context、Knowledge、Skill、Tool / Connector、Artifact、Evidence、Policy、QC、service、integration、operation 或 eval。
 
 ## Exit 行为
 

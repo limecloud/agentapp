@@ -57,7 +57,7 @@ Projection output includes app summary, entries, capability requirements, storag
 npm run cli -- readiness docs/examples/content-factory-app
 ```
 
-Readiness reports required and optional setup. A structurally valid package can return `needs-setup` when required Skills, Knowledge, Tools, services, integrations, operations, or evals are not satisfied by the host.
+Readiness reports required and optional setup. A structurally valid package can return `needs-setup` when required Runtime, UI, Context, Knowledge, Skill, Tool / Connector, Artifact, Evidence, Policy, QC, services, integrations, operations, or evals are not satisfied by the host.
 
 ## Exit behavior
 

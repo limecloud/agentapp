@@ -7,7 +7,7 @@ description: A repeatable loop for turning a business workflow into a complete A
 
 A strong Agent App is not written in one pass. It is shaped through a loop that keeps product intent, runtime implementation, host capability usage, and readiness evidence in sync.
 
-The loop is useful because Agent App sits between several systems: UI, workflows, storage, Skills, Knowledge, Tools, Artifacts, Evals, permissions, and host runtime capabilities. If one layer is designed in isolation, the package becomes either a prompt bundle, a single expert, or an unsafe plugin. The loop keeps it a complete installable app.
+The loop is useful because Agent App sits between several systems: Runtime, UI, Context, workflows, storage, Knowledge, Skills, Tools, Connectors, Artifacts, Evidence, Policy, QC, permissions, and host capabilities. If one layer is designed in isolation, the package becomes either a prompt bundle, a single expert, a hidden runtime, or an unsafe plugin. The loop keeps it a complete installable app.
 
 ## Loop overview
 
@@ -54,20 +54,25 @@ Turn the job into entries. Do not make every feature a chat expert.
 
 At this point, remove entries that are only implementation details. A worker function is not necessarily a user entry.
 
-## 3. Separate Skills, Knowledge, Tools, and app code
+## 3. Separate adjacent standards and app code
 
 The app should compose adjacent standards instead of copying them.
 
-- Put procedural instructions in Agent Skills.
+- Put task execution semantics in Agent Runtime.
+- Put interaction surfaces in Agent UI.
+- Put context assembly and budgets in Agent Context.
 - Put grounded facts and source material in Agent Knowledge.
-- Put external calls behind Tool requirements and host policy.
-- Put UI, workflow state, storage schema, workers, and product composition in Agent App.
+- Put procedural instructions in Agent Skills.
+- Put external calls behind Tool / Connector requirements and host policy.
+- Put durable deliverables in Agent Artifact.
+- Put provenance, authorization, and quality gates in Evidence, Policy, and QC.
+- Put workflow state, storage schema, workers, lifecycle, and product composition in Agent App.
 
-The goal is upgradeability: a better Skill or Knowledge Pack can improve the app without forking the app package.
+The goal is upgradeability: a better Runtime, UI surface, Context policy, Skill, Knowledge Pack, connector, artifact viewer, policy gate, or QC rule can improve the app without forking the app package.
 
 ## 4. Draft `APP.md`
 
-The first manifest should be small but real. It should include identity, runtime targets, required capabilities, entries, storage namespace, runtime package hints, Knowledge slots, Tool requirements, Artifact types, Evals, permissions, compatibility, and presentation metadata.
+The first manifest should be small but real. It should include identity, runtime targets, required capabilities, entries, storage namespace, runtime package hints, Context hints, Knowledge slots, Skill references, Tool / Connector requirements, Artifact types, Evidence needs, Evals, permissions, compatibility, and presentation metadata.
 
 ```yaml
 manifestVersion: 0.3.0
@@ -119,10 +124,11 @@ Minimum checks:
 
 - host runtime and SDK version match
 - required capabilities are available
+- Runtime, UI, and Context requirements are resolvable
 - Knowledge slots are bound or setup tasks are generated
-- Tools are installed and authorized
+- Tools and Connectors are installed and authorized
 - permissions are declared and resolvable
-- Artifact viewers and Evals exist
+- Artifact viewers, Evidence capture, and Evals exist
 - storage namespace and migrations are acceptable
 - secrets are requested through a secret manager
 

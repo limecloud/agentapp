@@ -157,9 +157,9 @@ The Markdown body should answer:
 | Manifest | Required fields and v0.7 requirements are present. |
 | Runtime package | UI, worker, storage, and workflow paths are declared when used. |
 | Entries | Every user launch point has stable key, kind, title, and binding metadata. |
-| Data | Storage namespace and Knowledge slots are explicit. |
-| Policy | Permissions, secrets, runtime approval, external side effects, and risky capabilities are declared. |
-| Quality | Artifact types, structured output schemas, and evals are connected to workflows. |
+| Context and data | Context requirements, storage namespace, Knowledge slots, overlays, and secrets are explicit. |
+| Policy and operations | Permissions, runtime approval, external side effects, connectors, and risky capabilities are declared. |
+| Quality and trust | Artifact types, structured output schemas, Evidence capture, QC, and evals are connected to workflows. |
 | Overlays | Tenant and workspace differences do not fork the package. |
 | Provenance | Projection and runtime outputs can trace back to app version and hashes. |
 | Cleanup | Disable, uninstall keep data, and delete data behavior is known. |
@@ -172,4 +172,4 @@ npm run cli -- project docs/examples/content-factory-app
 npm run cli -- readiness docs/examples/content-factory-app
 ```
 
-A valid complete app may still return `needs-setup` in readiness if required host assets are not bound yet. That is expected.
+A valid complete app may still return `needs-setup` in readiness if required Runtime, Context, Knowledge, Skill, Tool / Connector, Artifact, Evidence, Policy, or QC assets are not bound yet. That is expected.

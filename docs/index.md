@@ -6,7 +6,7 @@ description: Installable agent application packages.
 hero:
   name: Agent App
   text: Complete installable intelligent applications for host runtimes.
-  tagline: "Package UI, workers, storage, workflows, Skills, Knowledge, Tools, Artifacts, Evals, and permissions into a local-running intelligent app."
+  tagline: "Package UI, workers, storage, workflows, Runtime, Context, Skills, Knowledge, Tools, Connectors, Artifacts, Evidence, Policy, Evals, and permissions into a local-running intelligent app."
   actions:
     - theme: brand
       text: Read the spec
@@ -22,7 +22,7 @@ features:
   - title: Host platform model
     details: "Agent Apps run inside a host such as Lime Desktop. Registries distribute and authorize; the host injects SDK capabilities and executes locally."
   - title: Capability SDK boundary
-    details: "Apps use lime.ui, lime.storage, lime.agent, lime.tools, lime.artifacts, and adjacent Agent standards without importing host internals."
+    details: "Apps use lime.ui, lime.storage, lime.agent, lime.connectors, lime.artifacts, lime.evidence, lime.policy, and adjacent Agent standards without importing host internals."
   - title: App-like installation
     details: "Like mini-program platforms, a host installs an app package, resolves permissions, and exposes entries to users."
 ---
@@ -31,7 +31,7 @@ features:
 
 Agent App is the application layer for agent hosts. If you are new to the standard, read in this order:
 
-1. [What is Agent App?](/en/what-is-agent-app) explains the boundary between complete apps, experts, Skills, and Knowledge.
+1. [What is Agent App?](/en/what-is-agent-app) explains the boundary between complete apps, experts, Runtime, UI, Context, Knowledge, Skills, Tools / Connectors, Artifacts, Evidence, Policy, and QC.
 2. [Specification](/en/specification) defines the v0.7 package contract.
 3. [Quickstart](/en/authoring/quickstart) shows the smallest useful package.
 4. [Runtime package design](/en/authoring/runtime-package) explains where real UI, worker, storage, and workflow implementation lives.
@@ -45,8 +45,8 @@ Agent App is the application layer for agent hosts. If you are new to the standa
 | Package | `APP.md`, manifest fields, runtime package folders, schemas, examples. |
 | Entries | `page`, `panel`, `expert-chat`, `command`, `workflow`, `artifact`, `background-task`, `settings`. |
 | Runtime | Host verification, projection, readiness, authorization, capability injection, execution, cleanup. |
-| Data | App storage namespace, Knowledge templates, overlays, secrets, artifacts, evidence. |
-| Quality | Evals, human review, fact grounding, provenance, readiness status. |
+| Context and data | Context requirements, app storage namespace, Knowledge templates, overlays, secrets, artifacts, evidence. |
+| Trust and quality | Evidence, Policy, QC, evals, human review, fact grounding, provenance, readiness status. |
 | Distribution | Release metadata, package hash, manifest hash, compatibility, tenant enablement. |
 
 ## Current version
@@ -64,4 +64,4 @@ The current line is v0.7. It keeps the executable package contract, v0.5 layered
 
 ## Design boundary
 
-Agent App intentionally sits above Skills and Knowledge. A Skill describes how work is done; Knowledge supplies trusted facts; Tools call external systems; Artifacts persist deliverables. Agent App packages those pieces with UI, workflow, storage, permissions, and quality gates so the host can run a complete product experience without baking vertical business logic into host core.
+Agent App intentionally sits above the surrounding standards as the composition layer. Runtime executes tasks; UI renders interaction surfaces; Context assembles task context; Skills describe reusable procedures; Knowledge supplies trusted facts; Tools and Connectors call external systems; Artifacts persist deliverables; Evidence, Policy, and QC make results trustworthy. Agent App packages those pieces with workflow, storage, permissions, lifecycle, and v0.7 boundary files so the host can run a complete product experience without baking vertical business logic into host core.
