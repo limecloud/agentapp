@@ -21,23 +21,19 @@ An Agent App should be the surface where the user finishes the job: dashboards, 
 
 This also prevents the opposite failure mode. An app should not rebuild its own model gateway, credential store, permission system, evidence store, or tool broker just to avoid Lime. That would make Lime a distribution shell for independent SaaS products. Agent App exists for the middle path: the app owns business shape and business state; Lime owns the agent runtime and governed platform capabilities.
 
-## Relationship to experts
+## Difference from Lime Experts
 
-A large-company “expert” is usually:
+The Lime Experts module is closer to a conversational specialist: useful for quick answers, consultation, analysis, and lightweight tasks. Agent App is closer to an installable business workspace: useful when pages, workflows, data, deliverables, and background jobs need to become one product.
 
-```text
-Expert = Chat UI + Persona + Skills + Tools + Data Connections
-```
+| Dimension | Lime Experts module | Agent App |
+| --- | --- | --- |
+| User entry | Conversation-first. | Pages, panels, commands, workflows, artifacts, and settings can all be entries. |
+| Best fit | Q&A, consultation, ad hoc analysis, lightweight execution. | Content factories, support workbenches, contract review, research workspaces, and other complete workflows. |
+| State | Mostly conversation context and bound knowledge. | Own app storage, workflow state, artifacts, and evidence. |
+| Output | Usually answers, suggestions, or drafts. | Durable business objects and deliverables that can be saved, reused, and audited. |
+| Extension model | Configure persona, Knowledge, Skills, and Tools. | Package UI, workers, storage schemas, workflows, permissions, and runtime contracts. |
 
-Agent App is a higher-level package:
-
-```text
-Agent App = UI + Workflow + Storage + Services + Agent Entries + Skills + Tools + Knowledge + Artifacts + Policy
-```
-
-An expert is only an `expert-chat` entry. An app can contain multiple experts, or none. A Content Factory App should have project home, knowledge pages, content factory, review dashboard, and background jobs; a content strategist expert is only one entry.
-
-Expert chat is therefore an app interaction mode, not the default container for every business workflow. An app may embed an expert beside a table or review step, and that expert should read the current app context and trigger app workflows through the SDK rather than producing detached chat text that the user must copy back manually.
+Simple rule: if the user wants to ask a specialist, use Lime Experts. If the user needs to finish a business workflow inside a product surface, use Agent App. An Agent App may include expert entries, but an expert entry is only one interaction mode, not the whole app.
 
 ## Mini-program analogy
 
