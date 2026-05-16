@@ -12,6 +12,9 @@ const enNav = [
     text: 'Version',
     items: [
       { text: 'latest', link: '/en/specification' },
+      { text: 'v0.7 overview', link: '/en/versions/v0.7/overview' },
+      { text: 'v0.7 specification', link: '/en/versions/v0.7/specification' },
+      { text: 'v0.7 changelog', link: '/en/versions/v0.7/changelog' },
       { text: 'v0.6 overview', link: '/en/versions/v0.6/overview' },
       { text: 'v0.6 specification', link: '/en/versions/v0.6/specification' },
       { text: 'v0.6 changelog', link: '/en/versions/v0.6/changelog' },
@@ -45,6 +48,9 @@ const zhNav = [
     text: '版本',
     items: [
       { text: 'latest', link: '/zh/specification' },
+      { text: 'v0.7 概览', link: '/zh/versions/v0.7/overview' },
+      { text: 'v0.7 规范', link: '/zh/versions/v0.7/specification' },
+      { text: 'v0.7 变更记录', link: '/zh/versions/v0.7/changelog' },
       { text: 'v0.6 概览', link: '/zh/versions/v0.6/overview' },
       { text: 'v0.6 规范', link: '/zh/versions/v0.6/specification' },
       { text: 'v0.6 变更记录', link: '/zh/versions/v0.6/changelog' },
@@ -112,6 +118,7 @@ const enSidebar = [
     text: 'Examples',
     items: [
       { text: 'Content Factory App', link: '/en/examples/content-factory' },
+      { text: 'Lightweight Content Ops', link: '/en/examples/lightweight-content-ops' },
       { text: 'Customer support app', link: '/en/examples/customer-support' },
       { text: 'Complete APP.md', link: '/en/examples/complete-app' }
     ]
@@ -122,6 +129,8 @@ const enSidebar = [
       { text: 'Mini-program analogy', link: '/en/reference/mini-program-analogy' },
       { text: 'Reference CLI', link: '/en/reference/reference-cli' },
       { text: 'JSON Schemas', link: '/en/reference/json-schemas' },
+      { text: 'Responsibility boundary', link: '/en/reference/responsibility-boundary' },
+      { text: 'App Fit Report', link: '/en/reference/app-fit-report' },
       { text: 'Glossary', link: '/en/reference/glossary' },
       { text: 'Agent standards ecosystem', link: '/en/reference/agent-ecosystem' }
     ]
@@ -129,6 +138,9 @@ const enSidebar = [
   {
     text: 'Versions',
     items: [
+      { text: 'v0.7 overview', link: '/en/versions/v0.7/overview' },
+      { text: 'v0.7 specification', link: '/en/versions/v0.7/specification' },
+      { text: 'v0.7 changelog', link: '/en/versions/v0.7/changelog' },
       { text: 'v0.6 overview', link: '/en/versions/v0.6/overview' },
       { text: 'v0.6 specification', link: '/en/versions/v0.6/specification' },
       { text: 'v0.6 changelog', link: '/en/versions/v0.6/changelog' },
@@ -195,6 +207,7 @@ const zhSidebar = [
     text: '示例',
     items: [
       { text: '内容工厂', link: '/zh/examples/content-factory' },
+      { text: '轻量内容运营工作台', link: '/zh/examples/lightweight-content-ops' },
       { text: '客服知识库应用', link: '/zh/examples/customer-support' },
       { text: '完整 APP.md', link: '/zh/examples/complete-app' }
     ]
@@ -205,6 +218,8 @@ const zhSidebar = [
       { text: '小程序类比', link: '/zh/reference/mini-program-analogy' },
       { text: '参考 CLI', link: '/zh/reference/reference-cli' },
       { text: 'JSON Schemas', link: '/zh/reference/json-schemas' },
+      { text: '职责边界', link: '/zh/reference/responsibility-boundary' },
+      { text: 'App Fit Report', link: '/zh/reference/app-fit-report' },
       { text: '术语表', link: '/zh/reference/glossary' },
       { text: 'Agent 标准生态', link: '/zh/reference/agent-ecosystem' }
     ]
@@ -212,6 +227,9 @@ const zhSidebar = [
   {
     text: '版本',
     items: [
+      { text: 'v0.7 概览', link: '/zh/versions/v0.7/overview' },
+      { text: 'v0.7 规范', link: '/zh/versions/v0.7/specification' },
+      { text: 'v0.7 变更记录', link: '/zh/versions/v0.7/changelog' },
       { text: 'v0.6 概览', link: '/zh/versions/v0.6/overview' },
       { text: 'v0.6 规范', link: '/zh/versions/v0.6/specification' },
       { text: 'v0.6 变更记录', link: '/zh/versions/v0.6/changelog' },

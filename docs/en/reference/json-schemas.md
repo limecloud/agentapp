@@ -13,6 +13,11 @@ Agent App publishes JSON Schemas so hosts, registries, editors, and CI jobs can 
 | --- | --- |
 | [`app-manifest.schema.json`](/schemas/app-manifest.schema.json) | Validates manifest fields from `APP.md` or `app.manifest.json`. |
 | [`app-runtime.schema.json`](/schemas/app-runtime.schema.json) | Validates v0.6 `app.runtime.yaml` Agent task runtime contracts. |
+| [`app-requirements.schema.json`](/schemas/app-requirements.schema.json) | Validates v0.7 business requirements, MVP scope, non-goals, and acceptance criteria. |
+| [`app-boundary.schema.json`](/schemas/app-boundary.schema.json) | Validates v0.7 App / Host / Cloud / connector / external system / human responsibility boundaries. |
+| [`app-integrations.schema.json`](/schemas/app-integrations.schema.json) | Validates v0.7 host/cloud-managed external integration requirements. |
+| [`app-operations.schema.json`](/schemas/app-operations.schema.json) | Validates v0.7 operation side effects, approvals, dry-run, and evidence contracts. |
+| [`app-fit-report.schema.json`](/schemas/app-fit-report.schema.json) | Validates v0.7 pre-implementation fit reports for business requirements. |
 | [`app-projection.schema.json`](/schemas/app-projection.schema.json) | Validates host projection output with provenance. |
 | [`app-readiness.schema.json`](/schemas/app-readiness.schema.json) | Validates readiness output and setup findings. |
 
@@ -40,13 +45,14 @@ The manifest schema covers fields such as:
 - Knowledge, Skills, Tools, Artifacts, Evals
 - permissions, secrets, lifecycle, overlays
 - v0.6 `agentRuntime` shorthand for task control-plane intent
+- v0.7 `requirements`, `boundary`, `integrations`, and `operations` shorthands
 - presentation and compatibility
 
 v0.3 current entry kinds are `page`, `panel`, `expert-chat`, `command`, `workflow`, `artifact`, `background-task`, and `settings`.
 
 ## Projection validation
 
-Projection schema ensures that host-generated catalog objects include app summary, entries, capabilities, storage, services, workflows, requirements, and provenance.
+Projection schema ensures that host-generated catalog objects include app summary, entries, capabilities, storage, services, workflows, requirements, boundary, integrations, operations, and provenance.
 
 Projection should include `manifestHash` and `packageHash` so derived objects can be traced back to a release.
 

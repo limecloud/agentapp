@@ -1,0 +1,47 @@
+# Agent App v0.7 Host/Cloud-managed integrations.
+
+integrations:
+  - key: source_documents
+    required: true
+    provider: lime.files
+    role: user_selected_source_material
+    executionPlane: host
+    hostCapability: lime.files
+    access:
+      read: true
+      write: false
+    readiness:
+      missing: blocked
+      setupAction: select_source_files
+  - key: planning_table
+    required: true
+    provider: cloud.table
+    role: optional_external_planning_workspace
+    executionPlane: hybrid
+    hostCapability: lime.connectors
+    cloudCapability: lime.oauth
+    adapter:
+      kind: api
+      outputFormat: json
+    access:
+      read: true
+      write: true
+    readiness:
+      missing: needs-setup
+      setupAction: open_host_connector
+  - key: draft_exporter
+    required: false
+    provider: local.cli
+    role: optional_draft_export
+    executionPlane: host
+    hostCapability: lime.terminal
+    adapter:
+      kind: cli
+      command: content-draft-export
+      outputFormat: json
+    access:
+      read: true
+      write: true
+    readiness:
+      missing: optional
+      setupAction: install_cli_adapter

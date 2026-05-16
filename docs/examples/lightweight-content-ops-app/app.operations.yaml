@@ -1,0 +1,21 @@
+operations:
+  - key: generate_content_draft
+    required: true
+    type: agent_task
+    integration: source_records
+    sideEffect: artifact_create
+    approvalRequired: false
+    dryRunRequired: false
+    evidenceRequired: true
+    idempotencyRequired: true
+    autoExecute: true
+  - key: write_draftbox_record
+    required: false
+    type: external_write
+    integration: draftbox
+    sideEffect: external_write
+    approvalRequired: true
+    dryRunRequired: true
+    evidenceRequired: true
+    idempotencyRequired: true
+    autoExecute: false

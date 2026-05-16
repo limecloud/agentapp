@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://limecloud.github.io/agentapp/schemas/app-fit-report.schema.json",
+  "title": "Agent App Fit Report",
+  "description": "v0.7 pre-implementation report for mapping business requirements to App, Host, Cloud, connector, external system, and human responsibilities.",
+  "type": "object",
+  "properties": {
+    "appFitReport": {
+      "type": "object",
+      "properties": {
+        "requirementSource": { "type": "object", "additionalProperties": true },
+        "recommendedApp": { "type": "object", "additionalProperties": true },
+        "requirementItems": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/requirementItem" }
+        },
+        "requiredPlanes": { "type": "object", "additionalProperties": true },
+        "mvpCloudDependency": { "type": "object", "additionalProperties": true }
+      },
+      "additionalProperties": true
+    }
+  },
+  "$defs": {
+    "requirementItem": {
+      "type": "object",
+      "required": ["id", "text", "classification"],
+      "properties": {
+        "id": { "type": "string" },
+        "text": { "type": "string" },
+        "classification": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["APP_EXPERIENCE", "APP_WORKFLOW", "HOST_CAPABILITY", "CLOUD_CAPABILITY", "CONNECTOR_ADAPTER", "EXTERNAL_SYSTEM", "HUMAN_DECISION", "LATER_PHASE", "OUT_OF_SCOPE", "NEEDS_CLARIFICATION"]
+          },
+          "uniqueItems": true
+        },
+        "appRole": { "type": "string" },
+        "hostRole": { "type": "string" },
+        "cloudRole": { "type": "string" },
+        "connectorRole": { "type": "string" },
+        "externalSystemRole": { "type": "string" },
+        "humanRole": { "type": "string" },
+        "mvp": { "type": "boolean" },
+        "risk": { "type": "string", "enum": ["low", "medium", "high"] }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

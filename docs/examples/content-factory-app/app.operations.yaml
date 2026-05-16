@@ -1,0 +1,42 @@
+# Agent App v0.7 operation side effects.
+
+operations:
+  - key: build_project_knowledge
+    required: true
+    type: agent_task
+    integration: source_documents
+    sideEffect: app_storage_write
+    approvalRequired: false
+    dryRunRequired: false
+    evidenceRequired: true
+    idempotencyRequired: true
+    autoExecute: true
+  - key: generate_content_artifact
+    required: true
+    type: agent_task
+    sideEffect: artifact_create
+    approvalRequired: false
+    dryRunRequired: false
+    evidenceRequired: true
+    idempotencyRequired: true
+    autoExecute: true
+  - key: update_planning_table_draft
+    required: true
+    type: external_write
+    integration: planning_table
+    sideEffect: external_write
+    approvalRequired: true
+    dryRunRequired: true
+    evidenceRequired: true
+    idempotencyRequired: true
+    autoExecute: false
+  - key: publish_external_channel
+    required: false
+    type: external_publish
+    integration: planning_table
+    sideEffect: external_publish
+    approvalRequired: true
+    dryRunRequired: true
+    evidenceRequired: true
+    idempotencyRequired: true
+    autoExecute: false

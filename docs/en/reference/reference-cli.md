@@ -20,7 +20,7 @@ npm run cli -- validate docs/examples/content-factory-app
 From npm after publishing:
 
 ```bash
-npx agentapp-ref@0.6.0 validate ./my-agent-app --version 0.6
+npx agentapp-ref@0.7.0 validate ./my-agent-app --version 0.7
 ```
 
 ## Commands
@@ -32,8 +32,8 @@ npx agentapp-ref@0.6.0 validate ./my-agent-app --version 0.6
 | `to-catalog <app>` | Emit compact catalog metadata. |
 | `project <app>` | Emit host catalog projection with provenance. |
 | `readiness <app>` | Check static setup readiness without running an agent. |
-| `migrate-check <app> [--target 0.6.0]` | Report migration gaps for the current target version. |
-| `migrate-generate <app> [--target 0.6.0]` | Suggest layered config files, including v0.6 `app.runtime.yaml`. |
+| `migrate-check <app> [--target 0.7.0]` | Report migration gaps for the current target version. |
+| `migrate-generate <app> [--target 0.7.0]` | Suggest layered config files, including v0.6 `app.runtime.yaml` and v0.7 boundary / integration / operation files. |
 
 ## Validate
 
@@ -49,7 +49,7 @@ Use this in CI before publishing. It catches missing required fields, unsupporte
 npm run cli -- project docs/examples/content-factory-app
 ```
 
-Projection output includes app summary, entries, capability requirements, storage, services, workflows, permissions, requirements, and provenance. Hosts can use this as a model for their own projection layer.
+Projection output includes app summary, entries, capability requirements, storage, services, workflows, permissions, requirements, boundary, integrations, operations, and provenance. Hosts can use this as a model for their own projection layer.
 
 ## Readiness
 
@@ -57,7 +57,7 @@ Projection output includes app summary, entries, capability requirements, storag
 npm run cli -- readiness docs/examples/content-factory-app
 ```
 
-Readiness reports required and optional setup. A structurally valid package can return `needs-setup` when required Skills, Knowledge, Tools, services, or evals are not satisfied by the host.
+Readiness reports required and optional setup. A structurally valid package can return `needs-setup` when required Skills, Knowledge, Tools, services, integrations, operations, or evals are not satisfied by the host.
 
 ## Exit behavior
 
@@ -97,4 +97,4 @@ npm run cli -- readiness docs/examples/content-factory-app > /tmp/content-factor
 - JSON output should be deterministic for the same inputs.
 - Errors should be actionable and tied to manifest keys or local paths.
 - Warnings should identify production-readiness gaps without blocking draft exploration.
-- Readiness should separate missing host capabilities, missing user setup, and missing package files.
+- Readiness should separate missing host capabilities, missing connectors / integrations, missing user setup, and missing package files.

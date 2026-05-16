@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://limecloud.github.io/agentapp/schemas/app-boundary.schema.json",
+  "title": "Agent App Boundary Contract",
+  "description": "v0.7 responsibility boundary across App, Host, Cloud, connector, external system, and human planes.",
+  "type": "object",
+  "properties": {
+    "boundaries": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/boundary" }
+    }
+  },
+  "$defs": {
+    "boundary": {
+      "type": "object",
+      "required": ["requirementId", "planes"],
+      "properties": {
+        "requirementId": { "type": "string", "minLength": 1 },
+        "planes": {
+          "type": "object",
+          "properties": {
+            "app": { "$ref": "#/$defs/plane" },
+            "host": { "$ref": "#/$defs/plane" },
+            "cloud": { "$ref": "#/$defs/plane" },
+            "connector": { "$ref": "#/$defs/plane" },
+            "external": { "$ref": "#/$defs/plane" },
+            "human": { "$ref": "#/$defs/plane" }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    },
+    "plane": {
+      "type": "object",
+      "properties": {
+        "owns": { "type": "array", "items": { "type": "string" } },
+        "requires": { "type": "array", "items": { "type": "string" } },
+        "optional": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

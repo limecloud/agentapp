@@ -13,6 +13,11 @@ Agent App 发布 JSON Schemas，让宿主、registry、编辑器和 CI 可以机
 | --- | --- |
 | [`app-manifest.schema.json`](/schemas/app-manifest.schema.json) | 校验 `APP.md` 或 `app.manifest.json` 中的 manifest 字段。 |
 | [`app-runtime.schema.json`](/schemas/app-runtime.schema.json) | 校验 v0.6 `app.runtime.yaml` Agent task runtime contract。 |
+| [`app-requirements.schema.json`](/schemas/app-requirements.schema.json) | 校验 v0.7 业务需求、MVP 范围、非目标和验收标准。 |
+| [`app-boundary.schema.json`](/schemas/app-boundary.schema.json) | 校验 v0.7 App / Host / Cloud / connector / external system / human 职责边界。 |
+| [`app-integrations.schema.json`](/schemas/app-integrations.schema.json) | 校验 v0.7 Host/Cloud 托管的外部集成需求。 |
+| [`app-operations.schema.json`](/schemas/app-operations.schema.json) | 校验 v0.7 操作副作用、审批、dry-run 和 evidence 契约。 |
+| [`app-fit-report.schema.json`](/schemas/app-fit-report.schema.json) | 校验 v0.7 商业需求适配评估报告。 |
 | [`app-projection.schema.json`](/schemas/app-projection.schema.json) | 校验带 provenance 的宿主 projection 输出。 |
 | [`app-readiness.schema.json`](/schemas/app-readiness.schema.json) | 校验 readiness 输出和 setup findings。 |
 
@@ -27,13 +32,13 @@ Schema 不替代 runtime policy，只校验结构。
 
 ## Manifest Schema
 
-Manifest schema 覆盖 identity、runtime targets、SDK/capability requirements、runtime package、entries、UI、storage、services、workflows、Knowledge、Skills、Tools、Artifacts、Evals、permissions、secrets、lifecycle、overlays、v0.6 `agentRuntime` 简写、presentation、compatibility。
+Manifest schema 覆盖 identity、runtime targets、SDK/capability requirements、runtime package、entries、UI、storage、services、workflows、Knowledge、Skills、Tools、Artifacts、Evals、permissions、secrets、lifecycle、overlays、v0.6 `agentRuntime` 简写、v0.7 `requirements` / `boundary` / `integrations` / `operations` 简写、presentation、compatibility。
 
 v0.3 current entry kinds 是 `page`、`panel`、`expert-chat`、`command`、`workflow`、`artifact`、`background-task`、`settings`。
 
 ## Projection Schema
 
-Projection schema 确保宿主生成的 catalog objects 包含 app summary、entries、capabilities、storage、services、workflows、requirements 和 provenance。
+Projection schema 确保宿主生成的 catalog objects 包含 app summary、entries、capabilities、storage、services、workflows、requirements、boundary、integrations、operations 和 provenance。
 
 Projection 应包含 `manifestHash` 和 `packageHash`，这样派生对象能追溯到 release。
 

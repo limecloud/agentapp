@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Content Draft Artifact",
+  "type": "object",
+  "required": ["title", "body", "sources"],
+  "properties": {
+    "title": { "type": "string" },
+    "body": { "type": "string" },
+    "channel": { "type": "string" },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["sourceId"],
+        "properties": {
+          "sourceId": { "type": "string" },
+          "evidenceRef": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "reviewState": {
+      "type": "string",
+      "enum": ["draft", "needs-review", "approved", "rejected"]
+    }
+  },
+  "additionalProperties": true
+}

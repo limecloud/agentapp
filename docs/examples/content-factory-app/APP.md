@@ -1,5 +1,5 @@
 ---
-manifestVersion: 0.6.0
+manifestVersion: 0.7.0
 name: content-factory-app
 displayName: 内容工厂
 displayNameI18n:
@@ -10,7 +10,7 @@ shortDescriptionI18n:
   en-US: One-stop planning, production, and review workspace for content teams.
   zh-CN: 内容团队的一站式策划 / 生产 / 复盘工作台
 description: 内容工厂帮助团队规划、生产和管理营销内容。使用场景："创建内容日历"、"批量生成文案"、"内容资产管理"、"知识库构建"。
-version: 0.6.0
+version: 0.7.0
 status: ready
 appType: domain-app
 keywords:
@@ -47,11 +47,11 @@ maintainers:
     email: content-quality@limecloud.example
     role: quality
 createdAt: 2026-01-08T00:00:00Z
-updatedAt: 2026-05-16T00:00:00Z
-releasedAt: 2026-05-16T00:00:00Z
+updatedAt: 2026-05-17T00:00:00Z
+releasedAt: 2026-05-17T00:00:00Z
 supportWindow:
   channel: stable
-  supportedUntil: 2027-05-16T00:00:00Z
+  supportedUntil: 2027-05-17T00:00:00Z
 homepage: https://limecloud.example/apps/content-factory
 repository:
   type: git
@@ -95,7 +95,7 @@ runtimeTargets:
   - local
   - hybrid
 requires:
-  sdk: "@lime/app-sdk@^0.6.0"
+  sdk: "@lime/app-sdk@^0.7.0"
   capabilities:
     - lime.ui
     - lime.storage
@@ -108,6 +108,8 @@ requires:
     - lime.policy
     - lime.evidence
     - lime.secrets
+    - lime.connectors
+    - lime.terminal
 triggers:
   keywords:
     - 内容
@@ -269,7 +271,7 @@ presentation:
   title: 内容工厂
   summary: 面向内容团队的行业 Agent App。
 compatibility:
-  minHostVersion: 0.6.0
+  minHostVersion: 0.7.0
 metadata:
   example: true
 ---
@@ -306,6 +308,10 @@ metadata:
 4. **人工审核** - 团队审阅与修改，记录评论与版本
 5. **资产沉淀** - 通过 Artifact 持久化内容资产并支持导出
 6. **复盘归因** - 根据投放数据回到知识库与策略迭代
+
+## v0.7 需求边界
+
+该示例增加了 `app.requirements.yaml`、`app.boundary.yaml`、`app.integrations.yaml` 和 `app.operations.yaml`，用于说明：App 负责内容工作台、流程状态、草稿和审核；Lime Host 负责本地 Agent、文件、工具、连接器、凭证和 evidence；Lime Cloud 可提供租户策略、OAuth broker、connector registry 和计划同步；外部内容系统仍是事实源；发布或批量写入必须经过人工确认。
 
 ## 快速开始
 
@@ -346,13 +352,13 @@ metadata:
 
 1. 未绑定 `project_knowledge` 知识库（`needs-setup`）
 2. `document_parser` 工具未启用（`blocked`）
-3. SDK 版本低于 `^0.6.0`
+3. SDK 版本低于 `^0.7.0`
 
 排查命令：
 
 ```bash
 agentapp-ref readiness ./content-factory-app --workspace ./workspace
-agentapp-ref validate ./content-factory-app --version 0.6.0
+agentapp-ref validate ./content-factory-app --version 0.7.0
 ```
 
 ### 问题：内容资产无法导出

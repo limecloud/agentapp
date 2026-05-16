@@ -1,0 +1,33 @@
+boundaries:
+  - requirementId: R001
+    planes:
+      app:
+        owns: [workspace_ui, draft_review_workflow, content_draft_artifact]
+      host:
+        requires: [lime.agent, lime.storage, lime.artifacts, lime.evidence]
+      human:
+        owns: [draft_review_decision]
+  - requirementId: R002
+    planes:
+      app:
+        owns: [connector_setup_prompt, source_status]
+      host:
+        requires: [lime.connectors, lime.secrets, lime.policy]
+      cloud:
+        optional: [connector_registry, oauth_broker]
+      connector:
+        requires: [source_records_adapter]
+      external:
+        owns: [source_records]
+  - requirementId: R003
+    planes:
+      app:
+        owns: [writeback_preview, handoff_status]
+      host:
+        requires: [lime.connectors, lime.evidence]
+      connector:
+        requires: [draftbox_write_adapter]
+      external:
+        owns: [draftbox_records]
+      human:
+        owns: [writeback_approval]

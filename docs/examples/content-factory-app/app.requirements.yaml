@@ -1,0 +1,35 @@
+# Agent App v0.7 requirement boundary for content-factory-app.
+# Keep private customer facts in workspace data, Knowledge, secrets, or overlays.
+
+requirements:
+  - id: R001
+    text: Provide a content operations workspace for setup, planning, drafting, review, and evidence.
+    priority: mvp
+    acceptance:
+      - Users can see project state, required setup, generated drafts, and review status inside the app.
+      - Generated outputs are saved as artifacts with evidence references.
+  - id: R002
+    text: Build reusable project knowledge from user-selected files and notes.
+    priority: mvp
+    acceptance:
+      - File reads are mediated by Lime Host permissions.
+      - Extracted facts are linked to source evidence and Knowledge bindings.
+  - id: R003
+    text: Generate channel-ready drafts and calendar items from approved project knowledge.
+    priority: mvp
+    acceptance:
+      - Drafts use structured output and pass fact-grounding checks.
+      - Human review is required before external writes or publishing.
+  - id: R004
+    text: Sync optional draft metadata to an external planning table.
+    priority: p1
+    acceptance:
+      - External writes run through a Host/Cloud-managed connector.
+      - Dry-run and idempotency evidence are recorded before write-back.
+nonGoals:
+  - Store plaintext third-party credentials in the app package.
+  - Hard-code customer-private SOP, account names, or external-system record IDs.
+  - Auto-publish or bulk-update external channels without human confirmation.
+later:
+  - Scheduled performance sync from external analytics systems.
+  - Fully automated publishing after tenant policy and connector review.

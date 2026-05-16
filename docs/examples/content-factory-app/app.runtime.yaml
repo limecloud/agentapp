@@ -1,4 +1,4 @@
-# Agent App v0.6 runtime contract for content-factory-app.
+# Agent App v0.7 runtime contract for content-factory-app.
 # The app declares task boundaries; Lime Host / AgentRuntime still owns execution, policy, tools, evidence, and telemetry.
 
 agentRuntime:

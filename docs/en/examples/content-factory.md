@@ -5,7 +5,7 @@ description: Product-level Agent App example for content factory workflows.
 
 # Content Factory App
 
-The Content Factory App shows why Agent App is an application package, not a single expert or a prompt collection. It packages a business workflow with UI, storage, workflows, workers, Knowledge bindings, Tools, Artifacts, Evals, permissions, and overlays.
+The Content Factory App shows why Agent App is an application package, not a single expert or a prompt collection. It packages a business workflow with UI, storage, workflows, workers, Knowledge bindings, Tools, Artifacts, Evals, permissions, overlays, and v0.7 requirement-boundary files.
 
 Reference package: [`docs/examples/content-factory-app/APP.md`](../../examples/content-factory-app/APP.md)
 
@@ -90,6 +90,17 @@ The fixture includes [`app.runtime.yaml`](../../examples/content-factory-app/app
 - checkpoint boundaries for workflow state, app storage, artifacts, tracked files, conversation, and external side effects
 - OpenTelemetry mapping with content export disabled by default
 
+## v0.7 requirement boundary
+
+The fixture now includes:
+
+- [`app.requirements.yaml`](../../examples/content-factory-app/app.requirements.yaml) for MVP requirements, non-goals, later phases, and acceptance criteria
+- [`app.boundary.yaml`](../../examples/content-factory-app/app.boundary.yaml) for App / Host / Cloud / connector / external-system / human responsibilities
+- [`app.integrations.yaml`](../../examples/content-factory-app/app.integrations.yaml) for Host/Cloud-managed file, planning-table, and CLI adapter needs
+- [`app.operations.yaml`](../../examples/content-factory-app/app.operations.yaml) for side effects, approval, dry-run, idempotency, and evidence rules
+
+For ordinary users this means the app shows what it can do in the workspace, what must be connected by Lime, and which external writes or publishes still require human confirmation.
+
 ## Readiness behavior
 
 The fixture validates successfully, but readiness can report `needs-setup` because required Skills, Knowledge, Tools, Evals, and services must be satisfied by the host.
@@ -101,6 +112,7 @@ That is correct behavior. The package is structurally valid; the workspace may s
 - Product-level apps should not be written into Lime Core.
 - `APP.md` is declaration and guide, not the full app.
 - Runtime code must call the Capability SDK.
+- Requirement boundaries must explain what belongs to App, Host, Cloud, connectors, external systems, and humans.
 - Customer data belongs outside official packages.
 - Entries are not limited to chat.
 - Artifacts and Evidence make output durable and reviewable.
@@ -109,7 +121,7 @@ That is correct behavior. The package is structurally valid; the workspace may s
 ## Try it locally
 
 ```bash
-npm run cli -- validate docs/examples/content-factory-app --version 0.6
+npm run cli -- validate docs/examples/content-factory-app --version 0.7
 npm run cli -- project docs/examples/content-factory-app
 npm run cli -- readiness docs/examples/content-factory-app
 ```

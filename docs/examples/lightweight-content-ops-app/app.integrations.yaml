@@ -1,0 +1,33 @@
+integrations:
+  - key: source_records
+    required: true
+    provider: docs.table
+    role: source_of_truth
+    executionPlane: host
+    hostCapability: lime.connectors
+    cloudCapability: lime.oauth
+    adapter:
+      kind: api
+      outputFormat: json
+    access:
+      read: true
+      write: false
+    readiness:
+      missing: blocked
+      setupAction: open_host_connector
+  - key: draftbox
+    required: false
+    provider: docs.table
+    role: external_draft_box
+    executionPlane: hybrid
+    hostCapability: lime.connectors
+    cloudCapability: lime.oauth
+    adapter:
+      kind: api
+      outputFormat: json
+    access:
+      read: true
+      write: true
+    readiness:
+      missing: needs-setup
+      setupAction: open_host_connector

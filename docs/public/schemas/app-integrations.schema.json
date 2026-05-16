@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://limecloud.github.io/agentapp/schemas/app-integrations.schema.json",
+  "title": "Agent App Integrations Contract",
+  "description": "v0.7 host/cloud-managed external integration requirements.",
+  "type": "object",
+  "properties": {
+    "integrations": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/integration" }
+    }
+  },
+  "$defs": {
+    "integration": {
+      "type": "object",
+      "required": ["key", "provider", "role"],
+      "properties": {
+        "key": { "type": "string", "minLength": 1 },
+        "provider": { "type": "string", "minLength": 1 },
+        "role": { "type": "string", "minLength": 1 },
+        "executionPlane": { "type": "string", "enum": ["host", "cloud", "hybrid", "external"] },
+        "fallbackPlane": { "type": "string", "enum": ["host", "cloud", "hybrid", "external"] },
+        "hostCapability": { "type": "string" },
+        "cloudCapability": { "type": "string" },
+        "adapter": { "$ref": "#/$defs/adapter" },
+        "access": {
+          "type": "object",
+          "properties": {
+            "read": { "type": "boolean" },
+            "write": { "type": "boolean" }
+          },
+          "additionalProperties": true
+        },
+        "readiness": { "type": "object", "additionalProperties": true }
+      },
+      "additionalProperties": true
+    },
+    "adapter": {
+      "type": "object",
+      "properties": {
+        "kind": { "type": "string", "enum": ["connector", "cli", "mcp", "api", "webhook", "browser"] },
+        "command": { "type": "string" },
+        "server": { "type": "string" },
+        "outputFormat": { "type": "string", "enum": ["json", "ndjson", "csv", "text", "binary"] }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

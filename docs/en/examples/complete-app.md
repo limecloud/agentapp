@@ -12,10 +12,10 @@ Use `docs/examples/content-factory-app/APP.md` as the current fixture. The secti
 ## Required identity
 
 ```yaml
-manifestVersion: 0.6.0
+manifestVersion: 0.7.0
 name: content-factory-app
 description: Content Factory App for knowledge building, content scenario planning, content production, and review.
-version: 0.6.0
+version: 0.7.0
 status: ready
 appType: domain-app
 runtimeTargets:
@@ -29,12 +29,13 @@ Identity fields let registries and hosts index the package. They should be stabl
 ```yaml
 requires:
   lime:
-    appRuntime: ">=0.6.0 <1.0.0"
-  sdk: "@lime/app-sdk@^0.6.0"
+    appRuntime: ">=0.7.0 <1.0.0"
+  sdk: "@lime/app-sdk@^0.7.0"
   capabilities:
-    lime.ui: "^0.6.0"
-    lime.storage: "^0.6.0"
-    lime.agent: "^0.6.0"
+    lime.ui: "^0.7.0"
+    lime.storage: "^0.7.0"
+    lime.agent: "^0.7.0"
+    lime.connectors: "^0.7.0"
 ```
 
 Requirements should describe what the host must provide. They should not describe host internals.
@@ -110,6 +111,19 @@ agentRuntime:
       exportContentByDefault: false
 ```
 
+## v0.7 requirement boundary
+
+A complete app should include independent boundary files that explain what the App owns and what requires Host, Cloud, connector, external-system, or human-decision support.
+
+```text
+app.requirements.yaml   # requirements, MVP, non-goals, acceptance criteria
+app.boundary.yaml       # App / Host / Cloud / Connector / External / Human responsibilities
+app.integrations.yaml   # Host/Cloud-managed external connection needs
+app.operations.yaml     # side effects, approval, dry-run, evidence
+```
+
+If a requirement writes, publishes, deletes, or bulk-updates external systems, `app.operations.yaml` must declare human approval, dry-run, idempotency, and evidence.
+
 ## Dependencies and deliverables
 
 A complete app usually declares:
@@ -122,6 +136,7 @@ A complete app usually declares:
 - `permissions` for host policy
 - `secrets` for credential slots
 - `overlayTemplates` for tenant and workspace configuration
+- `requirements` / `boundary` / `integrations` / `operations` for v0.7 requirement boundaries and capability handoff
 
 ## Human guide
 
@@ -139,11 +154,11 @@ The Markdown body should answer:
 
 | Area | Complete when |
 | --- | --- |
-| Manifest | Required fields and v0.6 requirements are present. |
+| Manifest | Required fields and v0.7 requirements are present. |
 | Runtime package | UI, worker, storage, and workflow paths are declared when used. |
 | Entries | Every user launch point has stable key, kind, title, and binding metadata. |
 | Data | Storage namespace and Knowledge slots are explicit. |
-| Policy | Permissions, secrets, runtime approval, and risky capabilities are declared. |
+| Policy | Permissions, secrets, runtime approval, external side effects, and risky capabilities are declared. |
 | Quality | Artifact types, structured output schemas, and evals are connected to workflows. |
 | Overlays | Tenant and workspace differences do not fork the package. |
 | Provenance | Projection and runtime outputs can trace back to app version and hashes. |
@@ -152,7 +167,7 @@ The Markdown body should answer:
 ## Validation commands
 
 ```bash
-npm run cli -- validate docs/examples/content-factory-app --version 0.6
+npm run cli -- validate docs/examples/content-factory-app --version 0.7
 npm run cli -- project docs/examples/content-factory-app
 npm run cli -- readiness docs/examples/content-factory-app
 ```

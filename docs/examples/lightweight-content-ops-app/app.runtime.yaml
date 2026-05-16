@@ -1,0 +1,27 @@
+agentRuntime:
+  agentTask:
+    eventSchema: lime.agent-task-event.v1
+    resultSchema: lime.agent-task-result.v1
+    structuredOutput:
+      type: json_schema
+      schemaRef: ./artifacts/content-draft.schema.json
+      maxValidationRetries: 2
+    approval:
+      behavior: host-mediated
+      supportsUpdatedInput: true
+      supportsDefer: true
+    sessionPolicy:
+      modes: [new, resume, continue, fork]
+    toolDiscovery:
+      mode: on_demand
+      topK: 3
+      includeSchemas: selected_only
+    checkpointScope:
+      workflowState: true
+      appStorage: true
+      artifacts: true
+      externalSideEffects: record_only
+    observability:
+      profileEvents: true
+      openTelemetryMapping: true
+      exportContentByDefault: false

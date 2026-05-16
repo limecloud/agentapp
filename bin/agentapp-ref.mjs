@@ -4,10 +4,10 @@ import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { basename, dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const cliVersion = '0.6.0'
+const cliVersion = '0.7.0'
 const currentEntryKinds = new Set(['page', 'panel', 'expert-chat', 'command', 'workflow', 'artifact', 'background-task', 'settings'])
 const legacyEntryKinds = new Set(['home', 'scene'])
-const supportedManifestVersions = new Set(['0.3.0', '0.4.0', '0.5.0', '0.6.0'])
+const supportedManifestVersions = new Set(['0.3.0', '0.4.0', '0.5.0', '0.6.0', '0.7.0'])
 const v05LayeredFiles = [
   'app.capabilities.yaml',
   'app.entries.yaml',
@@ -19,6 +19,12 @@ const v05LayeredFiles = [
   'evals/health.yaml'
 ]
 const v06LayeredFiles = ['app.runtime.yaml']
+const v07LayeredFiles = [
+  'app.requirements.yaml',
+  'app.boundary.yaml',
+  'app.integrations.yaml',
+  'app.operations.yaml'
+]
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 
 function main() {
@@ -58,13 +64,13 @@ function printHelp() {
   console.log(`agentapp-ref ${cliVersion}
 
 Usage:
-  agentapp-ref validate <app> [--version <0.3|0.4|0.5|0.6>]
+  agentapp-ref validate <app> [--version <0.3|0.4|0.5|0.6|0.7>]
   agentapp-ref read-properties <app>
   agentapp-ref to-catalog <app>
   agentapp-ref project <app>
   agentapp-ref readiness <app> [--workspace <path>]
-  agentapp-ref migrate-check <app> [--target 0.6.0]
-  agentapp-ref migrate-generate <app> [--target 0.6.0]
+  agentapp-ref migrate-check <app> [--target 0.7.0]
+  agentapp-ref migrate-generate <app> [--target 0.7.0]
 
 Commands:
   validate          Validate APP.md shape and local references.
@@ -72,8 +78,8 @@ Commands:
   to-catalog        Emit compact app catalog metadata.
   project           Emit host catalog projection with provenance.
   readiness         Check static setup readiness without running an agent.
-  migrate-check     Inspect a v0.3/v0.4/v0.5 app and report v0.6 migration gaps.
-  migrate-generate  Suggest v0.6 layered runtime contract files for an existing app.
+  migrate-check     Inspect a v0.3-v0.6 app and report v0.7 migration gaps.
+  migrate-generate  Suggest v0.7 boundary, integration, operation, and delivery files for an existing app.
 
 Output:
   JSON is written to stdout. Diagnostics are written to stderr.
@@ -117,11 +123,14 @@ function validateApp(appPath, options = []) {
   }
 
   const effectiveVersion = targetVersion || properties.manifestVersion || '0.4.0'
-  if (effectiveVersion === '0.5.0' || effectiveVersion === '0.6.0') {
+  if (['0.5.0', '0.6.0', '0.7.0'].includes(effectiveVersion)) {
     checkV05Conventions(appRoot, properties, findings)
   }
-  if (effectiveVersion === '0.6.0') {
+  if (['0.6.0', '0.7.0'].includes(effectiveVersion)) {
     checkV06Conventions(appRoot, properties, findings)
+  }
+  if (effectiveVersion === '0.7.0') {
+    checkV07Conventions(appRoot, properties, findings)
   }
 
   checkEntries(properties.entries, properties, findings)
@@ -213,6 +222,10 @@ function projectApp(appPath) {
     overlayTemplates: withProvenance(properties.overlayTemplates),
     lifecycle: properties.lifecycle || {},
     agentRuntime: properties.agentRuntime || readLayeredYaml(appRoot, 'app.runtime.yaml')?.agentRuntime || {},
+    requirements: properties.requirements || readLayeredYaml(appRoot, 'app.requirements.yaml') || {},
+    boundary: properties.boundary || readLayeredYaml(appRoot, 'app.boundary.yaml') || {},
+    integrations: properties.integrations || readLayeredYaml(appRoot, 'app.integrations.yaml')?.integrations || [],
+    operations: properties.operations || readLayeredYaml(appRoot, 'app.operations.yaml')?.operations || [],
     provenance
   }
 }
@@ -232,6 +245,10 @@ function readiness(appPath, args) {
   addRequirementChecks('workflow', properties.workflows, checks)
   addRequirementChecks('secret', properties.secrets, checks)
   addRequirementChecks('overlay', properties.overlayTemplates, checks)
+  const integrations = readLayeredYaml(appRoot, 'app.integrations.yaml')?.integrations
+  const operations = readLayeredYaml(appRoot, 'app.operations.yaml')?.operations
+  addRequirementChecks('integration', integrations, checks)
+  addRequirementChecks('operation', operations, checks)
   addCapabilityChecks(properties.requires?.capabilities, checks)
 
   if (workspace && (!existsSync(resolve(workspace)) || !statSync(resolve(workspace)).isDirectory())) {
@@ -268,7 +285,20 @@ function addRequirementChecks(kind, items, checks) {
 }
 
 function addCapabilityChecks(capabilities, checks) {
-  if (!capabilities || typeof capabilities !== 'object' || Array.isArray(capabilities)) return
+  if (Array.isArray(capabilities)) {
+    for (const key of capabilities) {
+      checks.push({
+        severity: 'info',
+        kind: 'capability',
+        key,
+        required: true,
+        version: null,
+        message: `Host must satisfy capability ${key}.`
+      })
+    }
+    return
+  }
+  if (!capabilities || typeof capabilities !== 'object') return
   for (const [key, range] of Object.entries(capabilities)) {
     checks.push({
       severity: 'info',
@@ -482,6 +512,7 @@ function parseVersionFlag(args) {
   if (/^0\.4(\.\d+)?$/.test(raw)) return '0.4.0'
   if (/^0\.5(\.\d+)?$/.test(raw)) return '0.5.0'
   if (/^0\.6(\.\d+)?$/.test(raw)) return '0.6.0'
+  if (/^0\.7(\.\d+)?$/.test(raw)) return '0.7.0'
   return raw
 }
 
@@ -570,6 +601,46 @@ function checkV06Conventions(appRoot, properties, findings) {
   }
 }
 
+function checkV07Conventions(appRoot, properties, findings) {
+  const requirements = readLayeredYaml(appRoot, 'app.requirements.yaml')
+  const boundary = readLayeredYaml(appRoot, 'app.boundary.yaml')
+  const integrations = readLayeredYaml(appRoot, 'app.integrations.yaml')
+  const operations = readLayeredYaml(appRoot, 'app.operations.yaml')
+
+  if (isProductLevel(properties) && !requirements) {
+    findings.push(warningFinding('app.requirements.yaml', 'v0.7 recommends app.requirements.yaml so business requirements, MVP scope, non-goals, and acceptance criteria are explicit.'))
+  }
+  if (isProductLevel(properties) && !boundary) {
+    findings.push(warningFinding('app.boundary.yaml', 'v0.7 recommends app.boundary.yaml so App, Host, Cloud, connector, external system, and human responsibilities are explicit.'))
+  }
+  if (isProductLevel(properties) && !operations) {
+    findings.push(warningFinding('app.operations.yaml', 'v0.7 recommends app.operations.yaml so side effects, approval, dry-run, and evidence requirements are explicit.'))
+  }
+
+  const integrationItems = asArray(integrations?.integrations)
+  const operationItems = asArray(operations?.operations)
+  if (integrationItems.length && !properties.requires?.capabilities) {
+    findings.push(warningFinding('APP.md', 'v0.7 integrations should be paired with requires.capabilities so hosts can expose connector/tool/secrets/policy surfaces.'))
+  }
+  for (const integration of integrationItems) {
+    const key = integration.key || integration.id || 'integration'
+    if (!integration.provider) findings.push(warningFinding('app.integrations.yaml', `Integration is missing provider: ${key}.`))
+    if (!integration.hostCapability && !integration.cloudCapability) {
+      findings.push(warningFinding('app.integrations.yaml', `Integration should declare hostCapability or cloudCapability: ${key}.`))
+    }
+  }
+  for (const operation of operationItems) {
+    const key = operation.key || operation.id || 'operation'
+    const sideEffect = operation.sideEffect || operation.side_effect
+    if (sideEffect && sideEffect !== 'none' && operation.evidenceRequired !== true && operation.evidence_required !== true) {
+      findings.push(warningFinding('app.operations.yaml', `Operation with sideEffect should declare evidenceRequired: ${key}.`))
+    }
+    if (['external_publish', 'external_delete', 'bulk_update'].includes(String(sideEffect)) && operation.approvalRequired !== true && operation.approval_required !== true) {
+      findings.push(warningFinding('app.operations.yaml', `High-risk operation should declare approvalRequired: ${key}.`))
+    }
+  }
+}
+
 function usesLimeAgent(properties) {
   const requiredCapabilities = properties.requires?.capabilities
   if (Array.isArray(requiredCapabilities) && requiredCapabilities.includes('lime.agent')) return true
@@ -591,7 +662,7 @@ function migrateCheck(appPath, options = []) {
     return envelope(false, 'failed', 'migrate-check', basename(appRoot), findings)
   }
   const properties = readAppProperties(appMd)
-  const target = parseVersionFlag(options) || '0.6.0'
+  const target = parseVersionFlag(options) || '0.7.0'
   const sourceVersion = properties.manifestVersion || '0.3.0'
   const gaps = []
 
@@ -599,7 +670,7 @@ function migrateCheck(appPath, options = []) {
     findings.push({ severity: 'info', path: 'APP.md', message: `Already on manifestVersion ${target}. No migration required.` })
   }
 
-  if (target === '0.5.0' || target === '0.6.0') {
+  if (['0.5.0', '0.6.0', '0.7.0'].includes(target)) {
     if (!properties.triggers) gaps.push({ field: 'triggers', suggestion: 'Add triggers.keywords and triggers.scenarios to APP.md frontmatter.' })
     if (!properties.quickstart) gaps.push({ field: 'quickstart', suggestion: 'Add quickstart.entry pointing to a default entry key.' })
     if (!properties.skills) gaps.push({ field: 'skills', suggestion: 'Move skillRefs into skills.bundled / skills.references and add SKILL.md under skills/.' })
@@ -613,7 +684,7 @@ function migrateCheck(appPath, options = []) {
       gaps.push({ field: 'locales/', suggestion: 'Add locales/ directory with translation files for supported locales.' })
     }
   }
-  if (target === '0.6.0') {
+  if (['0.6.0', '0.7.0'].includes(target)) {
     for (const file of v06LayeredFiles) {
       if (!existsSync(join(appRoot, file))) {
         gaps.push({ field: file, suggestion: `Create ${file} for v0.6 Agent task runtime contracts.` })
@@ -621,6 +692,13 @@ function migrateCheck(appPath, options = []) {
     }
     if (usesLimeAgent(properties) && !properties.agentRuntime && !existsSync(join(appRoot, 'app.runtime.yaml'))) {
       gaps.push({ field: 'agentRuntime', suggestion: 'Declare agentRuntime policies for structured output, approvals, session resume/fork, tool discovery, checkpoint scope, and observability.' })
+    }
+  }
+  if (target === '0.7.0') {
+    for (const file of v07LayeredFiles) {
+      if (!existsSync(join(appRoot, file))) {
+        gaps.push({ field: file, suggestion: `Create ${file} for v0.7 requirement boundary and capability handoff contracts.` })
+      }
     }
   }
 
@@ -641,10 +719,10 @@ function migrateGenerate(appPath, options = []) {
     return envelope(false, 'failed', 'migrate-generate', basename(appRoot), [errorFinding('APP.md', 'Missing required APP.md.')])
   }
   const properties = readAppProperties(appMd)
-  const target = parseVersionFlag(options) || '0.6.0'
+  const target = parseVersionFlag(options) || '0.7.0'
   const suggestions = {}
 
-  if (target === '0.5.0' || target === '0.6.0') {
+  if (['0.5.0', '0.6.0', '0.7.0'].includes(target)) {
     suggestions['APP.md.frontmatter'] = {
       manifestVersion: target,
       triggers: properties.triggers || {
@@ -657,12 +735,18 @@ function migrateGenerate(appPath, options = []) {
     }
     suggestions['app.errors.yaml'] = sampleErrorsYaml()
     suggestions['app.i18n.yaml'] = sampleI18nYaml()
-    suggestions['evals/readiness.yaml'] = sampleReadinessYaml()
+    suggestions['evals/readiness.yaml'] = sampleReadinessYaml(target)
     suggestions['evals/health.yaml'] = sampleHealthYaml()
     suggestions['app.signature.yaml'] = sampleSignatureYaml(properties.name || 'app', properties.version || target)
   }
-  if (target === '0.6.0') {
+  if (['0.6.0', '0.7.0'].includes(target)) {
     suggestions['app.runtime.yaml'] = sampleRuntimeYaml()
+  }
+  if (target === '0.7.0') {
+    suggestions['app.requirements.yaml'] = sampleRequirementsYaml()
+    suggestions['app.boundary.yaml'] = sampleBoundaryYaml()
+    suggestions['app.integrations.yaml'] = sampleIntegrationsYaml()
+    suggestions['app.operations.yaml'] = sampleOperationsYaml()
   }
 
   return envelope(true, 'ready', 'migrate-generate', basename(appRoot), [], {
@@ -700,14 +784,14 @@ function sampleI18nYaml() {
   ].join('\n')
 }
 
-function sampleReadinessYaml() {
+function sampleReadinessYaml(target = cliVersion) {
   return [
     'readiness:',
     '  required:',
     '    - check: sdk_version',
-    '      expect: ">=0.6.0"',
+    `      expect: ">=${target}"`,
     '      blocker: true',
-    '      message: Lime SDK v0.6.0 or higher is required',
+    `      message: Lime SDK ${target} or higher is required`,
     '  recommended: []',
     '  performance: []'
   ].join('\n')
@@ -746,6 +830,97 @@ function sampleRuntimeYaml() {
     '      profileEvents: true',
     '      openTelemetryMapping: true',
     '      exportContentByDefault: false'
+  ].join('\n')
+}
+
+
+function sampleRequirementsYaml() {
+  return [
+    'requirements:',
+    '  - id: R001',
+    '    text: Run the minimum business workflow inside the app surface',
+    '    priority: mvp',
+    '    acceptance:',
+    '      - User can complete the workflow without changing host core',
+    '      - Outputs are saved as reviewable artifacts',
+    '  - id: R002',
+    '    text: Keep high-risk external side effects behind human review',
+    '    priority: mvp',
+    '    acceptance:',
+    '      - External writes create evidence',
+    '      - Final publish or destructive actions are not automatic',
+    'nonGoals:',
+    '  - Store plaintext third-party credentials in the package',
+    '  - Mutate external systems without host policy and evidence'
+  ].join('\n')
+}
+
+function sampleBoundaryYaml() {
+  return [
+    'boundaries:',
+    '  - requirementId: R001',
+    '    planes:',
+    '      app:',
+    '        owns: [business_ui, workflow_state, artifact_contracts]',
+    '      host:',
+    '        requires: [lime.agent, lime.storage, lime.artifacts, lime.evidence]',
+    '      cloud:',
+    '        optional: [tenant_policy, connector_registry]',
+    '      human:',
+    '        owns: [review_decision]',
+    '  - requirementId: R002',
+    '    planes:',
+    '      app:',
+    '        owns: [review_ui, handoff_status]',
+    '      host:',
+    '        requires: [lime.policy, lime.secrets, lime.evidence]',
+    '      connector:',
+    '        requires: [external_system_adapter]',
+    '      external:',
+    '        owns: [source_of_truth_state]'
+  ].join('\n')
+}
+
+function sampleIntegrationsYaml() {
+  return [
+    'integrations:',
+    '  - key: business_records',
+    '    provider: cloud.table',
+    '    role: source_of_truth',
+    '    executionPlane: host',
+    '    hostCapability: lime.connectors',
+    '    access:',
+    '      read: true',
+    '      write: false',
+    '    readiness:',
+    '      missing: blocked',
+    '      setupAction: open_host_connector',
+    '  - key: metadata_writer',
+    '    provider: local.cli',
+    '    role: file_metadata_writer',
+    '    executionPlane: host',
+    '    hostCapability: lime.terminal',
+    '    access:',
+    '      read: true',
+    '      write: true'
+  ].join('\n')
+}
+
+function sampleOperationsYaml() {
+  return [
+    'operations:',
+    '  - key: generate_artifact',
+    '    type: agent_task',
+    '    sideEffect: none',
+    '    evidenceRequired: true',
+    '  - key: write_external_draft',
+    '    type: external_write',
+    '    integration: business_records',
+    '    sideEffect: external_write',
+    '    approvalRequired: true',
+    '    dryRunRequired: true',
+    '    evidenceRequired: true',
+    '    autoExecute: false'
   ].join('\n')
 }
 

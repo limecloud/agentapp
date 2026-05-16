@@ -13,7 +13,7 @@
   "properties": {
     "manifestVersion": {
       "type": "string",
-      "enum": ["0.3.0", "0.4.0", "0.5.0", "0.6.0"]
+      "enum": ["0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0"]
     },
     "name": {
       "type": "string",
@@ -75,10 +75,17 @@
           "type": "string"
         },
         "capabilities": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          }
+          "oneOf": [
+            {
+              "type": "array",
+              "items": { "type": "string" },
+              "uniqueItems": true
+            },
+            {
+              "type": "object",
+              "additionalProperties": { "type": "string" }
+            }
+          ]
         }
       },
       "additionalProperties": true
@@ -640,6 +647,22 @@
     "agentRuntime": {
       "$ref": "app-runtime.schema.json",
       "description": "v0.6: Agent task runtime control plane shorthand. Detailed configuration should normally live in app.runtime.yaml."
+    },
+    "requirements": {
+      "$ref": "app-requirements.schema.json",
+      "description": "v0.7: requirement boundary, MVP scope, non-goals, and acceptance criteria shorthand."
+    },
+    "boundary": {
+      "$ref": "app-boundary.schema.json",
+      "description": "v0.7: responsibility boundary across App, Host, Cloud, connectors, external systems, and humans."
+    },
+    "integrations": {
+      "$ref": "app-integrations.schema.json",
+      "description": "v0.7: external integration requirements shorthand. Detailed configuration should normally live in app.integrations.yaml."
+    },
+    "operations": {
+      "$ref": "app-operations.schema.json",
+      "description": "v0.7: operation side effects, approval, dry-run, and evidence requirements shorthand."
     },
     "presentation": {
       "type": "object",

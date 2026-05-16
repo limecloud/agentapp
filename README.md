@@ -1,6 +1,6 @@
 # Agent App
 
-Agent App is a draft standard for complete installable intelligent applications in the Agent Skills ecosystem. It packages real app implementation - UI bundles, workers, storage schemas, workflows, agent entries, Skills, Knowledge bindings, tool requirements, artifact contracts, policies, evals, and presentation metadata - without moving agent execution into the cloud.
+Agent App is a draft standard for complete installable intelligent applications in the Agent Skills ecosystem. It packages real app implementation - UI bundles, workers, storage schemas, workflows, agent entries, Skills, Knowledge bindings, tool requirements, artifact contracts, policies, evals, presentation metadata, and v0.7 requirement-boundary files - without moving agent execution into the cloud.
 
 Agent Skills answer **how to do work**. Agent Knowledge answers **what trusted knowledge assets are**. Agent App answers **how a complete installable application uses host capabilities, owns UI and data boundaries, exposes entries, and runs through a stable Capability SDK**.
 
@@ -48,6 +48,10 @@ my-agent-app/
 ├── evals/                    # optional: readiness and quality checks
 ├── policies/                 # optional: permissions and data boundaries
 ├── app.runtime.yaml          # optional: v0.6 agent task runtime control plane
+├── app.requirements.yaml     # optional: v0.7 requirements, MVP, non-goals, acceptance
+├── app.boundary.yaml         # optional: v0.7 App / Host / Cloud / Connector / Human boundary
+├── app.integrations.yaml     # optional: v0.7 Host/Cloud-managed external integrations
+├── app.operations.yaml       # optional: v0.7 side effects, approvals, evidence
 ├── overlay-templates/        # optional: tenant / workspace overlay schemas
 ├── app.lock.json             # optional: package file hashes and signatures
 └── examples/                 # optional: sample workspaces, prompts, outputs
@@ -71,7 +75,7 @@ Compatible hosts should expose versioned, authorized, mockable capabilities such
 - `lime.evidence` for provenance and replay
 - `lime.secrets` for credentials without plaintext app access
 
-Apps must not import host internals. They declare capability requirements in the manifest and receive runtime handles from the host. v0.6 keeps the layered manifest model from v0.5 and adds `app.runtime.yaml` for the `lime.agent` task control plane: event/result envelopes, structured output, runtime approval, session resume/fork, tool discovery, checkpoint scope, and observability.
+Apps must not import host internals. They declare capability requirements in the manifest and receive runtime handles from the host. v0.7 keeps the layered manifest model, keeps v0.6 `app.runtime.yaml` for the `lime.agent` task control plane, and adds requirement-boundary files so each business request can be split across App, Host, Cloud, connector, external-system, and human-decision responsibilities.
 
 ## Runtime contract
 
@@ -99,12 +103,12 @@ Compatible hosts should:
 ## Reference CLI
 
 ```bash
-npx agentapp-ref@0.6.0 validate ./my-agent-app --version 0.6
-npx agentapp-ref@0.6.0 to-catalog ./my-agent-app
-npx agentapp-ref@0.6.0 project ./my-agent-app
-npx agentapp-ref@0.6.0 readiness ./my-agent-app --workspace ./workspace
-npx agentapp-ref@0.6.0 migrate-check ./my-agent-app
-npx agentapp-ref@0.6.0 migrate-generate ./my-agent-app --target 0.6.0
+npx agentapp-ref@0.7.0 validate ./my-agent-app --version 0.7
+npx agentapp-ref@0.7.0 to-catalog ./my-agent-app
+npx agentapp-ref@0.7.0 project ./my-agent-app
+npx agentapp-ref@0.7.0 readiness ./my-agent-app --workspace ./workspace
+npx agentapp-ref@0.7.0 migrate-check ./my-agent-app
+npx agentapp-ref@0.7.0 migrate-generate ./my-agent-app --target 0.7.0
 ```
 
 ## Local development

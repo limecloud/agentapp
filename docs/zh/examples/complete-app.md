@@ -12,10 +12,10 @@ description: 完整 Agent App manifest 的检查表和注释结构。
 ## 必需身份字段
 
 ```yaml
-manifestVersion: 0.6.0
+manifestVersion: 0.7.0
 name: content-factory-app
 description: 内容工厂，用于知识库构建、内容场景规划、内容生产和数据复盘。
-version: 0.6.0
+version: 0.7.0
 status: ready
 appType: domain-app
 runtimeTargets:
@@ -29,12 +29,13 @@ runtimeTargets:
 ```yaml
 requires:
   lime:
-    appRuntime: ">=0.6.0 <1.0.0"
-  sdk: "@lime/app-sdk@^0.6.0"
+    appRuntime: ">=0.7.0 <1.0.0"
+  sdk: "@lime/app-sdk@^0.7.0"
   capabilities:
-    lime.ui: "^0.6.0"
-    lime.storage: "^0.6.0"
-    lime.agent: "^0.6.0"
+    lime.ui: "^0.7.0"
+    lime.storage: "^0.7.0"
+    lime.agent: "^0.7.0"
+    lime.connectors: "^0.7.0"
 ```
 
 Requirements 描述宿主必须提供什么，而不是宿主内部如何实现。
@@ -110,6 +111,19 @@ agentRuntime:
       exportContentByDefault: false
 ```
 
+## v0.7 需求边界
+
+完整 App 应包含独立的边界文件，说明哪些由 App 完成、哪些由 Host/Cloud/Connector/外部系统/人工决策配合。
+
+```text
+app.requirements.yaml   # 需求项、MVP、非目标、验收标准
+app.boundary.yaml       # App / Host / Cloud / Connector / External / Human 职责
+app.integrations.yaml   # Host/Cloud 托管的外部连接需求
+app.operations.yaml     # 操作副作用、审批、dry-run、evidence
+```
+
+如果需求需要外部写入、发布、删除或批量修改，`app.operations.yaml` 必须声明人工审批、dry-run、幂等和 evidence。
+
 ## 依赖和交付物
 
 完整 App 通常还声明：
@@ -122,6 +136,7 @@ agentRuntime:
 - `permissions`：宿主 Policy 输入
 - `secrets`：凭证槽位
 - `overlayTemplates`：租户和 workspace 配置
+- `requirements` / `boundary` / `integrations` / `operations`：v0.7 需求边界和能力交接
 
 ## Human guide
 
@@ -139,11 +154,11 @@ agentRuntime:
 
 | 区域 | 完整标准 |
 | --- | --- |
-| Manifest | 必需字段和 v0.6 requirements 已声明。 |
+| Manifest | 必需字段和 v0.7 requirements 已声明。 |
 | Runtime package | 使用到的 UI、worker、storage、workflow 路径已声明。 |
 | Entries | 每个启动点有稳定 key、kind、title 和绑定信息。 |
 | Data | Storage namespace 和 Knowledge slots 明确。 |
-| Policy | Permissions、secrets、runtime approval 和风险能力已声明。 |
+| Policy | Permissions、secrets、runtime approval、外部副作用和风险能力已声明。 |
 | Quality | Artifact types、结构化输出 schema 和 evals 连接到 workflow。 |
 | Overlays | 租户 / workspace 差异不 fork package。 |
 | Provenance | Projection 和 runtime output 能追溯到版本和 hash。 |
@@ -152,7 +167,7 @@ agentRuntime:
 ## 验证命令
 
 ```bash
-npm run cli -- validate docs/examples/content-factory-app --version 0.6
+npm run cli -- validate docs/examples/content-factory-app --version 0.7
 npm run cli -- project docs/examples/content-factory-app
 npm run cli -- readiness docs/examples/content-factory-app
 ```

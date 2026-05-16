@@ -1,5 +1,9 @@
 # Release Notes
 
+## v0.7.0
+
+v0.7 standardizes Requirement Boundary & Capability Handoff. It helps teams turn a sanitized business request into a concrete Agent App plan: what the App owns, what Lime Host must execute locally, what Lime Cloud must govern, what connectors adapt, what remains in external systems, and what requires human confirmation. The release adds `app.requirements.yaml`, `app.boundary.yaml`, `app.integrations.yaml`, `app.operations.yaml`, and the App Fit Report schema. The documentation now includes end-user architecture, sequence, and flow diagrams, and the reference CLI can validate, project, and generate v0.7 boundary files. v0.6 apps remain valid; v0.7 adds planning and handoff contracts above the existing runtime control plane.
+
 ## v0.6.0
 
 v0.6 standardizes the `lime.agent` task runtime control plane without moving execution out of the host. It adds the recommended `app.runtime.yaml` layer for task event/result envelopes, JSON Schema structured output, runtime approvals, session resume/continue/fork, on-demand tool discovery, checkpoint scope, and observability mapping. Hosts can now project Agent App tasks into stable event streams with result subtypes, usage/cost, artifact refs, and evidence refs. v0.5 manifests remain valid; v0.6 is an incremental hardening layer for product-level apps that already use Lime AgentRuntime.

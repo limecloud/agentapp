@@ -20,7 +20,7 @@ npm run cli -- validate docs/examples/content-factory-app
 发布到 npm 后：
 
 ```bash
-npx agentapp-ref@0.6.0 validate ./my-agent-app --version 0.6
+npx agentapp-ref@0.7.0 validate ./my-agent-app --version 0.7
 ```
 
 ## 命令
@@ -32,8 +32,8 @@ npx agentapp-ref@0.6.0 validate ./my-agent-app --version 0.6
 | `to-catalog <app>` | 输出紧凑 catalog metadata。 |
 | `project <app>` | 输出带 provenance 的 host catalog projection。 |
 | `readiness <app>` | 不运行 Agent，只做静态 setup readiness。 |
-| `migrate-check <app> [--target 0.6.0]` | 报告当前目标版本的迁移缺口。 |
-| `migrate-generate <app> [--target 0.6.0]` | 生成分层配置建议，包括 v0.6 `app.runtime.yaml`。 |
+| `migrate-check <app> [--target 0.7.0]` | 报告当前目标版本的迁移缺口。 |
+| `migrate-generate <app> [--target 0.7.0]` | 生成分层配置建议，包括 v0.6 `app.runtime.yaml` 和 v0.7 boundary / integration / operation 文件。 |
 
 ## Validate
 
@@ -49,7 +49,7 @@ npm run cli -- validate docs/examples/content-factory-app
 npm run cli -- project docs/examples/content-factory-app
 ```
 
-Projection 输出 app summary、entries、capability requirements、storage、services、workflows、permissions、requirements 和 provenance。宿主可以用它作为自己 projection 层的参考。
+Projection 输出 app summary、entries、capability requirements、storage、services、workflows、permissions、requirements、boundary、integrations、operations 和 provenance。宿主可以用它作为自己 projection 层的参考。
 
 ## Readiness
 
@@ -57,7 +57,7 @@ Projection 输出 app summary、entries、capability requirements、storage、se
 npm run cli -- readiness docs/examples/content-factory-app
 ```
 
-Readiness 报告 required 和 optional setup。结构有效的 package 可能返回 `needs-setup`，表示宿主还没满足必需 Skill、Knowledge、Tool、service 或 eval。
+Readiness 报告 required 和 optional setup。结构有效的 package 可能返回 `needs-setup`，表示宿主还没满足必需 Skill、Knowledge、Tool、service、integration、operation 或 eval。
 
 ## Exit 行为
 
@@ -88,4 +88,4 @@ npm run cli -- readiness docs/examples/content-factory-app > /tmp/content-factor
 - 相同输入下 JSON output 应保持确定性。
 - Error 应能行动，并关联到 manifest key 或本地路径。
 - Warning 应指出 production-readiness gaps，但不阻塞 draft exploration。
-- Readiness 应区分缺 host capabilities、缺 user setup 和缺 package files。
+- Readiness 应区分缺 host capabilities、缺 connector / integration、缺 user setup 和缺 package files。

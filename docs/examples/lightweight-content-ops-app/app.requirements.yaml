@@ -1,0 +1,25 @@
+requirements:
+  - id: R001
+    text: End users review source records and generate draft artifacts inside the app.
+    priority: mvp
+    acceptance:
+      - Workspace shows source, draft, review, and evidence status.
+      - Draft artifacts are created from structured agent output.
+  - id: R002
+    text: External source records are read through a Host-managed connector.
+    priority: mvp
+    acceptance:
+      - The app never stores plaintext external credentials.
+      - Missing connector setup appears as readiness needs-setup.
+  - id: R003
+    text: Reviewed drafts can be written back to an external draft box.
+    priority: p1
+    acceptance:
+      - Write-back requires approval, dry-run, idempotency, and evidence.
+nonGoals:
+  - Replace the external planning table or document system.
+  - Auto-publish to public channels.
+  - Embed customer-private source records in the package.
+later:
+  - Scheduled sync and analytics import.
+  - Multi-channel publish after policy review.

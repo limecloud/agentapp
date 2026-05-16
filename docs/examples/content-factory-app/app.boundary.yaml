@@ -1,0 +1,47 @@
+# Agent App v0.7 responsibility boundary.
+
+boundaries:
+  - requirementId: R001
+    planes:
+      app:
+        owns: [dashboard, setup_status, workflow_state, review_ui, artifact_view]
+      host:
+        requires: [lime.ui, lime.storage, lime.artifacts, lime.evidence, lime.policy]
+      cloud:
+        optional: [app_registry, tenant_policy]
+      human:
+        owns: [review_decision, acceptance_confirmation]
+  - requirementId: R002
+    planes:
+      app:
+        owns: [knowledge_builder_workflow, extraction_artifacts]
+      host:
+        requires: [lime.files, lime.agent, lime.knowledge, lime.evidence]
+      connector:
+        optional: [document_parser_adapter]
+      external:
+        owns: [source_document_state]
+      human:
+        owns: [source_selection]
+  - requirementId: R003
+    planes:
+      app:
+        owns: [content_factory_page, draft_state, content_calendar_workflow]
+      host:
+        requires: [lime.agent, lime.tools, lime.storage, lime.artifacts, lime.evidence]
+      human:
+        owns: [draft_review, publish_decision]
+  - requirementId: R004
+    planes:
+      app:
+        owns: [handoff_status, writeback_preview]
+      host:
+        requires: [lime.connectors, lime.secrets, lime.policy, lime.evidence]
+      cloud:
+        optional: [connector_registry, oauth_broker, scheduled_sync]
+      connector:
+        requires: [planning_table_adapter]
+      external:
+        owns: [planning_table_records]
+      human:
+        owns: [writeback_approval]

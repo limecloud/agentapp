@@ -1,15 +1,15 @@
 ---
 title: 架构概览
-description: Agent App v0.6 的项目级架构图、时序图、流程图和状态机示意。
+description: Agent App v0.7 的项目级架构图、时序图、流程图和状态机示意。
 ---
 
 # 架构概览
 
-本页用图集中展示 Agent App v0.6 的关键结构与运行时流程。各章节图与 [规范](./specification) 互相补充：规范是规则，本页是图。
+本页用图集中展示 Agent App v0.7 的关键结构、需求边界与运行时流程。各章节图与 [规范](./specification) 互相补充：规范是规则，本页是图。
 
 ## 1. 标准分层架构
 
-v0.6 保留 v0.5 分层，并把整个生态切成三层，分层 manifest 与 Capability SDK 是稳定边界，宿主和 Cloud 控制面只看接口、不看业务实现。
+v0.7 继承 v0.6 分层，并把整个生态切成 App、Host、Cloud、Connector、外部系统和人工决策平面。分层 manifest 与 Capability SDK 是稳定边界，宿主和 Cloud 控制面只看接口、不看业务实现。
 
 ```mermaid
 flowchart TD
@@ -20,9 +20,10 @@ flowchart TD
     Reg[Registration / License]
   end
 
-  subgraph Standard[Agent App v0.6 标准]
+  subgraph Standard[Agent App v0.7 标准]
     APPMD[APP.md frontmatter + 人类章节]
     LAYERED[app.*.yaml 分层配置]
+    BOUNDARY[requirements / boundary / integrations / operations]
     SKILLS[skills/ 内置 Skills]
     EVALS[evals/ readiness + health]
     SIG[app.signature.yaml]
@@ -55,6 +56,8 @@ flowchart TD
 
   APPMD --> Discover
   LAYERED --> Project
+  BOUNDARY --> Project
+  BOUNDARY --> Readiness
   SKILLS --> SDK
   EVALS --> Readiness
   EVALS --> Health
@@ -83,7 +86,70 @@ flowchart TD
 | App Runtime | UI、worker、workflow、storage 业务、artifact、evidence 写回 | 模型 / 工具 / 凭证 / 权限调度（必须走 SDK） |
 | 标准（agentapp） | manifest schema、reference CLI、SDK 契约、最佳实践 | 任意宿主或 App 的具体实现 |
 
-## 3. 安装与启动时序
+
+## 3. v0.7 需求边界架构
+
+v0.7 用这个图回答普通用户和交付团队最关心的问题：App 能做什么，哪些需要 Lime Host / Lime Cloud / 外部连接器 / 人工确认配合。
+
+```mermaid
+flowchart LR
+  User[普通用户] --> App[Agent App\n业务体验 / Workflow / Artifact / Review]
+  App --> Host[Lime Host\n本地 Agent / MCP / CLI / Tools / 文件 / 权限]
+  App --> Cloud[Lime Cloud\nRegistry / Tenant Policy / OAuth / Webhook / Sync]
+  Host --> Connector[Connector / Tool Adapter\nMCP / CLI / API / Browser]
+  Cloud --> Connector
+  Connector --> External[外部系统\n文档 / 表格 / 网盘 / 发布平台 / CRM]
+  App --> Human[人工决策\n审核 / 发布 / 高风险确认]
+  External --> App
+  Human --> App
+```
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant User as 普通用户
+  participant App as Agent App
+  participant Host as Lime Host
+  participant Cloud as Lime Cloud
+  participant Conn as Connector
+  participant Ext as 外部系统
+
+  User->>App: 选择业务流程
+  App->>Host: 请求能力画像和 readiness
+  Host->>Cloud: 查询 connector registry、tenant policy、OAuth 状态
+  Cloud-->>Host: 返回允许能力和缺失设置
+  Host-->>App: 返回 ready / needs-setup / blocked
+  App-->>User: 展示需要连接或授权的项目
+  User->>Host: 授权连接或确认高风险动作
+  App->>Host: 发起 workflow / agent task
+  Host->>Conn: 受控调用 MCP / CLI / API / tool
+  Conn->>Ext: 读取或写入外部事实源
+  Ext-->>Conn: 结构化结果
+  Conn-->>Host: 结果 + 日志 + 副作用状态
+  Host-->>App: 结果 + evidence refs
+  App-->>User: 展示产物和下一步
+```
+
+```mermaid
+flowchart TD
+  Start([脱敏业务需求]) --> Split[拆成需求项]
+  Split --> Classify[分类为 App / Host / Cloud / Connector / External / Human]
+  Classify --> Fit{适合做 Agent App?}
+  Fit -- 否 --> Explain[说明需要外部系统、云服务或人工流程配合]
+  Fit -- 是 --> Scope[确定 MVP / 非目标 / 后续阶段]
+  Scope --> Files[写 requirements / boundary / integrations / operations]
+  Files --> Ready{依赖能力就绪?}
+  Ready -- 否 --> Setup[连接、授权、安装工具或启用云能力]
+  Setup --> Ready
+  Ready -- 是 --> Run[运行 App workflow]
+  Run --> Risk{有高风险副作用?}
+  Risk -- 是 --> Review[人工确认 + evidence]
+  Risk -- 否 --> Save[保存 artifact + evidence]
+  Review --> Save
+  Save --> Done([完成验收])
+```
+
+## 4. 安装与启动时序
 
 完整的从 Cloud bootstrap → 本地下载 → 校验 → projection → readiness → 启动的端到端流程。
 
@@ -119,7 +185,7 @@ sequenceDiagram
   SDK-->>App: host:response 或 host:error
 ```
 
-## 4. Readiness 自检流程
+## 5. Readiness 自检流程
 
 `evals/readiness.yaml` 三层 required / recommended / performance 检查，对应 5 种状态机输出。
 
@@ -142,7 +208,7 @@ flowchart TD
   Ready --> Launch
 ```
 
-## 5. Host Bridge v1 消息时序
+## 6. Host Bridge v1 消息时序
 
 App UI 与 Host 之间通过 `lime.agentApp.bridge` 协议交换事件，所有能力调用都走 `capability:invoke`，由 Host 裁决放行或拒绝。
 
@@ -174,7 +240,7 @@ sequenceDiagram
   Bridge-->>App: host:visibility { visible: false }
 ```
 
-## 6. Capability 调用拓扑
+## 7. Capability 调用拓扑
 
 `capability:invoke` 请求被 Host 路由到不同的 capability handler，每个能力都有独立的权限、policy 和 evidence 边界。
 
@@ -200,7 +266,7 @@ flowchart LR
   Artifacts --> Evidence
 ```
 
-## 7. Workflow 状态机示例
+## 8. Workflow 状态机示例
 
 v0.5 workflow 描述符在 v0.3 状态机基础上引入 mermaid 流程图与统一 recovery 策略。下面是内容工厂 `content_scenario_planning` workflow 的状态机示例。
 
@@ -225,7 +291,7 @@ stateDiagram-v2
   show_error_and_retry --> analyze_topic
 ```
 
-## 8. 包文件依赖关系
+## 9. 包文件依赖关系
 
 `APP.md` 是发现入口；其余分层文件被 manifest 按文件名约定加载，构成完整投影输入。
 
@@ -242,6 +308,10 @@ flowchart LR
   APPMD --> I18N[app.i18n.yaml]
   APPMD --> Sig[app.signature.yaml]
   APPMD --> Runtime[app.runtime.yaml]
+  APPMD --> Req[app.requirements.yaml]
+  APPMD --> Boundary[app.boundary.yaml]
+  APPMD --> Integrations[app.integrations.yaml]
+  APPMD --> Operations[app.operations.yaml]
 
   Capabilities --> Project[Projection]
   Entries --> Project
@@ -251,6 +321,10 @@ flowchart LR
   Sig --> Verify[签名与撤销]
   Runtime --> Project
   Runtime --> AgentRT[lime.agent task control plane]
+  Req --> Project
+  Boundary --> Project
+  Integrations --> Readiness
+  Operations --> Readiness
 
   APPMD --> Readiness[evals/readiness.yaml]
   APPMD --> Health[evals/health.yaml]
@@ -264,28 +338,30 @@ flowchart LR
   Locales --> I18N
 ```
 
-## 9. 升级与回滚关系
+## 10. 升级与回滚关系
 
-v0.5 / v0.4 / v0.3 manifest 在 v0.6 宿主中继续可用；reference CLI 提供 `migrate-check` / `migrate-generate`。
+v0.6 / v0.5 / v0.4 / v0.3 manifest 在 v0.7 宿主中继续可用；reference CLI 提供 `migrate-check` / `migrate-generate`。
 
 ```mermaid
 flowchart LR
-  v03[v0.3 manifest] -->|宿主直接读取| v06Host[v0.6 宿主]
-  v04[v0.4 manifest] -->|宿主直接读取| v06Host
-  v05[v0.5 manifest] -->|宿主直接读取| v06Host
-  v03 -->|migrate-check / migrate-generate| v06[v0.6 manifest]
-  v04 -->|migrate-check / migrate-generate| v06
-  v05 -->|migrate-check / migrate-generate| v06
-  v06 --> v06Host
-  v06Host -. 失败 .-> Rollback[回滚到旧版本]
+  v03[v0.3 manifest] -->|宿主直接读取| v07Host[v0.7 宿主]
+  v04[v0.4 manifest] -->|宿主直接读取| v07Host
+  v06[v0.6 manifest] -->|宿主直接读取| v07Host
+  v05[v0.5 manifest] -->|宿主直接读取| v07Host
+  v03 -->|migrate-check / migrate-generate| v07[v0.7 manifest]
+  v04 -->|migrate-check / migrate-generate| v07
+  v06 -->|migrate-check / migrate-generate| v07
+  v05 -->|migrate-check / migrate-generate| v07
+  v07 --> v07Host
+  v07Host -. 失败 .-> Rollback[回滚到旧版本]
   Rollback --> v04
   Rollback --> v03
 ```
 
-## 10. 后续阅读
+## 11. 后续阅读
 
 - [规范](./specification)：字段、约束、契约的规则文本。
-- [快速开始](./authoring/quickstart)：从零创建一个 v0.6 包。
+- [快速开始](./authoring/quickstart)：从零创建一个 v0.7 包。
 - [运行时模型](./client-implementation/runtime-model)：宿主侧实现细节。
 - [Capability SDK](./client-implementation/capability-sdk)：稳定能力调用契约。
-- [v0.6 历史快照](./versions/v0.6/overview)：定格版本说明。
+- [v0.7 当前快照](./versions/v0.7/overview)：定格版本说明。

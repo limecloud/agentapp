@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.7.0
+
+- Adds Requirement Boundary & Capability Handoff so a business request can be split across App, Host, Cloud, connector, external-system, and human-decision planes.
+- Adds `app.requirements.yaml`, `app.boundary.yaml`, `app.integrations.yaml`, and `app.operations.yaml` as v0.7 layered files.
+- Adds `app-fit-report.schema.json` for pre-implementation fit reports that classify what Agent App can own and what needs platform or external-system support.
+- Updates the latest specification and architecture docs with v0.7 architecture, sequence, and flow diagrams for end users and implementors.
+- Updates the reference CLI to 0.7.0 with `--version 0.7`, v0.7 migration gaps, generation suggestions, readiness checks for integrations/operations, and projection fields.
+- Updates examples with v0.7 requirement, boundary, integration, and operation files while keeping customer-private details out of public fixtures.
+- Backward compatible: v0.6 manifests remain valid; v0.7 layers boundary planning above the v0.6 runtime control plane.
+
 ## 0.6.0
 
 - Adds `app.runtime.yaml` as the recommended layered configuration file for `lime.agent` task runtime contracts.

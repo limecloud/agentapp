@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://limecloud.github.io/agentapp/schemas/app-operations.schema.json",
+  "title": "Agent App Operations Contract",
+  "description": "v0.7 operation side effects, approval, dry-run, and evidence requirements.",
+  "type": "object",
+  "properties": {
+    "operations": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/operation" }
+    }
+  },
+  "$defs": {
+    "operation": {
+      "type": "object",
+      "required": ["key", "type", "sideEffect"],
+      "properties": {
+        "key": { "type": "string", "minLength": 1 },
+        "type": { "type": "string", "minLength": 1 },
+        "integration": { "type": "string" },
+        "sideEffect": {
+          "type": "string",
+          "enum": ["none", "local_file_write", "app_storage_write", "artifact_create", "external_write", "external_publish", "external_delete", "bulk_update", "draftbox_write"]
+        },
+        "approvalRequired": { "type": "boolean" },
+        "dryRunRequired": { "type": "boolean" },
+        "evidenceRequired": { "type": "boolean" },
+        "autoExecute": { "type": "boolean" },
+        "idempotencyRequired": { "type": "boolean" }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

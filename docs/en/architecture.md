@@ -1,15 +1,15 @@
 ---
 title: Architecture overview
-description: Project-level architecture, sequence, flow, and state-machine diagrams for Agent App v0.6.
+description: Project-level architecture, sequence, flow, and state-machine diagrams for Agent App v0.7.
 ---
 
 # Architecture overview
 
-This page collects the key structural and runtime diagrams for Agent App v0.6 in one place. The [specification](./specification) defines rules; this page renders them.
+This page collects the key structural, requirement-boundary, and runtime diagrams for Agent App v0.7 in one place. The [specification](./specification) defines rules; this page renders them.
 
 ## 1. Standard layers
 
-v0.6 keeps v0.5 layering and splits the ecosystem into three layers. The layered manifest and Capability SDK are the stable boundaries; hosts and the Cloud control plane stay on contracts and never on business implementation.
+v0.7 inherits v0.6 layering and splits delivery across App, Host, Cloud, connector, external-system, and human-decision planes. The layered manifest and Capability SDK are the stable boundaries; hosts and the Cloud control plane stay on contracts and never on business implementation.
 
 ```mermaid
 flowchart TD
@@ -20,9 +20,10 @@ flowchart TD
     Reg[Registration / License]
   end
 
-  subgraph Standard[Agent App v0.6 standard]
+  subgraph Standard[Agent App v0.7 standard]
     APPMD[APP.md frontmatter + sections]
     LAYERED[app.*.yaml layered config]
+    BOUNDARY[requirements / boundary / integrations / operations]
     SKILLS[skills/ bundled Skills]
     EVALS[evals/ readiness + health]
     SIG[app.signature.yaml]
@@ -55,6 +56,8 @@ flowchart TD
 
   APPMD --> Discover
   LAYERED --> Project
+  BOUNDARY --> Project
+  BOUNDARY --> Readiness
   SKILLS --> SDK
   EVALS --> Readiness
   EVALS --> Health
@@ -83,7 +86,70 @@ flowchart TD
 | App runtime | UI, workers, workflows, storage business code, artifact, evidence write-back | model / tool / credential / permission scheduling (must go through the SDK) |
 | Standard (agentapp) | manifest schema, reference CLI, SDK contract, best practices | concrete host or app implementations |
 
-## 3. Install and launch sequence
+
+## 3. v0.7 requirement-boundary architecture
+
+v0.7 uses this view to answer the product and delivery question: what can the App do, and what requires Lime Host, Lime Cloud, connectors, external systems, or human confirmation.
+
+```mermaid
+flowchart LR
+  User[End user] --> App[Agent App\nUX / Workflow / Artifact / Review]
+  App --> Host[Lime Host\nLocal Agent / MCP / CLI / Tools / Files / Policy]
+  App --> Cloud[Lime Cloud\nRegistry / Tenant Policy / OAuth / Webhook / Sync]
+  Host --> Connector[Connector / Tool Adapter\nMCP / CLI / API / Browser]
+  Cloud --> Connector
+  Connector --> External[External System\nDocs / Tables / Drives / Publishing / CRM]
+  App --> Human[Human Decision\nReview / Publish / High-risk approval]
+  External --> App
+  Human --> App
+```
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant User as End user
+  participant App as Agent App
+  participant Host as Lime Host
+  participant Cloud as Lime Cloud
+  participant Conn as Connector
+  participant Ext as External System
+
+  User->>App: Choose business flow
+  App->>Host: Request capability profile and readiness
+  Host->>Cloud: Query connector registry, tenant policy, OAuth state
+  Cloud-->>Host: Return allowed capabilities and missing setup
+  Host-->>App: Return ready / needs-setup / blocked
+  App-->>User: Show required connection or authorization items
+  User->>Host: Authorize connector or confirm risky action
+  App->>Host: Start workflow / agent task
+  Host->>Conn: Controlled MCP / CLI / API / tool invocation
+  Conn->>Ext: Read or write external source of truth
+  Ext-->>Conn: Structured result
+  Conn-->>Host: Result + logs + side-effect status
+  Host-->>App: Result + evidence refs
+  App-->>User: Show artifact and next step
+```
+
+```mermaid
+flowchart TD
+  Start([Sanitized business requirement]) --> Split[Split into requirement items]
+  Split --> Classify[Classify as App / Host / Cloud / Connector / External / Human]
+  Classify --> Fit{Good Agent App fit?}
+  Fit -- No --> Explain[Explain need for external system, cloud service, or manual flow]
+  Fit -- Yes --> Scope[Define MVP / non-goals / later phases]
+  Scope --> Files[Write requirements / boundary / integrations / operations]
+  Files --> Ready{Dependent capabilities ready?}
+  Ready -- No --> Setup[Connect, authorize, install tool, or enable cloud capability]
+  Setup --> Ready
+  Ready -- Yes --> Run[Run app workflow]
+  Run --> Risk{High-risk side effect?}
+  Risk -- Yes --> Review[Human confirmation + evidence]
+  Risk -- No --> Save[Save artifact + evidence]
+  Review --> Save
+  Save --> Done([Accepted delivery])
+```
+
+## 4. Install and launch sequence
 
 End-to-end flow from Cloud bootstrap → local download → verify → projection → readiness → launch.
 
@@ -119,7 +185,7 @@ sequenceDiagram
   SDK-->>App: host:response or host:error
 ```
 
-## 4. Readiness flow
+## 5. Readiness flow
 
 `evals/readiness.yaml` runs three tiers (required / recommended / performance) and produces five states.
 
@@ -142,7 +208,7 @@ flowchart TD
   Ready --> Launch
 ```
 
-## 5. Host Bridge v1 sequence
+## 6. Host Bridge v1 sequence
 
 App UI and Host exchange events through `lime.agentApp.bridge`; all capability calls go through `capability:invoke` and the host decides allow or deny.
 
@@ -174,7 +240,7 @@ sequenceDiagram
   Bridge-->>App: host:visibility { visible: false }
 ```
 
-## 6. Capability invocation topology
+## 7. Capability invocation topology
 
 `capability:invoke` requests are routed to capability handlers; each capability has its own permission, policy, and evidence boundary.
 
@@ -200,7 +266,7 @@ flowchart LR
   Artifacts --> Evidence
 ```
 
-## 7. Workflow state machine example
+## 8. Workflow state machine example
 
 v0.5 workflow descriptors keep the v0.3 state machine and add a mermaid diagram and unified recovery policy. The example below is the Content Factory `content_scenario_planning` workflow.
 
@@ -225,7 +291,7 @@ stateDiagram-v2
   show_error_and_retry --> analyze_topic
 ```
 
-## 8. Package file dependency
+## 9. Package file dependency
 
 `APP.md` is the discovery entry; layered files are loaded by file-name convention and form the projection input together.
 
@@ -242,6 +308,10 @@ flowchart LR
   APPMD --> I18N[app.i18n.yaml]
   APPMD --> Sig[app.signature.yaml]
   APPMD --> Runtime[app.runtime.yaml]
+  APPMD --> Req[app.requirements.yaml]
+  APPMD --> Boundary[app.boundary.yaml]
+  APPMD --> Integrations[app.integrations.yaml]
+  APPMD --> Operations[app.operations.yaml]
 
   Capabilities --> Project[Projection]
   Entries --> Project
@@ -251,6 +321,10 @@ flowchart LR
   Sig --> Verify[Signature & revocation]
   Runtime --> Project
   Runtime --> AgentRT[lime.agent task control plane]
+  Req --> Project
+  Boundary --> Project
+  Integrations --> Readiness
+  Operations --> Readiness
 
   APPMD --> Readiness[evals/readiness.yaml]
   APPMD --> Health[evals/health.yaml]
@@ -264,28 +338,30 @@ flowchart LR
   Locales --> I18N
 ```
 
-## 9. Upgrade and rollback
+## 10. Upgrade and rollback
 
-v0.5 / v0.4 / v0.3 manifests continue to work in v0.6 hosts; the reference CLI provides `migrate-check` / `migrate-generate`.
+v0.6 / v0.5 / v0.4 / v0.3 manifests continue to work in v0.7 hosts; the reference CLI provides `migrate-check` / `migrate-generate`.
 
 ```mermaid
 flowchart LR
-  v03[v0.3 manifest] -->|host reads directly| v06Host[v0.6 host]
-  v04[v0.4 manifest] -->|host reads directly| v06Host
-  v05[v0.5 manifest] -->|host reads directly| v06Host
-  v03 -->|migrate-check / migrate-generate| v06[v0.6 manifest]
-  v04 -->|migrate-check / migrate-generate| v06
-  v05 -->|migrate-check / migrate-generate| v06
-  v06 --> v06Host
-  v06Host -. failure .-> Rollback[Rollback to previous version]
+  v03[v0.3 manifest] -->|host reads directly| v07Host[v0.7 host]
+  v04[v0.4 manifest] -->|host reads directly| v07Host
+  v06[v0.6 manifest] -->|host reads directly| v07Host
+  v05[v0.5 manifest] -->|host reads directly| v07Host
+  v03 -->|migrate-check / migrate-generate| v07[v0.7 manifest]
+  v04 -->|migrate-check / migrate-generate| v07
+  v06 -->|migrate-check / migrate-generate| v07
+  v05 -->|migrate-check / migrate-generate| v07
+  v07 --> v07Host
+  v07Host -. failure .-> Rollback[Rollback to previous version]
   Rollback --> v04
   Rollback --> v03
 ```
 
-## 10. Further reading
+## 11. Further reading
 
 - [Specification](./specification): rules, fields, and constraints.
-- [Quickstart](./authoring/quickstart): build a v0.6 package from scratch.
+- [Quickstart](./authoring/quickstart): build a v0.7 package from scratch.
 - [Runtime model](./client-implementation/runtime-model): host implementation detail.
 - [Capability SDK](./client-implementation/capability-sdk): stable capability call contract.
-- [v0.6 snapshot](./versions/v0.6/overview): pinned version notes.
+- [v0.7 snapshot](./versions/v0.7/overview): pinned version notes.

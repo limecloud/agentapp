@@ -32,7 +32,7 @@ features:
 Agent App is the application layer for agent hosts. If you are new to the standard, read in this order:
 
 1. [What is Agent App?](/en/what-is-agent-app) explains the boundary between complete apps, experts, Skills, and Knowledge.
-2. [Specification](/en/specification) defines the v0.6 package contract.
+2. [Specification](/en/specification) defines the v0.7 package contract.
 3. [Quickstart](/en/authoring/quickstart) shows the smallest useful package.
 4. [Runtime package design](/en/authoring/runtime-package) explains where real UI, worker, storage, and workflow implementation lives.
 5. [Capability SDK](/en/client-implementation/capability-sdk) explains how apps call host capabilities without importing internals.
@@ -51,7 +51,7 @@ Agent App is the application layer for agent hosts. If you are new to the standa
 
 ## Current version
 
-The current line is v0.6. It keeps the executable package contract and v0.5 layered configuration, then adds the Agent task runtime control plane: `app.runtime.yaml`, stable task event/result envelopes, JSON Schema structured output, runtime approval, session resume/continue/fork, on-demand tool discovery, checkpoint scope, and observability mapping. Legacy `scene` and `home` entries remain compatibility-only.
+The current line is v0.7. It keeps the executable package contract, v0.5 layered configuration, and v0.6 Agent task runtime control plane, then adds Requirement Boundary & Capability Handoff: `app.requirements.yaml`, `app.boundary.yaml`, `app.integrations.yaml`, `app.operations.yaml`, and App Fit Reports. A v0.7 app can explain what the App owns, what Host/Cloud must provide, what connectors adapt, what remains in external systems, and what humans must approve.
 
 ## Package maturity ladder
 

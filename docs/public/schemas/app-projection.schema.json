@@ -277,6 +277,26 @@
       "description": "v0.6: Agent task runtime control plane projected from APP.md or app.runtime.yaml.",
       "additionalProperties": true
     },
+    "requirements": {
+      "type": "object",
+      "description": "v0.7: business requirement, MVP, non-goal, and acceptance projection.",
+      "additionalProperties": true
+    },
+    "boundary": {
+      "type": "object",
+      "description": "v0.7: responsibility boundary projection across App, Host, Cloud, connectors, external systems, and humans.",
+      "additionalProperties": true
+    },
+    "integrations": {
+      "type": "array",
+      "description": "v0.7: host/cloud managed integration requirements.",
+      "items": { "type": "object", "additionalProperties": true }
+    },
+    "operations": {
+      "type": "array",
+      "description": "v0.7: operation side effect and approval contracts.",
+      "items": { "type": "object", "additionalProperties": true }
+    },
     "provenance": {
       "$ref": "#/$defs/provenance"
     }

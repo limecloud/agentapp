@@ -1,4 +1,4 @@
-# Agent App v0.6 signature, trust chain, and revocation
+# Agent App v0.7 signature, trust chain, and revocation
 # Note: example values; production releases must use real sigstore signatures.
 
 signature:
@@ -6,8 +6,8 @@ signature:
     algorithm: sha256
     hash: "0000000000000000000000000000000000000000000000000000000000000000"
     signedBy: sigstore
-    signatureRef: "sigstore:content-factory-app@0.6.0"
-    timestamp: "2026-05-16T00:00:00Z"
+    signatureRef: "sigstore:content-factory-app@0.7.0"
+    timestamp: "2026-05-17T00:00:00Z"
   manifest:
     algorithm: sha256
     hash: "0000000000000000000000000000000000000000000000000000000000000000"

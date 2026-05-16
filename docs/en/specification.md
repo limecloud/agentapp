@@ -1,6 +1,6 @@
 ---
 title: Specification
-description: Agent App v0.6 executable package, Capability SDK contract, and Agent task runtime control plane.
+description: Agent App v0.7 executable package, Capability SDK contract, Agent task runtime control plane, and requirement boundaries.
 ---
 
 # Specification
@@ -9,7 +9,7 @@ Agent App defines a complete installable application package for agent hosts. It
 
 `APP.md` remains the required discovery entry. Hosts read it first for manifest data, human guidance, and progressive loading hints. But `APP.md` is only declaration and guidance; business capability must be implemented by the runtime package and by calls through the Lime Capability SDK.
 
-v0.6 keeps the v0.5 discovery and authoring discipline borrowed from the [Agent Skills standard](https://agentskills.io): `APP.md` frontmatter stays small while detailed configuration moves into independent files. v0.6 adds `app.runtime.yaml` for the `lime.agent` task runtime control plane: event/result envelopes, structured output, runtime approval, session resume/fork, tool discovery, checkpoint scope, and observability.
+v0.7 inherits the v0.6 `lime.agent` task runtime control plane and adds **Requirement Boundary & Capability Handoff**. Apps must map business requirements to App, Host, Cloud, connector, external-system, and human-decision responsibilities instead of pushing customer-private systems, vendor adapters, or cloud-service duties into the app package.
 
 > Project-level architecture, sequence, flow, and state-machine diagrams live in [Architecture overview](./architecture). This specification only embeds diagrams that bind to specific clauses.
 
@@ -50,6 +50,10 @@ app-name/
 ├── app.i18n.yaml             # v0.5 optional: i18n config
 ├── app.signature.yaml        # v0.5 optional: signature and trust chain
 ├── app.runtime.yaml          # v0.6 optional: lime.agent task runtime control plane
+├── app.requirements.yaml     # v0.7 optional: requirements, MVP, non-goals, acceptance
+├── app.boundary.yaml         # v0.7 optional: App / Host / Cloud / Connector / External / Human boundary
+├── app.integrations.yaml     # v0.7 optional: Host/Cloud-managed external integration needs
+├── app.operations.yaml       # v0.7 optional: side effects, approval, dry-run, evidence
 ├── dist/
 │   ├── ui/                   # optional: real UI bundle, route manifest, assets
 │   ├── worker/               # optional: business workers, background tasks, long-running jobs
@@ -73,7 +77,7 @@ app-name/
 
 Only `APP.md` is mandatory. Compatible hosts must read `APP.md` and catalog metadata first, then progressively load the runtime package according to user action, readiness, permission, and capability version checks.
 
-v0.6 keeps the layered configuration principle: `APP.md` carries only discovery metadata and human-readable guidance, while complex configuration (capabilities, entries, permissions, errors, i18n, signature, Agent task runtime contracts) moves into independent `app.*.yaml` files when needed, preventing frontmatter bloat.
+v0.7 keeps the layered configuration principle: `APP.md` carries only discovery metadata and human-readable guidance, while complex configuration (capabilities, entries, permissions, errors, i18n, signature, Agent task runtime contracts, requirement boundaries, integrations, and operation side effects) moves into independent `app.*.yaml` files when needed, preventing frontmatter bloat.
 
 ## `APP.md`
 
@@ -121,7 +125,7 @@ For open-platform distribution, v0.5 promotes "app identity, version, timeline, 
 
 | Field | Purpose |
 | --- | --- |
-| `manifestVersion` | Manifest protocol version; v0.6 should set `0.6.0`. |
+| `manifestVersion` | Manifest protocol version; current packages should set `0.7.0`. |
 | `version` | App package version (SemVer). |
 | `createdAt` | ISO 8601; first appearance in any registry. |
 | `updatedAt` | ISO 8601; manifest last updated. |
@@ -211,12 +215,16 @@ Hosts must mark apps with `endOfLifeAt < now` as `blocked` in readiness and surf
 | `secrets` | Credential slots hosted by the Secret Manager. |
 | `lifecycle` | Hooks for install, activate, upgrade, disable, and uninstall. |
 | `agentRuntime` | v0.6 shorthand for Agent task runtime control plane; prefer `app.runtime.yaml` for detailed config. |
+| `requirements` | v0.7 shorthand for requirements, MVP scope, non-goals, and acceptance; prefer `app.requirements.yaml` for detailed config. |
+| `boundary` | v0.7 shorthand for App / Host / Cloud / Connector / External / Human boundaries; prefer `app.boundary.yaml` for detailed config. |
+| `integrations` | v0.7 shorthand for external integration needs; prefer `app.integrations.yaml` for detailed config. |
+| `operations` | v0.7 shorthand for side effects, approval, dry-run, and evidence; prefer `app.operations.yaml` for detailed config. |
 | `overlayTemplates` | Configurable slots for tenant, workspace, user, or customer overlays. |
 | `presentation` | App card, icon, category, home copy, and sorting hints. |
 | `compatibility` | Compatibility matrix, fallback policy, and deprecation window. |
 | `metadata` | Namespaced implementation metadata. |
 
-### v0.5/v0.6 layered configuration
+### v0.5/v0.6/v0.7 layered configuration
 
 Detailed configuration can move to independent files; the frontmatter keeps only core metadata:
 
@@ -229,6 +237,10 @@ Detailed configuration can move to independent files; the frontmatter keeps only
 | `app.i18n.yaml` | i18n config | Loaded by manifest convention |
 | `app.signature.yaml` | Signature, trust, and revocation | Loaded by manifest convention |
 | `app.runtime.yaml` | v0.6 Agent task event/result, structured output, approval, session, tool discovery, checkpoint, and observability | Loaded by manifest convention |
+| `app.requirements.yaml` | v0.7 requirements, MVP scope, non-goals, later phases, and acceptance criteria | Loaded by manifest convention |
+| `app.boundary.yaml` | v0.7 App / Host / Cloud / Connector / External / Human responsibility boundary | Loaded by manifest convention |
+| `app.integrations.yaml` | v0.7 Host/Cloud-managed external systems, CLIs, MCPs, APIs, webhooks, or browser adapter needs | Loaded by manifest convention |
+| `app.operations.yaml` | v0.7 operation side effects, approval, dry-run, idempotency, and evidence requirements | Loaded by manifest convention |
 | `evals/readiness.yaml` | Readiness self-check model | Loaded by manifest convention |
 | `evals/health.yaml` | Runtime health checks | Loaded by manifest convention |
 
@@ -489,6 +501,201 @@ When many tools exist, apps should declare `toolDiscovery.mode: on_demand`. The 
 
 Runtime profile events should map to OpenTelemetry spans: `agent.task`, `llm.request`, `tool.call`, `approval.request`, `artifact.materialize`, `evidence.record`, and `subagent.run`. Prompt text, user content, and artifact bodies are not exported by default; content export must be explicit opt-in.
 
+
+## Requirement Boundary & Capability Handoff v0.7
+
+v0.7 does not replace the v0.6 runtime control plane. It adds requirement boundaries and capability handoff above it. Given a sanitized business requirement, an Agent App must explain what becomes user-facing app experience, what the Host executes, what Cloud governs, what connectors adapt, what remains in external systems, and what humans must approve.
+
+### End-user architecture
+
+```mermaid
+flowchart LR
+  User[End user] --> App[Agent App\nWorkspace / forms / review / artifacts]
+  App --> Host[Lime Host\nLocal Agent / MCP / CLI / Tools / Files / Policy]
+  App --> Cloud[Lime Cloud\nRegistry / Tenant policy / OAuth / Webhook / Sync]
+  Host --> Connector[Connector / Tool Adapter\nMCP / CLI / API / Browser]
+  Cloud --> Connector
+  Connector --> External[External System\nDocs / Tables / Drives / Publishing / CRM]
+  App --> Human[Human Confirmation\nReview / Publish / Risky action]
+  External --> App
+  Human --> App
+```
+
+### Install, readiness, and execution sequence
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant User as End user
+  participant App as Agent App
+  participant Host as Lime Host
+  participant Cloud as Lime Cloud
+  participant Conn as Connector
+  participant Ext as External System
+
+  User->>App: Open workspace and choose business flow
+  App->>Host: Request capability profile and readiness
+  Host->>Cloud: Query app, connector, tenant policy, and auth state
+  Cloud-->>Host: Return allowed capabilities, missing connections, and policies
+  Host-->>App: readiness = ready / needs-setup / blocked
+  App-->>User: Show required connection, authorization, or setup items
+  User->>Host: Authorize connector or confirm risky action
+  App->>Host: Start workflow / agent task / artifact operation
+  Host->>Conn: Controlled MCP / CLI / API / tool invocation
+  Conn->>Ext: Read or write external source of truth
+  Ext-->>Conn: Return structured result
+  Conn-->>Host: Return result, logs, and side-effect status
+  Host-->>App: Return result + evidence refs
+  App-->>User: Show artifact, state, and next step
+```
+
+### Requirement decomposition flow
+
+```mermaid
+flowchart TD
+  Start([Sanitized business requirement]) --> Extract[Extract requirement items]
+  Extract --> Classify[Classify with v0.7\nAPP / HOST / CLOUD / CONNECTOR / EXTERNAL / HUMAN]
+  Classify --> Fit{Good Agent App fit?}
+  Fit -- No --> Explain[Explain mismatch\nRecommend external system, cloud service, or manual flow]
+  Fit -- Yes --> Scope[Define MVP / non-goals / later phases]
+  Scope --> Req[Write app.requirements.yaml]
+  Req --> Boundary[Write app.boundary.yaml]
+  Boundary --> Integrations[Write app.integrations.yaml]
+  Integrations --> Operations[Write app.operations.yaml]
+  Operations --> Ready{Host / Cloud / Connector ready?}
+  Ready -- No --> Setup[Connect, authorize, install tool, or enable cloud capability]
+  Setup --> Ready
+  Ready -- Yes --> Run[Run app workflow]
+  Run --> Risk{External write, publish, delete, or bulk update?}
+  Risk -- Yes --> Human[Human confirmation + evidence]
+  Risk -- No --> Save[Save artifact + evidence]
+  Human --> Save
+  Save --> Done([Accepted delivery])
+```
+
+### New layered files
+
+```yaml
+# app.requirements.yaml
+requirements:
+  - id: R001
+    text: End users complete the minimum business flow inside the app workspace
+    priority: mvp
+    acceptance:
+      - Users see state, artifacts, and next steps without leaving the app
+      - Outputs are saved as reviewable artifacts
+  - id: R002
+    text: Read an external source of truth and generate reviewable drafts
+    priority: mvp
+    acceptance:
+      - External reads are handled by Host/Cloud-managed connectors
+      - Drafts write to app storage and evidence
+nonGoals:
+  - Store plaintext third-party credentials in the app package
+  - Bypass host policy to mutate external systems
+later:
+  - Automatic publishing to external channels
+```
+
+```yaml
+# app.boundary.yaml
+boundaries:
+  - requirementId: R001
+    planes:
+      app:
+        owns: [business_ui, workflow_state, artifact_contracts]
+      host:
+        requires: [lime.agent, lime.storage, lime.artifacts, lime.evidence]
+      human:
+        owns: [review_decision]
+  - requirementId: R002
+    planes:
+      app:
+        owns: [draft_review_ui, handoff_status]
+      host:
+        requires: [lime.connectors, lime.secrets, lime.policy, lime.evidence]
+      cloud:
+        optional: [tenant_policy, connector_registry, oauth_broker]
+      connector:
+        requires: [external_source_adapter]
+      external:
+        owns: [source_of_truth_state]
+```
+
+```yaml
+# app.integrations.yaml
+integrations:
+  - key: source_records
+    provider: cloud.table
+    role: source_of_truth
+    executionPlane: host
+    hostCapability: lime.connectors
+    cloudCapability: lime.oauth
+    adapter:
+      kind: api
+      outputFormat: json
+    access:
+      read: true
+      write: false
+    readiness:
+      missing: blocked
+      setupAction: open_host_connector
+  - key: draft_export
+    provider: local.cli
+    role: draft_exporter
+    executionPlane: host
+    hostCapability: lime.terminal
+    adapter:
+      kind: cli
+      command: draft-export
+      outputFormat: json
+```
+
+```yaml
+# app.operations.yaml
+operations:
+  - key: generate_reviewable_artifact
+    type: agent_task
+    sideEffect: artifact_create
+    approvalRequired: false
+    dryRunRequired: false
+    evidenceRequired: true
+    autoExecute: true
+  - key: write_external_draft
+    type: external_write
+    integration: source_records
+    sideEffect: external_write
+    approvalRequired: true
+    dryRunRequired: true
+    idempotencyRequired: true
+    evidenceRequired: true
+    autoExecute: false
+```
+
+### App Fit Report classifications
+
+| Classification | Meaning |
+| --- | --- |
+| `APP_EXPERIENCE` | App pages, forms, dashboards, or end-user experience. |
+| `APP_WORKFLOW` | App workflow, state machine, artifact generation, or human review node. |
+| `HOST_CAPABILITY` | Host needs Agent, MCP, CLI, tools, files, sandbox, secrets, or evidence. |
+| `CLOUD_CAPABILITY` | Cloud needs registry, tenant policy, OAuth, webhook, scheduled sync, or team governance. |
+| `CONNECTOR_ADAPTER` | A connector package, MCP server, CLI adapter, API, or browser adapter is required. |
+| `EXTERNAL_SYSTEM` | Source-of-truth or final write state belongs to an external system. |
+| `HUMAN_DECISION` | Risk approval, publish review, exception handling, or final business judgment. |
+| `LATER_PHASE` | Later phase, not in the current MVP. |
+| `OUT_OF_SCOPE` | Not part of the Agent App standard or current delivery scope. |
+| `NEEDS_CLARIFICATION` | Missing key business, permission, data, or acceptance information. |
+
+### v0.7 MUST / MUST NOT
+
+- Apps **must** declare external side effects, required connections, acceptance criteria, and non-goals before execution.
+- Host / Cloud **must** own MCP, CLI, tools, credentials, policy, authorization, and evidence execution.
+- Apps **must not** store plaintext third-party credentials.
+- Apps **must not** directly start MCP servers, CLIs, or tool runtimes.
+- Apps **must not** auto-execute publish, delete, or bulk-update operations by default.
+- Non-core vendor adapters **must not** be merged into Lime Core; install them as connector packages, MCP servers, CLI adapters, browser adapters, or customer overlays.
+
 ## Host Bridge v1
 
 Host Bridge is the event boundary for `lime.ui` and the Capability SDK inside the UI runtime. It standardizes theme, locale, entry context, navigation, notifications, downloads, and capability calls instead of letting every app invent a private `postMessage` protocol.
@@ -697,9 +904,9 @@ Readiness may return `ready`, `needs-setup`, or `failed`. v0.5 extends the state
 readiness:
   required:
     - check: sdk_version
-      expect: ">=0.6.0"
+      expect: ">=0.7.0"
       blocker: true
-      message: Lime SDK v0.6.0 or higher is required
+      message: Lime SDK v0.7.0 or higher is required
     - check: capability_available
       capability: lime.agent
       blocker: true
@@ -834,7 +1041,7 @@ signature:
     algorithm: sha256
     hash: aaaa...aaaa
     signedBy: sigstore
-    signatureRef: sigstore:content-factory-app@0.6.0
+    signatureRef: sigstore:content-factory-app@0.7.0
     timestamp: 2026-05-16T00:00:00Z
   manifest:
     algorithm: sha256
