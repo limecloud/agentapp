@@ -12,10 +12,10 @@ description: 完整 Agent App manifest 的检查表和注释结构。
 ## 必需身份字段
 
 ```yaml
-manifestVersion: 0.3.0
+manifestVersion: 0.6.0
 name: content-factory-app
 description: 内容工厂，用于知识库构建、内容场景规划、内容生产和数据复盘。
-version: 0.3.0
+version: 0.6.0
 status: ready
 appType: domain-app
 runtimeTargets:
@@ -29,12 +29,12 @@ runtimeTargets:
 ```yaml
 requires:
   lime:
-    appRuntime: ">=0.3.0 <1.0.0"
-  sdk: "@lime/app-sdk@^0.3.0"
+    appRuntime: ">=0.6.0 <1.0.0"
+  sdk: "@lime/app-sdk@^0.6.0"
   capabilities:
-    lime.ui: "^0.3.0"
-    lime.storage: "^0.3.0"
-    lime.agent: "^0.3.0"
+    lime.ui: "^0.6.0"
+    lime.storage: "^0.6.0"
+    lime.agent: "^0.6.0"
 ```
 
 Requirements 描述宿主必须提供什么，而不是宿主内部如何实现。
@@ -82,6 +82,34 @@ storage:
 
 Storage 必须 namespace 化，才能支持卸载、导出和审计。
 
+## v0.6 Agent runtime control
+
+调用 `lime.agent` 的完整 App 应包含 `app.runtime.yaml`，或等价的 `agentRuntime` 字段。Runtime layer 声明 task 事件 / 结果 schema、JSON Schema 结构化输出、runtime approval、session resume / fork policy、tool discovery、checkpoint scope 和可观测性默认值。
+
+```yaml
+agentRuntime:
+  agentTask:
+    eventSchema: lime.agent-task-event.v1
+    resultSchema: lime.agent-task-result.v1
+    structuredOutput:
+      type: json_schema
+      schemaRef: ./artifacts/workspace-patch.schema.json
+      maxValidationRetries: 2
+    approval:
+      behavior: host-mediated
+    sessionPolicy:
+      modes: [new, resume, continue, fork]
+    toolDiscovery:
+      mode: on_demand
+    checkpointScope:
+      workflowState: true
+      appStorage: true
+      artifacts: true
+    observability:
+      openTelemetryMapping: true
+      exportContentByDefault: false
+```
+
 ## 依赖和交付物
 
 完整 App 通常还声明：
@@ -111,12 +139,12 @@ Storage 必须 namespace 化，才能支持卸载、导出和审计。
 
 | 区域 | 完整标准 |
 | --- | --- |
-| Manifest | 必需字段和 v0.3 requirements 已声明。 |
+| Manifest | 必需字段和 v0.6 requirements 已声明。 |
 | Runtime package | 使用到的 UI、worker、storage、workflow 路径已声明。 |
 | Entries | 每个启动点有稳定 key、kind、title 和绑定信息。 |
 | Data | Storage namespace 和 Knowledge slots 明确。 |
-| Policy | Permissions、secrets、风险能力已声明。 |
-| Quality | Artifact types 和 evals 连接到 workflow。 |
+| Policy | Permissions、secrets、runtime approval 和风险能力已声明。 |
+| Quality | Artifact types、结构化输出 schema 和 evals 连接到 workflow。 |
 | Overlays | 租户 / workspace 差异不 fork package。 |
 | Provenance | Projection 和 runtime output 能追溯到版本和 hash。 |
 | Cleanup | disable、keep data、delete data 行为明确。 |
@@ -124,7 +152,7 @@ Storage 必须 namespace 化，才能支持卸载、导出和审计。
 ## 验证命令
 
 ```bash
-npm run cli -- validate docs/examples/content-factory-app
+npm run cli -- validate docs/examples/content-factory-app --version 0.6
 npm run cli -- project docs/examples/content-factory-app
 npm run cli -- readiness docs/examples/content-factory-app
 ```

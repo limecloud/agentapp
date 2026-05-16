@@ -1,14 +1,14 @@
 ---
-manifestVersion: 0.5.0
+manifestVersion: 0.6.0
 name: customer-support-app
 description: Customer support Agent App for grounded replies, policy lookup, and escalation notes. Triggers on "draft a reply", "look up policy", "write an escalation note".
-version: 0.5.0
+version: 0.6.0
 status: draft
 appType: agent-app
 runtimeTargets:
   - local
 requires:
-  sdk: "@lime/app-sdk@^0.5.0"
+  sdk: "@lime/app-sdk@^0.6.0"
   capabilities:
     - lime.ui
     - lime.agent
@@ -89,7 +89,7 @@ Install this app to draft grounded support replies and escalation notes.
 
 ## Product boundary
 
-This package is a draft support workbench, not a standalone ticketing system. The host owns installation, permission prompts, storage, secrets, Evidence, and the runtime bridge. The app owns the support-specific entries, required Knowledge slots, reply artifact shape, and policy compliance checks.
+This package is a draft support workbench, not a standalone ticketing system. The host owns installation, permission prompts, storage, secrets, Evidence, and the runtime bridge. The app owns the support-specific entries, required Knowledge slots, reply artifact shape, policy compliance checks, and v0.6 Agent task runtime intent in `app.runtime.yaml`.
 
 ## Intended entries
 
@@ -109,6 +109,10 @@ Only `draft_reply` is declared in the draft frontmatter. The other entries descr
 - Optionally connect `ticket_lookup` for ticket metadata, history, and customer context.
 - Configure tenant overlays for tone, prohibited promises, escalation rules, and region-specific policy.
 - Review permissions before enabling any write-back Tool.
+
+## v0.6 runtime contract
+
+This draft opts into `app.runtime.yaml` so hosts can stream reply-drafting tasks through `lime.agent-task-event.v1`, validate structured reply artifacts, mediate tool approvals, resume or fork sessions, and record Evidence without letting the app bypass policy.
 
 ## Drafting workflow
 
@@ -139,4 +143,4 @@ Receive ticket context
 
 ## Upgrade path
 
-To make this fixture production-ready, add runtime package assets, explicit `requires.capabilities`, storage schema, workflow descriptors, artifact viewer, secrets for ticket connectors, permissions for read/write operations, and release metadata with package provenance. Then opt into v0.5 layered files (`app.capabilities.yaml`, `app.errors.yaml`, `app.i18n.yaml`, `evals/readiness.yaml`) for production-grade authoring.
+To make this fixture production-ready, add runtime package assets, explicit `requires.capabilities`, storage schema, workflow descriptors, artifact viewer, secrets for ticket connectors, permissions for read/write operations, and release metadata with package provenance. Then opt into the full v0.6 layered set (`app.capabilities.yaml`, `app.errors.yaml`, `app.i18n.yaml`, `app.runtime.yaml`, `evals/readiness.yaml`) for production-grade authoring.

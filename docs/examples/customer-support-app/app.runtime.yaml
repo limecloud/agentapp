@@ -1,0 +1,50 @@
+# Agent App v0.6 runtime contract for customer-support-app.
+# The app drafts support artifacts; the host remains responsible for policy, tool authorization, evidence, and telemetry.
+
+agentRuntime:
+  agentTask:
+    eventSchema: lime.agent-task-event.v1
+    resultSchema: lime.agent-task-result.v1
+    structuredOutput:
+      type: json_schema
+      schemaRef: ./artifacts/reply-draft.schema.json
+      maxValidationRetries: 2
+      failureSubtype: error_max_structured_output_retries
+      materializer:
+        kind: support.reply_draft
+        acceptedKeys:
+          - replyDraft
+          - escalationNote
+    approval:
+      behavior: host-mediated
+      supportsUpdatedInput: true
+      supportsDefer: true
+      rememberScopes:
+        - task
+        - session
+    sessionPolicy:
+      modes:
+        - new
+        - resume
+        - continue
+        - fork
+      compactionEvents: true
+    toolDiscovery:
+      mode: on_demand
+      topK: 4
+      includeSchemas: selected_only
+      queryFrom:
+        - ticketContext
+        - supportIntent
+        - riskCategory
+    checkpointScope:
+      workflowState: true
+      appStorage: true
+      artifacts: true
+      files: none
+      conversation: resume_only
+      externalSideEffects: record_only
+    observability:
+      profileEvents: true
+      openTelemetryMapping: true
+      exportContentByDefault: false

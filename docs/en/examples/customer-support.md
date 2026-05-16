@@ -22,9 +22,10 @@ The example declares:
 - optional ticket lookup Tool requirement
 - `reply_draft` Artifact type
 - `policy_compliance` Eval
+- v0.6 `app.runtime.yaml` for structured reply drafts, approval, session, tool discovery, checkpoints, and observability
 - support category presentation metadata
 
-It is a draft app, so validation warns that a product-level runtime package and explicit permissions should be added before production use.
+It is a draft app, so validation still warns that a product-level runtime package, full layered config, and explicit permissions should be added before production use.
 
 ## Suggested complete version
 
@@ -38,7 +39,7 @@ A production support app would usually add:
 | Tools | Ticket lookup, CRM update, customer profile, macro export. |
 | Artifacts | Reply draft, escalation note, policy citation bundle. |
 | Evals | Policy compliance, tone, source grounding, privacy check. |
-| Permissions | Ticket read, optional ticket write, CRM tool execution. |
+| Permissions | Ticket read, optional ticket write, CRM tool execution, and runtime approval for risky actions. |
 | Secrets | CRM OAuth or tenant ticketing connector handle. |
 
 ## Boundary example
@@ -49,7 +50,7 @@ A production support app would usually add:
 | Product facts and refund policy | Agent Knowledge |
 | Ticket lookup connector | Agent Tool |
 | Draft reply command and review workflow | Agent App |
-| Reply draft | Agent Artifact |
+| Reply draft with JSON Schema | Agent Artifact |
 | Policy compliance result | Eval and Evidence |
 
 ## Why this matters
@@ -59,12 +60,12 @@ Support workflows are high trust. The app should never answer from generic model
 ## Try it locally
 
 ```bash
-npm run cli -- validate docs/examples/customer-support-app
+npm run cli -- validate docs/examples/customer-support-app --version 0.6
 npm run cli -- project docs/examples/customer-support-app
 npm run cli -- readiness docs/examples/customer-support-app
 ```
 
-The current draft fixture is useful for testing warnings and progressive completeness.
+The current v0.6 draft fixture is useful for testing warnings, runtime contract projection, and progressive completeness.
 
 ## End-to-end support flow
 

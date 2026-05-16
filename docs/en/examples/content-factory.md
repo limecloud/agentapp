@@ -78,6 +78,18 @@ Customer-specific facts are not bundled. They are bound through Knowledge, works
 | `lime.policy` | Review file, tool, model, and export permissions. |
 | `lime.secrets` | Bind optional publishing workspace token. |
 
+## v0.6 Agent task runtime
+
+The fixture includes [`app.runtime.yaml`](../../examples/content-factory-app/app.runtime.yaml) to make `lime.agent` execution explicit. It declares:
+
+- `lime.agent-task-event.v1` / `lime.agent-task-result.v1` event and result envelopes
+- JSON Schema structured output via `artifacts/content-factory-workspace-patch.schema.json`
+- host-mediated approvals with updated input and defer support
+- `new`, `resume`, `continue`, and `fork` session modes
+- on-demand tool discovery with selected-only schemas
+- checkpoint boundaries for workflow state, app storage, artifacts, tracked files, conversation, and external side effects
+- OpenTelemetry mapping with content export disabled by default
+
 ## Readiness behavior
 
 The fixture validates successfully, but readiness can report `needs-setup` because required Skills, Knowledge, Tools, Evals, and services must be satisfied by the host.
@@ -97,7 +109,7 @@ That is correct behavior. The package is structurally valid; the workspace may s
 ## Try it locally
 
 ```bash
-npm run cli -- validate docs/examples/content-factory-app
+npm run cli -- validate docs/examples/content-factory-app --version 0.6
 npm run cli -- project docs/examples/content-factory-app
 npm run cli -- readiness docs/examples/content-factory-app
 ```

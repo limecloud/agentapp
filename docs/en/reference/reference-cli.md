@@ -20,7 +20,7 @@ npm run cli -- validate docs/examples/content-factory-app
 From npm after publishing:
 
 ```bash
-npx agentapp-ref@0.4.0 validate ./my-agent-app
+npx agentapp-ref@0.6.0 validate ./my-agent-app --version 0.6
 ```
 
 ## Commands
@@ -32,6 +32,8 @@ npx agentapp-ref@0.4.0 validate ./my-agent-app
 | `to-catalog <app>` | Emit compact catalog metadata. |
 | `project <app>` | Emit host catalog projection with provenance. |
 | `readiness <app>` | Check static setup readiness without running an agent. |
+| `migrate-check <app> [--target 0.6.0]` | Report migration gaps for the current target version. |
+| `migrate-generate <app> [--target 0.6.0]` | Suggest layered config files, including v0.6 `app.runtime.yaml`. |
 
 ## Validate
 

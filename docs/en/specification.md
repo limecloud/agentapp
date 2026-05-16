@@ -1,6 +1,6 @@
 ---
 title: Specification
-description: Agent App v0.5 executable package and Capability SDK contract.
+description: Agent App v0.6 executable package, Capability SDK contract, and Agent task runtime control plane.
 ---
 
 # Specification
@@ -9,7 +9,7 @@ Agent App defines a complete installable application package for agent hosts. It
 
 `APP.md` remains the required discovery entry. Hosts read it first for manifest data, human guidance, and progressive loading hints. But `APP.md` is only declaration and guidance; business capability must be implemented by the runtime package and by calls through the Lime Capability SDK.
 
-v0.5 absorbs the discovery and authoring discipline of the [Agent Skills standard](https://agentskills.io). `APP.md` frontmatter stays small while detailed configuration moves into independent files. New `triggers` and `quickstart` fields drive AI auto-discovery and first-launch UX. The `skills/` directory standardizes how apps bundle or reference Agent Skills. New independent files cover readiness self-check, error codes, signature, i18n, and runtime health, so authors opt in only what they need.
+v0.6 keeps the v0.5 discovery and authoring discipline borrowed from the [Agent Skills standard](https://agentskills.io): `APP.md` frontmatter stays small while detailed configuration moves into independent files. v0.6 adds `app.runtime.yaml` for the `lime.agent` task runtime control plane: event/result envelopes, structured output, runtime approval, session resume/fork, tool discovery, checkpoint scope, and observability.
 
 > Project-level architecture, sequence, flow, and state-machine diagrams live in [Architecture overview](./architecture). This specification only embeds diagrams that bind to specific clauses.
 
@@ -49,6 +49,7 @@ app-name/
 ├── app.errors.yaml           # v0.5 optional: standardized error codes
 ├── app.i18n.yaml             # v0.5 optional: i18n config
 ├── app.signature.yaml        # v0.5 optional: signature and trust chain
+├── app.runtime.yaml          # v0.6 optional: lime.agent task runtime control plane
 ├── dist/
 │   ├── ui/                   # optional: real UI bundle, route manifest, assets
 │   ├── worker/               # optional: business workers, background tasks, long-running jobs
@@ -72,7 +73,7 @@ app-name/
 
 Only `APP.md` is mandatory. Compatible hosts must read `APP.md` and catalog metadata first, then progressively load the runtime package according to user action, readiness, permission, and capability version checks.
 
-v0.5 introduces the layered configuration principle: `APP.md` carries only discovery metadata and human-readable guidance, while complex configuration (capabilities, entries, permissions, errors, i18n, signature) moves into independent `app.*.yaml` files when needed, preventing frontmatter bloat.
+v0.6 keeps the layered configuration principle: `APP.md` carries only discovery metadata and human-readable guidance, while complex configuration (capabilities, entries, permissions, errors, i18n, signature, Agent task runtime contracts) moves into independent `app.*.yaml` files when needed, preventing frontmatter bloat.
 
 ## `APP.md`
 
@@ -120,7 +121,7 @@ For open-platform distribution, v0.5 promotes "app identity, version, timeline, 
 
 | Field | Purpose |
 | --- | --- |
-| `manifestVersion` | Manifest protocol version; v0.5 should set `0.5.0`. |
+| `manifestVersion` | Manifest protocol version; v0.6 should set `0.6.0`. |
 | `version` | App package version (SemVer). |
 | `createdAt` | ISO 8601; first appearance in any registry. |
 | `updatedAt` | ISO 8601; manifest last updated. |
@@ -209,12 +210,13 @@ Hosts must mark apps with `endOfLifeAt < now` as `blocked` in readiness and surf
 | `events` | Events emitted or consumed by the app. |
 | `secrets` | Credential slots hosted by the Secret Manager. |
 | `lifecycle` | Hooks for install, activate, upgrade, disable, and uninstall. |
+| `agentRuntime` | v0.6 shorthand for Agent task runtime control plane; prefer `app.runtime.yaml` for detailed config. |
 | `overlayTemplates` | Configurable slots for tenant, workspace, user, or customer overlays. |
 | `presentation` | App card, icon, category, home copy, and sorting hints. |
 | `compatibility` | Compatibility matrix, fallback policy, and deprecation window. |
 | `metadata` | Namespaced implementation metadata. |
 
-### v0.5 layered configuration
+### v0.5/v0.6 layered configuration
 
 Detailed configuration can move to independent files; the frontmatter keeps only core metadata:
 
@@ -226,6 +228,7 @@ Detailed configuration can move to independent files; the frontmatter keeps only
 | `app.errors.yaml` | Standardized error codes and recovery | Loaded by manifest convention |
 | `app.i18n.yaml` | i18n config | Loaded by manifest convention |
 | `app.signature.yaml` | Signature, trust, and revocation | Loaded by manifest convention |
+| `app.runtime.yaml` | v0.6 Agent task event/result, structured output, approval, session, tool discovery, checkpoint, and observability | Loaded by manifest convention |
 | `evals/readiness.yaml` | Readiness self-check model | Loaded by manifest convention |
 | `evals/health.yaml` | Runtime health checks | Loaded by manifest convention |
 
@@ -314,6 +317,178 @@ await lime.evidence.record({ subject: artifact.id, sources: hits })
 ```
 
 SDK calls must support stable error codes, cancellation, retries, timeouts, permission denial, cost limits, traceId, and mock implementations. Apps may depend on this contract only, not host file paths, database tables, or frontend components.
+
+## Agent Task Runtime Control Plane v0.6
+
+v0.6 does not turn Agent App into a new AgentRuntime and does not require apps to embed a model SDK. It standardizes the task control plane around `lime.agent` so apps, hosts, AgentRuntime, ToolHub, Evidence, and UI surfaces share the same task facts.
+
+### Design goals
+
+1. Apps declare business tasks, output contracts, and runtime boundaries; the host remains the only authority for permissions, policy, tools, secrets, evidence, and model routing.
+2. Task execution must be streamable, resumable, retryable, auditable, and linkable to artifacts and evidence.
+3. Structured output must be validated and materialized; prompt-only conventions are not enough.
+4. Sessions, business state, files, and artifact checkpoints must have separate scopes.
+5. Tools and Skills should be discovered on demand instead of loading every schema into context.
+
+### `app.runtime.yaml`
+
+Apps that use `lime.agent` should add `app.runtime.yaml` to declare Agent task runtime constraints:
+
+```yaml
+agentRuntime:
+  agentTask:
+    eventSchema: lime.agent-task-event.v1
+    resultSchema: lime.agent-task-result.v1
+    structuredOutput:
+      type: json_schema
+      schemaRef: ./artifacts/workspace-patch.schema.json
+      maxValidationRetries: 2
+      failureSubtype: error_max_structured_output_retries
+    approval:
+      behavior: host-mediated
+      supportsUpdatedInput: true
+      supportsDefer: true
+      rememberScopes: [task, session, workspace]
+    sessionPolicy:
+      modes: [new, resume, continue, fork]
+      compactionEvents: true
+    toolDiscovery:
+      mode: on_demand
+      topK: 5
+      includeSchemas: selected_only
+    checkpointScope:
+      workflowState: true
+      appStorage: true
+      artifacts: true
+      files: tracked_only
+      conversation: resume_only
+      externalSideEffects: record_only
+    observability:
+      profileEvents: true
+      openTelemetryMapping: true
+      exportContentByDefault: false
+```
+
+These fields express runtime intent, not execution permission. Hosts must still combine them with `app.permissions.yaml`, tenant policy, readiness, and user authorization before running anything.
+
+### Agent task event envelope
+
+Hosts should project `lime.agent.startTask`, `streamTask`, `getTask`, and subscription updates into a stable event envelope:
+
+```ts
+interface AgentTaskEvent {
+  schemaVersion: "lime.agent-task-event.v1"
+  eventId: string
+  sequence: number
+  type:
+    | "system:init"
+    | "system:compact_boundary"
+    | "task:queued"
+    | "task:progress"
+    | "assistant:delta"
+    | "tool:call"
+    | "approval:requested"
+    | "artifact:created"
+    | "evidence:recorded"
+    | "result"
+  subtype?: string
+  appId: string
+  taskId: string
+  traceId: string
+  sessionId: string
+  turnId?: string
+  parentTaskId?: string
+  at: string
+  payload?: unknown
+  refs?: string[]
+  usage?: unknown
+  cost?: unknown
+}
+```
+
+The final result must use `type: "result"` and a stable `subtype`:
+
+| subtype | Meaning |
+| --- | --- |
+| `success` | Task completed and structured output / evidence is readable. |
+| `error_max_turns` | Maximum turns reached. |
+| `error_during_execution` | Runtime execution error. |
+| `error_max_budget` | Cost or budget limit reached. |
+| `error_max_structured_output_retries` | Structured output validation failed after retries. |
+| `error_permission_denied` | Permission or policy denied execution. |
+| `cancelled` | User or system cancelled the task. |
+
+### Structured output
+
+`expectedOutput` may stay in the `lime.agent.startTask` request, but v0.6 recommends explicit JSON Schema:
+
+```ts
+await lime.agent.startTask({
+  taskKind: "content_factory.copy.generate",
+  input,
+  expectedOutput: {
+    artifactKind: "content_batch",
+    outputFormat: {
+      type: "json_schema",
+      schemaRef: "./artifacts/content-factory-workspace-patch.schema.json",
+      maxValidationRetries: 2
+    },
+    materializer: {
+      kind: "content_factory.workspace_patch",
+      acceptedKeys: ["contentFactoryWorkspacePatch", "workspacePatch"]
+    }
+  }
+})
+```
+
+Hosts / AgentRuntime should validate structured output before artifact or storage write-back. Validation may trigger limited retries; after the limit, return `error_max_structured_output_retries` and never treat a natural-language summary as a successful patch.
+
+### Runtime approval
+
+v0.6 unifies tool approval, user questions, and context elicitation as runtime approval:
+
+```ts
+interface RuntimeApprovalRequest {
+  requestId: string
+  kind: "tool_confirmation" | "ask_user" | "elicitation" | "policy_exception"
+  toolName?: string
+  input?: unknown
+  risk?: "low" | "medium" | "high"
+  scope: { appId: string; taskId: string; sessionId: string; turnId?: string }
+  suggestions?: Array<{ label: string; updatedInput?: unknown }>
+  rememberPolicy?: "never" | "task" | "session" | "workspace"
+}
+
+interface RuntimeApprovalDecision {
+  behavior: "allow" | "deny" | "defer"
+  updatedInput?: unknown
+  message?: string
+  remember?: boolean
+  interrupt?: boolean
+}
+```
+
+Permission evaluation order must be: app manifest allowlist -> readiness -> tenant / workspace policy -> deny rules -> risk policy -> runtime approval -> post-action evidence. Deny wins over allow. Agent App manifests must not declare `bypassPermissions`.
+
+### Sessions, forks, and checkpoints
+
+`sessionPolicy` describes Agent conversation history only; it is not business state:
+
+| mode | Meaning |
+| --- | --- |
+| `new` | Create a new Agent session. |
+| `resume` | Resume an existing session context. |
+| `continue` | Continue the same business task or previous incomplete task. |
+| `fork` | Fork from an existing session to explore alternatives; business storage is not forked automatically. |
+
+Checkpoints must declare scope: `workflowState`, `appStorage`, and `artifacts` may be restored; `files` only covers host-managed file snapshots; `conversation` is resume / fork only; `externalSideEffects` are evidence-only and not automatically rolled back.
+
+### Tool discovery and observability
+
+When many tools exist, apps should declare `toolDiscovery.mode: on_demand`. The host selects the most relevant tools from ToolHub / Creative Capability / Skills catalogs and loads only selected schemas. Tool catalogs should expose descriptions, keywords, input/output schemas, read-only / destructive hints, availability, cost, and tenant availability.
+
+Runtime profile events should map to OpenTelemetry spans: `agent.task`, `llm.request`, `tool.call`, `approval.request`, `artifact.materialize`, `evidence.record`, and `subagent.run`. Prompt text, user content, and artifact bodies are not exported by default; content export must be explicit opt-in.
+
 ## Host Bridge v1
 
 Host Bridge is the event boundary for `lime.ui` and the Capability SDK inside the UI runtime. It standardizes theme, locale, entry context, navigation, notifications, downloads, and capability calls instead of letting every app invent a private `postMessage` protocol.
@@ -522,9 +697,9 @@ Readiness may return `ready`, `needs-setup`, or `failed`. v0.5 extends the state
 readiness:
   required:
     - check: sdk_version
-      expect: ">=0.5.0"
+      expect: ">=0.6.0"
       blocker: true
-      message: Lime SDK v0.5.0 or higher is required
+      message: Lime SDK v0.6.0 or higher is required
     - check: capability_available
       capability: lime.agent
       blocker: true
@@ -659,7 +834,7 @@ signature:
     algorithm: sha256
     hash: aaaa...aaaa
     signedBy: sigstore
-    signatureRef: sigstore:content-factory-app@0.5.0
+    signatureRef: sigstore:content-factory-app@0.6.0
     timestamp: 2026-05-16T00:00:00Z
   manifest:
     algorithm: sha256

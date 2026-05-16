@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://limecloud.github.io/agentapp/examples/content-factory-workspace-patch.schema.json",
+  "title": "Content Factory Workspace Patch",
+  "type": "object",
+  "required": ["kind", "projectId"],
+  "properties": {
+    "kind": {
+      "const": "content_factory.workspace_patch"
+    },
+    "projectId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "project": { "type": "object" },
+    "projectKnowledge": { "type": "object" },
+    "readiness": { "type": "object" },
+    "board": { "type": "object" },
+    "sceneTable": { "type": "object" },
+    "contentBatch": { "type": "object" },
+    "scripts": { "type": "array", "items": { "type": "object" } },
+    "imagePrompts": { "type": "array", "items": { "type": "object" } },
+    "strategyReport": { "type": "object" },
+    "pptOutline": { "type": "object" },
+    "reviewReport": { "type": "object" },
+    "assetPack": { "type": "object" },
+    "skillEvidence": { "type": "array", "items": { "type": "object" } },
+    "evidenceRefs": { "type": "array", "items": { "type": "string" } }
+  },
+  "additionalProperties": true
+}

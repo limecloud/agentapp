@@ -1,15 +1,15 @@
 ---
 title: 架构概览
-description: Agent App v0.5 的项目级架构图、时序图、流程图和状态机示意。
+description: Agent App v0.6 的项目级架构图、时序图、流程图和状态机示意。
 ---
 
 # 架构概览
 
-本页用图集中展示 Agent App v0.5 的关键结构与运行时流程。各章节图与 [规范](./specification) 互相补充：规范是规则，本页是图。
+本页用图集中展示 Agent App v0.6 的关键结构与运行时流程。各章节图与 [规范](./specification) 互相补充：规范是规则，本页是图。
 
 ## 1. 标准分层架构
 
-v0.5 把整个生态切成三层，分层 manifest 与 Capability SDK 是稳定边界，宿主和 Cloud 控制面只看接口、不看业务实现。
+v0.6 保留 v0.5 分层，并把整个生态切成三层，分层 manifest 与 Capability SDK 是稳定边界，宿主和 Cloud 控制面只看接口、不看业务实现。
 
 ```mermaid
 flowchart TD
@@ -20,7 +20,7 @@ flowchart TD
     Reg[Registration / License]
   end
 
-  subgraph Standard[Agent App v0.5 标准]
+  subgraph Standard[Agent App v0.6 标准]
     APPMD[APP.md frontmatter + 人类章节]
     LAYERED[app.*.yaml 分层配置]
     SKILLS[skills/ 内置 Skills]
@@ -241,6 +241,7 @@ flowchart LR
   APPMD --> Errors[app.errors.yaml]
   APPMD --> I18N[app.i18n.yaml]
   APPMD --> Sig[app.signature.yaml]
+  APPMD --> Runtime[app.runtime.yaml]
 
   Capabilities --> Project[Projection]
   Entries --> Project
@@ -248,6 +249,8 @@ flowchart LR
   Errors --> Project
   I18N --> Project
   Sig --> Verify[签名与撤销]
+  Runtime --> Project
+  Runtime --> AgentRT[lime.agent task control plane]
 
   APPMD --> Readiness[evals/readiness.yaml]
   APPMD --> Health[evals/health.yaml]
@@ -255,7 +258,7 @@ flowchart LR
   Health --> HealthCheck[Health 监控]
 
   APPMD --> Skills[skills/<name>/SKILL.md]
-  Skills --> AgentRT[lime.agent runtime]
+  Skills --> AgentRT
 
   APPMD --> Locales[locales/*.json]
   Locales --> I18N
@@ -263,16 +266,18 @@ flowchart LR
 
 ## 9. 升级与回滚关系
 
-v0.4 / v0.3 manifest 在 v0.5 宿主中继续可用；reference CLI 提供 `migrate-check` / `migrate-generate`。
+v0.5 / v0.4 / v0.3 manifest 在 v0.6 宿主中继续可用；reference CLI 提供 `migrate-check` / `migrate-generate`。
 
 ```mermaid
 flowchart LR
-  v03[v0.3 manifest] -->|宿主直接读取| v05Host[v0.5 宿主]
-  v04[v0.4 manifest] -->|宿主直接读取| v05Host
-  v03 -->|migrate-check / migrate-generate| v05[v0.5 manifest]
-  v04 -->|migrate-check / migrate-generate| v05
-  v05 --> v05Host
-  v05Host -. 失败 .-> Rollback[回滚到旧版本]
+  v03[v0.3 manifest] -->|宿主直接读取| v06Host[v0.6 宿主]
+  v04[v0.4 manifest] -->|宿主直接读取| v06Host
+  v05[v0.5 manifest] -->|宿主直接读取| v06Host
+  v03 -->|migrate-check / migrate-generate| v06[v0.6 manifest]
+  v04 -->|migrate-check / migrate-generate| v06
+  v05 -->|migrate-check / migrate-generate| v06
+  v06 --> v06Host
+  v06Host -. 失败 .-> Rollback[回滚到旧版本]
   Rollback --> v04
   Rollback --> v03
 ```
@@ -280,7 +285,7 @@ flowchart LR
 ## 10. 后续阅读
 
 - [规范](./specification)：字段、约束、契约的规则文本。
-- [快速开始](./authoring/quickstart)：从零创建一个 v0.5 包。
+- [快速开始](./authoring/quickstart)：从零创建一个 v0.6 包。
 - [运行时模型](./client-implementation/runtime-model)：宿主侧实现细节。
 - [Capability SDK](./client-implementation/capability-sdk)：稳定能力调用契约。
-- [v0.5 历史快照](./versions/v0.5/overview)：定格版本说明。
+- [v0.6 历史快照](./versions/v0.6/overview)：定格版本说明。

@@ -12,7 +12,8 @@
   ],
   "properties": {
     "manifestVersion": {
-      "type": "string"
+      "type": "string",
+      "enum": ["0.3.0", "0.4.0", "0.5.0", "0.6.0"]
     },
     "name": {
       "type": "string",
@@ -635,6 +636,10 @@
     "lifecycle": {
       "type": "object",
       "additionalProperties": true
+    },
+    "agentRuntime": {
+      "$ref": "app-runtime.schema.json",
+      "description": "v0.6: Agent task runtime control plane shorthand. Detailed configuration should normally live in app.runtime.yaml."
     },
     "presentation": {
       "type": "object",

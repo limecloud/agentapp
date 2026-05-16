@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://limecloud.github.io/agentapp/examples/support-reply-draft.schema.json",
+  "title": "Support Reply Draft",
+  "type": "object",
+  "required": ["kind", "ticketId", "draft"],
+  "properties": {
+    "kind": {
+      "const": "support.reply_draft"
+    },
+    "ticketId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "draft": {
+      "type": "string",
+      "minLength": 1
+    },
+    "citations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["sourceId"],
+        "properties": {
+          "sourceId": { "type": "string" },
+          "title": { "type": "string" },
+          "url": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "riskCategory": {
+      "type": "string"
+    },
+    "escalationNote": {
+      "type": "string"
+    },
+    "policyCheck": {
+      "type": "object"
+    },
+    "evidenceRefs": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "additionalProperties": true
+}

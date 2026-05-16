@@ -1,0 +1,51 @@
+# Agent App v0.6 runtime contract for content-factory-app.
+# The app declares task boundaries; Lime Host / AgentRuntime still owns execution, policy, tools, evidence, and telemetry.
+
+agentRuntime:
+  agentTask:
+    eventSchema: lime.agent-task-event.v1
+    resultSchema: lime.agent-task-result.v1
+    structuredOutput:
+      type: json_schema
+      schemaRef: ./artifacts/content-factory-workspace-patch.schema.json
+      maxValidationRetries: 2
+      failureSubtype: error_max_structured_output_retries
+      materializer:
+        kind: content_factory.workspace_patch
+        acceptedKeys:
+          - contentFactoryWorkspacePatch
+          - workspacePatch
+    approval:
+      behavior: host-mediated
+      supportsUpdatedInput: true
+      supportsDefer: true
+      rememberScopes:
+        - task
+        - session
+        - workspace
+    sessionPolicy:
+      modes:
+        - new
+        - resume
+        - continue
+        - fork
+      compactionEvents: true
+    toolDiscovery:
+      mode: on_demand
+      topK: 5
+      includeSchemas: selected_only
+      queryFrom:
+        - taskKind
+        - prompt
+        - capabilityHints
+    checkpointScope:
+      workflowState: true
+      appStorage: true
+      artifacts: true
+      files: tracked_only
+      conversation: resume_only
+      externalSideEffects: record_only
+    observability:
+      profileEvents: true
+      openTelemetryMapping: true
+      exportContentByDefault: false

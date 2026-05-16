@@ -12,6 +12,7 @@ Agent App publishes JSON Schemas so hosts, registries, editors, and CI jobs can 
 | Schema | Purpose |
 | --- | --- |
 | [`app-manifest.schema.json`](/schemas/app-manifest.schema.json) | Validates manifest fields from `APP.md` or `app.manifest.json`. |
+| [`app-runtime.schema.json`](/schemas/app-runtime.schema.json) | Validates v0.6 `app.runtime.yaml` Agent task runtime contracts. |
 | [`app-projection.schema.json`](/schemas/app-projection.schema.json) | Validates host projection output with provenance. |
 | [`app-readiness.schema.json`](/schemas/app-readiness.schema.json) | Validates readiness output and setup findings. |
 
@@ -38,6 +39,7 @@ The manifest schema covers fields such as:
 - UI, storage, services, workflows
 - Knowledge, Skills, Tools, Artifacts, Evals
 - permissions, secrets, lifecycle, overlays
+- v0.6 `agentRuntime` shorthand for task control-plane intent
 - presentation and compatibility
 
 v0.3 current entry kinds are `page`, `panel`, `expert-chat`, `command`, `workflow`, `artifact`, `background-task`, and `settings`.

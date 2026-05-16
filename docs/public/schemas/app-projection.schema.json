@@ -272,6 +272,11 @@
       "description": "v0.5: runtime health checks projected from evals/health.yaml.",
       "additionalProperties": true
     },
+    "agentRuntime": {
+      "type": "object",
+      "description": "v0.6: Agent task runtime control plane projected from APP.md or app.runtime.yaml.",
+      "additionalProperties": true
+    },
     "provenance": {
       "$ref": "#/$defs/provenance"
     }

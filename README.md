@@ -47,6 +47,7 @@ my-agent-app/
 ├── artifacts/                # optional: output contracts, viewers, exporters
 ├── evals/                    # optional: readiness and quality checks
 ├── policies/                 # optional: permissions and data boundaries
+├── app.runtime.yaml          # optional: v0.6 agent task runtime control plane
 ├── overlay-templates/        # optional: tenant / workspace overlay schemas
 ├── app.lock.json             # optional: package file hashes and signatures
 └── examples/                 # optional: sample workspaces, prompts, outputs
@@ -70,7 +71,7 @@ Compatible hosts should expose versioned, authorized, mockable capabilities such
 - `lime.evidence` for provenance and replay
 - `lime.secrets` for credentials without plaintext app access
 
-Apps must not import host internals. They declare capability requirements in the manifest and receive runtime handles from the host. v0.5 keeps the typed contract from v0.3/v0.4 and layers detailed configuration into independent files (`app.capabilities.yaml`, `app.errors.yaml`, `app.i18n.yaml`, `app.signature.yaml`, `evals/readiness.yaml`, `evals/health.yaml`) so the frontmatter stays small and authors opt in only what they need.
+Apps must not import host internals. They declare capability requirements in the manifest and receive runtime handles from the host. v0.6 keeps the layered manifest model from v0.5 and adds `app.runtime.yaml` for the `lime.agent` task control plane: event/result envelopes, structured output, runtime approval, session resume/fork, tool discovery, checkpoint scope, and observability.
 
 ## Runtime contract
 
@@ -98,12 +99,12 @@ Compatible hosts should:
 ## Reference CLI
 
 ```bash
-npx agentapp-ref@0.5.0 validate ./my-agent-app --version 0.5
-npx agentapp-ref@0.5.0 to-catalog ./my-agent-app
-npx agentapp-ref@0.5.0 project ./my-agent-app
-npx agentapp-ref@0.5.0 readiness ./my-agent-app --workspace ./workspace
-npx agentapp-ref@0.5.0 migrate-check ./my-agent-app
-npx agentapp-ref@0.5.0 migrate-generate ./my-agent-app --target 0.5.0
+npx agentapp-ref@0.6.0 validate ./my-agent-app --version 0.6
+npx agentapp-ref@0.6.0 to-catalog ./my-agent-app
+npx agentapp-ref@0.6.0 project ./my-agent-app
+npx agentapp-ref@0.6.0 readiness ./my-agent-app --workspace ./workspace
+npx agentapp-ref@0.6.0 migrate-check ./my-agent-app
+npx agentapp-ref@0.6.0 migrate-generate ./my-agent-app --target 0.6.0
 ```
 
 ## Local development

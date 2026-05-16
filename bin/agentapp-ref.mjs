@@ -4,10 +4,10 @@ import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { basename, dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const cliVersion = '0.5.0'
+const cliVersion = '0.6.0'
 const currentEntryKinds = new Set(['page', 'panel', 'expert-chat', 'command', 'workflow', 'artifact', 'background-task', 'settings'])
 const legacyEntryKinds = new Set(['home', 'scene'])
-const supportedManifestVersions = new Set(['0.3.0', '0.4.0', '0.5.0'])
+const supportedManifestVersions = new Set(['0.3.0', '0.4.0', '0.5.0', '0.6.0'])
 const v05LayeredFiles = [
   'app.capabilities.yaml',
   'app.entries.yaml',
@@ -18,6 +18,7 @@ const v05LayeredFiles = [
   'evals/readiness.yaml',
   'evals/health.yaml'
 ]
+const v06LayeredFiles = ['app.runtime.yaml']
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 
 function main() {
@@ -57,13 +58,13 @@ function printHelp() {
   console.log(`agentapp-ref ${cliVersion}
 
 Usage:
-  agentapp-ref validate <app> [--version <0.3|0.4|0.5>]
+  agentapp-ref validate <app> [--version <0.3|0.4|0.5|0.6>]
   agentapp-ref read-properties <app>
   agentapp-ref to-catalog <app>
   agentapp-ref project <app>
   agentapp-ref readiness <app> [--workspace <path>]
-  agentapp-ref migrate-check <app>
-  agentapp-ref migrate-generate <app> [--target 0.5.0]
+  agentapp-ref migrate-check <app> [--target 0.6.0]
+  agentapp-ref migrate-generate <app> [--target 0.6.0]
 
 Commands:
   validate          Validate APP.md shape and local references.
@@ -71,8 +72,8 @@ Commands:
   to-catalog        Emit compact app catalog metadata.
   project           Emit host catalog projection with provenance.
   readiness         Check static setup readiness without running an agent.
-  migrate-check     Inspect a v0.3/v0.4 app and report v0.5 migration gaps.
-  migrate-generate  Suggest v0.5 layered config files for a v0.3/v0.4 app.
+  migrate-check     Inspect a v0.3/v0.4/v0.5 app and report v0.6 migration gaps.
+  migrate-generate  Suggest v0.6 layered runtime contract files for an existing app.
 
 Output:
   JSON is written to stdout. Diagnostics are written to stderr.
@@ -116,8 +117,11 @@ function validateApp(appPath, options = []) {
   }
 
   const effectiveVersion = targetVersion || properties.manifestVersion || '0.4.0'
-  if (effectiveVersion === '0.5.0') {
+  if (effectiveVersion === '0.5.0' || effectiveVersion === '0.6.0') {
     checkV05Conventions(appRoot, properties, findings)
+  }
+  if (effectiveVersion === '0.6.0') {
+    checkV06Conventions(appRoot, properties, findings)
   }
 
   checkEntries(properties.entries, properties, findings)
@@ -208,6 +212,7 @@ function projectApp(appPath) {
     secrets: withProvenance(properties.secrets),
     overlayTemplates: withProvenance(properties.overlayTemplates),
     lifecycle: properties.lifecycle || {},
+    agentRuntime: properties.agentRuntime || readLayeredYaml(appRoot, 'app.runtime.yaml')?.agentRuntime || {},
     provenance
   }
 }
@@ -471,12 +476,23 @@ function optionValue(args, option) {
 }
 
 function parseVersionFlag(args) {
-  const raw = optionValue(args, '--version')
+  const raw = optionValue(args, '--version') || optionValue(args, '--target')
   if (!raw) return undefined
   if (/^0\.3(\.\d+)?$/.test(raw)) return '0.3.0'
   if (/^0\.4(\.\d+)?$/.test(raw)) return '0.4.0'
   if (/^0\.5(\.\d+)?$/.test(raw)) return '0.5.0'
+  if (/^0\.6(\.\d+)?$/.test(raw)) return '0.6.0'
   return raw
+}
+
+function readLayeredYaml(appRoot, file) {
+  const absolute = join(appRoot, file)
+  if (!existsSync(absolute)) return null
+  try {
+    return parseYamlSubset(readFileSync(absolute, 'utf8'))
+  } catch {
+    return null
+  }
 }
 
 function checkV05Conventions(appRoot, properties, findings) {
@@ -532,6 +548,36 @@ function checkV05OpenPlatformMetadata(properties, findings) {
   }
 }
 
+function checkV06Conventions(appRoot, properties, findings) {
+  const runtimeYaml = readLayeredYaml(appRoot, 'app.runtime.yaml')
+  const agentRuntime = properties.agentRuntime || runtimeYaml?.agentRuntime || runtimeYaml
+  if (usesLimeAgent(properties) && !runtimeYaml && !properties.agentRuntime) {
+    findings.push(warningFinding('app.runtime.yaml', 'v0.6 recommends app.runtime.yaml for apps that start lime.agent tasks. Declare task event/result, structured output, approval, session, tool discovery, checkpoint, and observability policies.'))
+  }
+  if (!agentRuntime || typeof agentRuntime !== 'object' || Array.isArray(agentRuntime)) return
+
+  const task = agentRuntime.agentTask || agentRuntime.agent_task || agentRuntime.task || {}
+  if (!task.eventSchema && !task.event_schema) {
+    findings.push(warningFinding('app.runtime.yaml', 'v0.6 agentRuntime.agentTask.eventSchema should name the task event envelope, e.g. lime.agent-task-event.v1.'))
+  }
+  if (!task.resultSchema && !task.result_schema) {
+    findings.push(warningFinding('app.runtime.yaml', 'v0.6 agentRuntime.agentTask.resultSchema should name the final result envelope, e.g. lime.agent-task-result.v1.'))
+  }
+  for (const key of ['structuredOutput', 'approval', 'sessionPolicy', 'toolDiscovery', 'checkpointScope', 'observability']) {
+    if (!task[key] && !agentRuntime[key]) {
+      findings.push(warningFinding('app.runtime.yaml', `v0.6 recommends declaring ${key} policy for lime.agent tasks.`))
+    }
+  }
+}
+
+function usesLimeAgent(properties) {
+  const requiredCapabilities = properties.requires?.capabilities
+  if (Array.isArray(requiredCapabilities) && requiredCapabilities.includes('lime.agent')) return true
+  if (requiredCapabilities && typeof requiredCapabilities === 'object' && !Array.isArray(requiredCapabilities) && Object.hasOwn(requiredCapabilities, 'lime.agent')) return true
+  if (asArray(properties.capabilities).includes('lime.agent')) return true
+  return asArray(properties.entries).some((entry) => asArray(entry.requiredCapabilities).includes('lime.agent'))
+}
+
 function migrateCheck(appPath, options = []) {
   const appRoot = resolve(appPath)
   const findings = []
@@ -545,7 +591,7 @@ function migrateCheck(appPath, options = []) {
     return envelope(false, 'failed', 'migrate-check', basename(appRoot), findings)
   }
   const properties = readAppProperties(appMd)
-  const target = parseVersionFlag(options) || '0.5.0'
+  const target = parseVersionFlag(options) || '0.6.0'
   const sourceVersion = properties.manifestVersion || '0.3.0'
   const gaps = []
 
@@ -553,7 +599,7 @@ function migrateCheck(appPath, options = []) {
     findings.push({ severity: 'info', path: 'APP.md', message: `Already on manifestVersion ${target}. No migration required.` })
   }
 
-  if (target === '0.5.0') {
+  if (target === '0.5.0' || target === '0.6.0') {
     if (!properties.triggers) gaps.push({ field: 'triggers', suggestion: 'Add triggers.keywords and triggers.scenarios to APP.md frontmatter.' })
     if (!properties.quickstart) gaps.push({ field: 'quickstart', suggestion: 'Add quickstart.entry pointing to a default entry key.' })
     if (!properties.skills) gaps.push({ field: 'skills', suggestion: 'Move skillRefs into skills.bundled / skills.references and add SKILL.md under skills/.' })
@@ -565,6 +611,16 @@ function migrateCheck(appPath, options = []) {
     const localesDir = join(appRoot, 'locales')
     if (!existsSync(localesDir)) {
       gaps.push({ field: 'locales/', suggestion: 'Add locales/ directory with translation files for supported locales.' })
+    }
+  }
+  if (target === '0.6.0') {
+    for (const file of v06LayeredFiles) {
+      if (!existsSync(join(appRoot, file))) {
+        gaps.push({ field: file, suggestion: `Create ${file} for v0.6 Agent task runtime contracts.` })
+      }
+    }
+    if (usesLimeAgent(properties) && !properties.agentRuntime && !existsSync(join(appRoot, 'app.runtime.yaml'))) {
+      gaps.push({ field: 'agentRuntime', suggestion: 'Declare agentRuntime policies for structured output, approvals, session resume/fork, tool discovery, checkpoint scope, and observability.' })
     }
   }
 
@@ -585,12 +641,12 @@ function migrateGenerate(appPath, options = []) {
     return envelope(false, 'failed', 'migrate-generate', basename(appRoot), [errorFinding('APP.md', 'Missing required APP.md.')])
   }
   const properties = readAppProperties(appMd)
-  const target = parseVersionFlag(options) || '0.5.0'
+  const target = parseVersionFlag(options) || '0.6.0'
   const suggestions = {}
 
-  if (target === '0.5.0') {
+  if (target === '0.5.0' || target === '0.6.0') {
     suggestions['APP.md.frontmatter'] = {
-      manifestVersion: '0.5.0',
+      manifestVersion: target,
       triggers: properties.triggers || {
         keywords: [properties.appType || 'agent-app', properties.name || 'app'].filter(Boolean),
         scenarios: []
@@ -603,7 +659,10 @@ function migrateGenerate(appPath, options = []) {
     suggestions['app.i18n.yaml'] = sampleI18nYaml()
     suggestions['evals/readiness.yaml'] = sampleReadinessYaml()
     suggestions['evals/health.yaml'] = sampleHealthYaml()
-    suggestions['app.signature.yaml'] = sampleSignatureYaml(properties.name || 'app', properties.version || '0.5.0')
+    suggestions['app.signature.yaml'] = sampleSignatureYaml(properties.name || 'app', properties.version || target)
+  }
+  if (target === '0.6.0') {
+    suggestions['app.runtime.yaml'] = sampleRuntimeYaml()
   }
 
   return envelope(true, 'ready', 'migrate-generate', basename(appRoot), [], {
@@ -646,11 +705,47 @@ function sampleReadinessYaml() {
     'readiness:',
     '  required:',
     '    - check: sdk_version',
-    '      expect: ">=0.5.0"',
+    '      expect: ">=0.6.0"',
     '      blocker: true',
-    '      message: Lime SDK v0.5.0 or higher is required',
+    '      message: Lime SDK v0.6.0 or higher is required',
     '  recommended: []',
     '  performance: []'
+  ].join('\n')
+}
+
+function sampleRuntimeYaml() {
+  return [
+    'agentRuntime:',
+    '  agentTask:',
+    '    eventSchema: lime.agent-task-event.v1',
+    '    resultSchema: lime.agent-task-result.v1',
+    '    structuredOutput:',
+    '      type: json_schema',
+    '      maxValidationRetries: 2',
+    '      failureSubtype: error_max_structured_output_retries',
+    '    approval:',
+    '      behavior: host-mediated',
+    '      supportsUpdatedInput: true',
+    '      supportsDefer: true',
+    '      rememberScopes: [task, session, workspace]',
+    '    sessionPolicy:',
+    '      modes: [new, resume, continue, fork]',
+    '      compactionEvents: true',
+    '    toolDiscovery:',
+    '      mode: on_demand',
+    '      topK: 5',
+    '      includeSchemas: selected_only',
+    '    checkpointScope:',
+    '      workflowState: true',
+    '      appStorage: true',
+    '      artifacts: true',
+    '      files: tracked_only',
+    '      conversation: resume_only',
+    '      externalSideEffects: record_only',
+    '    observability:',
+    '      profileEvents: true',
+    '      openTelemetryMapping: true',
+    '      exportContentByDefault: false'
   ].join('\n')
 }
 

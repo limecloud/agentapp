@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://limecloud.github.io/agentapp/schemas/app-runtime.schema.json",
+  "title": "Agent App Runtime Contract",
+  "description": "v0.6 Agent task runtime control plane for lime.agent tasks.",
+  "type": "object",
+  "anyOf": [
+    { "required": ["agentRuntime"] },
+    { "required": ["agentTask"] }
+  ],
+  "properties": {
+    "agentRuntime": {
+      "type": "object",
+      "properties": {
+        "agentTask": { "$ref": "#/$defs/agentTask" }
+      },
+      "additionalProperties": true
+    },
+    "agentTask": { "$ref": "#/$defs/agentTask" }
+  },
+  "$defs": {
+    "agentTask": {
+      "type": "object",
+      "properties": {
+        "eventSchema": {
+          "type": "string",
+          "const": "lime.agent-task-event.v1"
+        },
+        "resultSchema": {
+          "type": "string",
+          "const": "lime.agent-task-result.v1"
+        },
+        "structuredOutput": { "$ref": "#/$defs/structuredOutput" },
+        "approval": { "$ref": "#/$defs/approval" },
+        "sessionPolicy": { "$ref": "#/$defs/sessionPolicy" },
+        "toolDiscovery": { "$ref": "#/$defs/toolDiscovery" },
+        "checkpointScope": { "$ref": "#/$defs/checkpointScope" },
+        "observability": { "$ref": "#/$defs/observability" }
+      },
+      "additionalProperties": true
+    },
+    "structuredOutput": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["json_schema", "none"]
+        },
+        "schemaRef": { "type": "string" },
+        "schema": { "type": "object" },
+        "maxValidationRetries": { "type": "integer", "minimum": 0, "maximum": 10 },
+        "failureSubtype": {
+          "type": "string",
+          "enum": ["error_max_structured_output_retries", "error_during_execution"]
+        }
+      },
+      "additionalProperties": true
+    },
+    "approval": {
+      "type": "object",
+      "properties": {
+        "behavior": {
+          "type": "string",
+          "enum": ["host-mediated", "auto-deny", "manifest-only"]
+        },
+        "supportsUpdatedInput": { "type": "boolean" },
+        "supportsDefer": { "type": "boolean" },
+        "rememberScopes": {
+          "type": "array",
+          "items": { "type": "string", "enum": ["task", "session", "workspace"] },
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": true
+    },
+    "sessionPolicy": {
+      "type": "object",
+      "properties": {
+        "modes": {
+          "type": "array",
+          "items": { "type": "string", "enum": ["new", "resume", "continue", "fork"] },
+          "uniqueItems": true
+        },
+        "compactionEvents": { "type": "boolean" }
+      },
+      "additionalProperties": true
+    },
+    "toolDiscovery": {
+      "type": "object",
+      "properties": {
+        "mode": { "type": "string", "enum": ["eager", "on_demand", "none"] },
+        "topK": { "type": "integer", "minimum": 1, "maximum": 20 },
+        "includeSchemas": { "type": "string", "enum": ["all", "selected_only", "none"] }
+      },
+      "additionalProperties": true
+    },
+    "checkpointScope": {
+      "type": "object",
+      "properties": {
+        "workflowState": { "type": "boolean" },
+        "appStorage": { "type": "boolean" },
+        "artifacts": { "type": "boolean" },
+        "files": { "type": "string", "enum": ["tracked_only", "none"] },
+        "conversation": { "type": "string", "enum": ["resume_only", "rewind", "none"] },
+        "externalSideEffects": { "type": "string", "enum": ["record_only", "manual_compensation", "none"] }
+      },
+      "additionalProperties": true
+    },
+    "observability": {
+      "type": "object",
+      "properties": {
+        "profileEvents": { "type": "boolean" },
+        "openTelemetryMapping": { "type": "boolean" },
+        "exportContentByDefault": { "type": "boolean" }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

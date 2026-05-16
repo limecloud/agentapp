@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.6.0
+
+- Adds `app.runtime.yaml` as the recommended layered configuration file for `lime.agent` task runtime contracts.
+- Standardizes `lime.agent-task-event.v1` and `lime.agent-task-result.v1` for task streaming, final result subtype, usage, cost, artifact refs, and evidence refs.
+- Recommends JSON Schema structured output contracts through `expectedOutput.outputFormat`, including validation retries and `error_max_structured_output_retries`.
+- Introduces Runtime Approval for tool confirmation, user questions, and elicitation with `allow`, `deny`, `defer`, `updatedInput`, and remember scopes.
+- Introduces `sessionPolicy` for `new`, `resume`, `continue`, and `fork`, clarifying that Agent session history is separate from workflow and storage state.
+- Introduces `checkpointScope` for workflow state, app storage, artifacts, tracked files, conversation history, and external side effects.
+- Introduces on-demand `toolDiscovery` and selected-only schema loading to avoid tool context bloat.
+- Adds observability guidance for mapping runtime profile events to OpenTelemetry spans with content export disabled by default.
+- Reference CLI upgrades to 0.6.0 with `--version 0.6`, v0.6 migration checks, `app.runtime.yaml` suggestions, and projection of runtime contracts.
+- Backward compatible: v0.5 apps remain valid; v0.6 layers runtime task control without replacing v0.5 manifest layering.
+
 ## 0.5.0
 
 - Inspired by the [Agent Skills standard](https://agentskills.io), introduces a layered manifest model that simplifies `APP.md` frontmatter and moves detailed configuration into independent files (`app.capabilities.yaml`, `app.entries.yaml`, `app.permissions.yaml`, `app.errors.yaml`, `app.i18n.yaml`, `app.signature.yaml`).

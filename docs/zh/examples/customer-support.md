@@ -22,9 +22,10 @@ description: 面向客服流程的 Agent App 示例。
 - 可选 ticket lookup Tool
 - `reply_draft` Artifact type
 - `policy_compliance` Eval
+- v0.6 `app.runtime.yaml`：声明结构化回复草稿、审批、session、工具发现、checkpoint 与可观测性
 - support category presentation metadata
 
-它是 draft app，所以 validate 会提示：生产级 app 还应增加 runtime package 和 explicit permissions。
+它是 draft app，所以 validate 仍会提示：生产级 app 还应增加 runtime package、完整分层配置和 explicit permissions。
 
 ## 生产级版本应补什么
 
@@ -36,7 +37,7 @@ description: 面向客服流程的 Agent App 示例。
 | Tools | 工单查询、CRM 更新、客户资料、话术导出。 |
 | Artifacts | 回复草稿、升级说明、政策引用包。 |
 | Evals | 政策合规、语气、事实支撑、隐私检查。 |
-| Permissions | 工单读取、可选工单写入、CRM tool execute。 |
+| Permissions | 工单读取、可选工单写入、CRM tool execute，以及高风险动作的 runtime approval。 |
 | Secrets | CRM OAuth 或租户工单系统 secret handle。 |
 
 ## 边界示例
@@ -47,7 +48,7 @@ description: 面向客服流程的 Agent App 示例。
 | 产品事实和退款政策 | Agent Knowledge |
 | 工单查询连接器 | Agent Tool |
 | 回复起草 command 和 review workflow | Agent App |
-| 回复草稿 | Agent Artifact |
+| 带 JSON Schema 的回复草稿 | Agent Artifact |
 | 政策合规结果 | Eval 和 Evidence |
 
 ## 为什么重要
@@ -57,12 +58,12 @@ description: 面向客服流程的 Agent App 示例。
 ## 本地验证
 
 ```bash
-npm run cli -- validate docs/examples/customer-support-app
+npm run cli -- validate docs/examples/customer-support-app --version 0.6
 npm run cli -- project docs/examples/customer-support-app
 npm run cli -- readiness docs/examples/customer-support-app
 ```
 
-当前 draft fixture 适合测试 warning 和逐步完善流程。
+当前 v0.6 draft fixture 适合测试 warning、runtime contract projection 和逐步完善流程。
 
 ## 端到端客服流程
 

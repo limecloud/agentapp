@@ -12,10 +12,10 @@ Use `docs/examples/content-factory-app/APP.md` as the current fixture. The secti
 ## Required identity
 
 ```yaml
-manifestVersion: 0.3.0
+manifestVersion: 0.6.0
 name: content-factory-app
 description: Content Factory App for knowledge building, content scenario planning, content production, and review.
-version: 0.3.0
+version: 0.6.0
 status: ready
 appType: domain-app
 runtimeTargets:
@@ -29,12 +29,12 @@ Identity fields let registries and hosts index the package. They should be stabl
 ```yaml
 requires:
   lime:
-    appRuntime: ">=0.3.0 <1.0.0"
-  sdk: "@lime/app-sdk@^0.3.0"
+    appRuntime: ">=0.6.0 <1.0.0"
+  sdk: "@lime/app-sdk@^0.6.0"
   capabilities:
-    lime.ui: "^0.3.0"
-    lime.storage: "^0.3.0"
-    lime.agent: "^0.3.0"
+    lime.ui: "^0.6.0"
+    lime.storage: "^0.6.0"
+    lime.agent: "^0.6.0"
 ```
 
 Requirements should describe what the host must provide. They should not describe host internals.
@@ -82,6 +82,34 @@ storage:
 
 Storage must be namespaced so uninstall, export, and audit can work.
 
+## v0.6 Agent runtime control
+
+A complete app that calls `lime.agent` should include `app.runtime.yaml` or an equivalent `agentRuntime` field. The runtime layer declares the task event/result schema, JSON Schema structured output, runtime approval behavior, session resume/fork policy, tool discovery strategy, checkpoint scope, and observability defaults.
+
+```yaml
+agentRuntime:
+  agentTask:
+    eventSchema: lime.agent-task-event.v1
+    resultSchema: lime.agent-task-result.v1
+    structuredOutput:
+      type: json_schema
+      schemaRef: ./artifacts/workspace-patch.schema.json
+      maxValidationRetries: 2
+    approval:
+      behavior: host-mediated
+    sessionPolicy:
+      modes: [new, resume, continue, fork]
+    toolDiscovery:
+      mode: on_demand
+    checkpointScope:
+      workflowState: true
+      appStorage: true
+      artifacts: true
+    observability:
+      openTelemetryMapping: true
+      exportContentByDefault: false
+```
+
 ## Dependencies and deliverables
 
 A complete app usually declares:
@@ -111,12 +139,12 @@ The Markdown body should answer:
 
 | Area | Complete when |
 | --- | --- |
-| Manifest | Required fields and v0.3 requirements are present. |
+| Manifest | Required fields and v0.6 requirements are present. |
 | Runtime package | UI, worker, storage, and workflow paths are declared when used. |
 | Entries | Every user launch point has stable key, kind, title, and binding metadata. |
 | Data | Storage namespace and Knowledge slots are explicit. |
-| Policy | Permissions, secrets, and risky capabilities are declared. |
-| Quality | Artifact types and evals are connected to workflows. |
+| Policy | Permissions, secrets, runtime approval, and risky capabilities are declared. |
+| Quality | Artifact types, structured output schemas, and evals are connected to workflows. |
 | Overlays | Tenant and workspace differences do not fork the package. |
 | Provenance | Projection and runtime outputs can trace back to app version and hashes. |
 | Cleanup | Disable, uninstall keep data, and delete data behavior is known. |
@@ -124,7 +152,7 @@ The Markdown body should answer:
 ## Validation commands
 
 ```bash
-npm run cli -- validate docs/examples/content-factory-app
+npm run cli -- validate docs/examples/content-factory-app --version 0.6
 npm run cli -- project docs/examples/content-factory-app
 npm run cli -- readiness docs/examples/content-factory-app
 ```

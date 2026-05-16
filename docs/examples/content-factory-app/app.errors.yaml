@@ -1,4 +1,4 @@
-# Agent App v0.5 standardized error catalog
+# Agent App v0.6 standardized error catalog
 # Stable error codes, recovery hints, and user actions for content-factory-app.
 
 errors:
@@ -28,7 +28,7 @@ errors:
     code: APP_E004
     message: SDK 版本不兼容
     recovery: 升级宿主或回退 App 版本
-    userAction: 升级 Lime 到 0.5.0 或更高
+    userAction: 升级 Lime 到 0.6.0 或更高
     retryable: false
 
   # APP_E1xx: Agent task

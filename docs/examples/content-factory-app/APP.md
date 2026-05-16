@@ -1,5 +1,5 @@
 ---
-manifestVersion: 0.5.0
+manifestVersion: 0.6.0
 name: content-factory-app
 displayName: 内容工厂
 displayNameI18n:
@@ -10,7 +10,7 @@ shortDescriptionI18n:
   en-US: One-stop planning, production, and review workspace for content teams.
   zh-CN: 内容团队的一站式策划 / 生产 / 复盘工作台
 description: 内容工厂帮助团队规划、生产和管理营销内容。使用场景："创建内容日历"、"批量生成文案"、"内容资产管理"、"知识库构建"。
-version: 0.5.0
+version: 0.6.0
 status: ready
 appType: domain-app
 keywords:
@@ -95,7 +95,7 @@ runtimeTargets:
   - local
   - hybrid
 requires:
-  sdk: "@lime/app-sdk@^0.5.0"
+  sdk: "@lime/app-sdk@^0.6.0"
   capabilities:
     - lime.ui
     - lime.storage
@@ -269,7 +269,7 @@ presentation:
   title: 内容工厂
   summary: 面向内容团队的行业 Agent App。
 compatibility:
-  minHostVersion: 0.5.0
+  minHostVersion: 0.6.0
 metadata:
   example: true
 ---
@@ -346,13 +346,13 @@ metadata:
 
 1. 未绑定 `project_knowledge` 知识库（`needs-setup`）
 2. `document_parser` 工具未启用（`blocked`）
-3. SDK 版本低于 `^0.5.0`
+3. SDK 版本低于 `^0.6.0`
 
 排查命令：
 
 ```bash
 agentapp-ref readiness ./content-factory-app --workspace ./workspace
-agentapp-ref validate ./content-factory-app --version 0.5.0
+agentapp-ref validate ./content-factory-app --version 0.6.0
 ```
 
 ### 问题：内容资产无法导出

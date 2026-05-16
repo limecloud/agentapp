@@ -20,7 +20,7 @@ npm run cli -- validate docs/examples/content-factory-app
 发布到 npm 后：
 
 ```bash
-npx agentapp-ref@0.4.0 validate ./my-agent-app
+npx agentapp-ref@0.6.0 validate ./my-agent-app --version 0.6
 ```
 
 ## 命令
@@ -32,6 +32,8 @@ npx agentapp-ref@0.4.0 validate ./my-agent-app
 | `to-catalog <app>` | 输出紧凑 catalog metadata。 |
 | `project <app>` | 输出带 provenance 的 host catalog projection。 |
 | `readiness <app>` | 不运行 Agent，只做静态 setup readiness。 |
+| `migrate-check <app> [--target 0.6.0]` | 报告当前目标版本的迁移缺口。 |
+| `migrate-generate <app> [--target 0.6.0]` | 生成分层配置建议，包括 v0.6 `app.runtime.yaml`。 |
 
 ## Validate
 

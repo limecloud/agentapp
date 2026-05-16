@@ -1,15 +1,15 @@
 ---
 title: Architecture overview
-description: Project-level architecture, sequence, flow, and state-machine diagrams for Agent App v0.5.
+description: Project-level architecture, sequence, flow, and state-machine diagrams for Agent App v0.6.
 ---
 
 # Architecture overview
 
-This page collects the key structural and runtime diagrams for Agent App v0.5 in one place. The [specification](./specification) defines rules; this page renders them.
+This page collects the key structural and runtime diagrams for Agent App v0.6 in one place. The [specification](./specification) defines rules; this page renders them.
 
 ## 1. Standard layers
 
-v0.5 splits the ecosystem into three layers. The layered manifest and Capability SDK are the stable boundaries; hosts and the Cloud control plane stay on contracts and never on business implementation.
+v0.6 keeps v0.5 layering and splits the ecosystem into three layers. The layered manifest and Capability SDK are the stable boundaries; hosts and the Cloud control plane stay on contracts and never on business implementation.
 
 ```mermaid
 flowchart TD
@@ -20,7 +20,7 @@ flowchart TD
     Reg[Registration / License]
   end
 
-  subgraph Standard[Agent App v0.5 standard]
+  subgraph Standard[Agent App v0.6 standard]
     APPMD[APP.md frontmatter + sections]
     LAYERED[app.*.yaml layered config]
     SKILLS[skills/ bundled Skills]
@@ -241,6 +241,7 @@ flowchart LR
   APPMD --> Errors[app.errors.yaml]
   APPMD --> I18N[app.i18n.yaml]
   APPMD --> Sig[app.signature.yaml]
+  APPMD --> Runtime[app.runtime.yaml]
 
   Capabilities --> Project[Projection]
   Entries --> Project
@@ -248,6 +249,8 @@ flowchart LR
   Errors --> Project
   I18N --> Project
   Sig --> Verify[Signature & revocation]
+  Runtime --> Project
+  Runtime --> AgentRT[lime.agent task control plane]
 
   APPMD --> Readiness[evals/readiness.yaml]
   APPMD --> Health[evals/health.yaml]
@@ -255,7 +258,7 @@ flowchart LR
   Health --> HealthCheck[Health monitoring]
 
   APPMD --> Skills[skills/<name>/SKILL.md]
-  Skills --> AgentRT[lime.agent runtime]
+  Skills --> AgentRT
 
   APPMD --> Locales[locales/*.json]
   Locales --> I18N
@@ -263,16 +266,18 @@ flowchart LR
 
 ## 9. Upgrade and rollback
 
-v0.4 / v0.3 manifests continue to work in v0.5 hosts; the reference CLI provides `migrate-check` / `migrate-generate`.
+v0.5 / v0.4 / v0.3 manifests continue to work in v0.6 hosts; the reference CLI provides `migrate-check` / `migrate-generate`.
 
 ```mermaid
 flowchart LR
-  v03[v0.3 manifest] -->|host reads directly| v05Host[v0.5 host]
-  v04[v0.4 manifest] -->|host reads directly| v05Host
-  v03 -->|migrate-check / migrate-generate| v05[v0.5 manifest]
-  v04 -->|migrate-check / migrate-generate| v05
-  v05 --> v05Host
-  v05Host -. failure .-> Rollback[Rollback to previous version]
+  v03[v0.3 manifest] -->|host reads directly| v06Host[v0.6 host]
+  v04[v0.4 manifest] -->|host reads directly| v06Host
+  v05[v0.5 manifest] -->|host reads directly| v06Host
+  v03 -->|migrate-check / migrate-generate| v06[v0.6 manifest]
+  v04 -->|migrate-check / migrate-generate| v06
+  v05 -->|migrate-check / migrate-generate| v06
+  v06 --> v06Host
+  v06Host -. failure .-> Rollback[Rollback to previous version]
   Rollback --> v04
   Rollback --> v03
 ```
@@ -280,7 +285,7 @@ flowchart LR
 ## 10. Further reading
 
 - [Specification](./specification): rules, fields, and constraints.
-- [Quickstart](./authoring/quickstart): build a v0.5 package from scratch.
+- [Quickstart](./authoring/quickstart): build a v0.6 package from scratch.
 - [Runtime model](./client-implementation/runtime-model): host implementation detail.
 - [Capability SDK](./client-implementation/capability-sdk): stable capability call contract.
-- [v0.5 snapshot](./versions/v0.5/overview): pinned version notes.
+- [v0.6 snapshot](./versions/v0.6/overview): pinned version notes.
