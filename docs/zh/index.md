@@ -6,7 +6,7 @@ description: 面向 Agent 的可安装应用包标准。
 hero:
   name: Agent App
   text: 可执行的完整智能应用。
-  tagline: "像小程序一样安装到宿主平台，拥有自己的 UI / Workflow / Storage；v0.3 通过 typed SDK、overlay 和 readiness 保证可运行。"
+  tagline: "像小程序一样安装到宿主平台，拥有自己的 UI / Workflow / Storage；v0.5 在 typed SDK、overlay 和 readiness 之上，引入分层 manifest、AI 自动发现 triggers、bundled Skills 和标准化错误码 / 签名 / i18n / 健康检查。"
   actions:
     - theme: brand
       text: 阅读规范
@@ -62,9 +62,9 @@ features:
 | 标准审查者 | [规范](./specification.md) | JSON Schemas、术语表、版本说明。 |
 | 产品规划者 | [什么是 Agent App？](./what-is-agent-app.md) | App 与 Skills / Knowledge 的边界、示例、小程序类比。 |
 
-## v0.3 承诺
+## v0.5 承诺
 
-v0.3 App 应该在执行前可理解，不修改宿主 Core 也能安装，通过 typed capability handles 运行，并且有明确 cleanup plan。如果一个 package 不能从文档和 manifest 字段说明 entry、权限、数据边界、runtime assets 和质量门禁，它还不适合作为 Agent App 分发。
+v0.5 App 应该在执行前可理解，不修改宿主 Core 也能安装，通过 typed capability handles 运行，并且有明确 cleanup plan。`APP.md` frontmatter 保持精简，详细配置走分层文件；`triggers` 和 `quickstart` 让 AI 客户端能正确路由请求；`skills/` 内置 Agent Skills；`evals/readiness.yaml` 把 readiness 从宿主硬编码下沉到 App 声明；`app.errors.yaml` 给出稳定错误码与恢复策略；`app.signature.yaml` 强化签名与撤销检查；`app.i18n.yaml` 提供一等 i18n。如果一个 package 不能从文档和 manifest 字段说明 entry、权限、数据边界、runtime assets 和质量门禁，它还不适合作为 Agent App 分发。
 
 ## 完整页面应回答什么
 

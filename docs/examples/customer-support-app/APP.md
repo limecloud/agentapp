@@ -1,11 +1,41 @@
 ---
+manifestVersion: 0.5.0
 name: customer-support-app
-description: Customer support Agent App for grounded replies, policy lookup, and escalation notes.
-version: 0.3.0
+description: Customer support Agent App for grounded replies, policy lookup, and escalation notes. Triggers on "draft a reply", "look up policy", "write an escalation note".
+version: 0.5.0
 status: draft
 appType: agent-app
 runtimeTargets:
   - local
+requires:
+  sdk: "@lime/app-sdk@^0.5.0"
+  capabilities:
+    - lime.ui
+    - lime.agent
+    - lime.knowledge
+    - lime.tools
+    - lime.artifacts
+    - lime.policy
+    - lime.evidence
+triggers:
+  keywords:
+    - support
+    - reply
+    - ticket
+    - policy
+    - escalation
+    - 客服
+    - 工单
+    - 回复
+  scenarios:
+    - support_reply
+    - policy_lookup
+    - escalation_handoff
+quickstart:
+  entry: draft_reply
+  setupSteps:
+    - bind_knowledge: product_facts
+    - bind_knowledge: support_policy
 capabilities:
   - agentknowledge
   - agenttool
@@ -44,6 +74,18 @@ presentation:
 # Customer Support App
 
 Install this app to draft grounded support replies and escalation notes.
+
+## When to Use
+
+- A support agent needs a grounded reply draft from product facts and policy
+- A specialist needs a structured escalation note with citations
+- A reviewer needs to look up the policy before approving a refund or commitment
+
+## Not Suitable For
+
+- ❌ Replacing the ticketing system itself (it is a workbench, not a queue)
+- ❌ Outbound marketing copy (use Content Factory)
+- ❌ Internal product documentation (use Knowledge Builder)
 
 ## Product boundary
 
@@ -88,6 +130,13 @@ Receive ticket context
 - Do not write back to ticketing systems without an explicit Tool permission.
 - Preserve rejected drafts and eval reasons so reviewers can audit the decision.
 
+## Red Flags
+
+- ⚠️ Replies cite policy without a Knowledge source link
+- ⚠️ Drafts approved despite `policy_compliance` failing
+- ⚠️ Customer PII written into the official package
+- ⚠️ App writes back to the ticket system without an authorized Tool
+
 ## Upgrade path
 
-To make this fixture production-ready, add runtime package assets, explicit `requires.capabilities`, storage schema, workflow descriptors, artifact viewer, secrets for ticket connectors, permissions for read/write operations, and release metadata with package provenance.
+To make this fixture production-ready, add runtime package assets, explicit `requires.capabilities`, storage schema, workflow descriptors, artifact viewer, secrets for ticket connectors, permissions for read/write operations, and release metadata with package provenance. Then opt into v0.5 layered files (`app.capabilities.yaml`, `app.errors.yaml`, `app.i18n.yaml`, `evals/readiness.yaml`) for production-grade authoring.

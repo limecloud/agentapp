@@ -1,0 +1,42 @@
+# Agent App v0.5 runtime health checks
+# Startup, runtime, and metric checks for content-factory-app.
+
+health:
+  startup:
+    - check: sdk_connection
+      timeout: 5s
+      critical: true
+    - check: storage_accessible
+      timeout: 3s
+      critical: true
+    - check: ui_bundle_loaded
+      timeout: 10s
+      critical: true
+    - check: worker_started
+      timeout: 5s
+      critical: true
+
+  runtime:
+    - check: agent_runtime_available
+      interval: 60s
+      critical: false
+    - check: knowledge_sync_status
+      interval: 300s
+      critical: false
+    - check: storage_health
+      interval: 120s
+      critical: false
+
+  metrics:
+    - metric: task_success_rate
+      threshold: "> 0.8"
+      alert: true
+    - metric: average_task_duration
+      threshold: "< 30s"
+      alert: false
+    - metric: storage_usage
+      threshold: "< 80%"
+      alert: true
+    - metric: cost_burn_rate
+      threshold: "< 5 USD/day"
+      alert: true

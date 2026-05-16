@@ -4,9 +4,20 @@ import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { basename, dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const cliVersion = '0.4.0'
+const cliVersion = '0.5.0'
 const currentEntryKinds = new Set(['page', 'panel', 'expert-chat', 'command', 'workflow', 'artifact', 'background-task', 'settings'])
 const legacyEntryKinds = new Set(['home', 'scene'])
+const supportedManifestVersions = new Set(['0.3.0', '0.4.0', '0.5.0'])
+const v05LayeredFiles = [
+  'app.capabilities.yaml',
+  'app.entries.yaml',
+  'app.permissions.yaml',
+  'app.errors.yaml',
+  'app.i18n.yaml',
+  'app.signature.yaml',
+  'evals/readiness.yaml',
+  'evals/health.yaml'
+]
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 
 function main() {
@@ -21,7 +32,7 @@ function main() {
   try {
     switch (command) {
       case 'validate':
-        return writeJson(validateApp(requiredArg(args, 1, 'app path')))
+        return writeJson(validateApp(requiredArg(args, 1, 'app path'), args.slice(2)))
       case 'read-properties':
         return writeJson(readProperties(requiredArg(args, 1, 'app path')))
       case 'to-catalog':
@@ -30,6 +41,10 @@ function main() {
         return writeJson(projectApp(requiredArg(args, 1, 'app path')))
       case 'readiness':
         return writeJson(readiness(requiredArg(args, 1, 'app path'), args.slice(2)))
+      case 'migrate-check':
+        return writeJson(migrateCheck(requiredArg(args, 1, 'app path'), args.slice(2)))
+      case 'migrate-generate':
+        return writeJson(migrateGenerate(requiredArg(args, 1, 'app path'), args.slice(2)))
       default:
         return fail(`Unknown command: ${command}`, 2)
     }
@@ -42,11 +57,13 @@ function printHelp() {
   console.log(`agentapp-ref ${cliVersion}
 
 Usage:
-  agentapp-ref validate <app>
+  agentapp-ref validate <app> [--version <0.3|0.4|0.5>]
   agentapp-ref read-properties <app>
   agentapp-ref to-catalog <app>
   agentapp-ref project <app>
   agentapp-ref readiness <app> [--workspace <path>]
+  agentapp-ref migrate-check <app>
+  agentapp-ref migrate-generate <app> [--target 0.5.0]
 
 Commands:
   validate          Validate APP.md shape and local references.
@@ -54,15 +71,18 @@ Commands:
   to-catalog        Emit compact app catalog metadata.
   project           Emit host catalog projection with provenance.
   readiness         Check static setup readiness without running an agent.
+  migrate-check     Inspect a v0.3/v0.4 app and report v0.5 migration gaps.
+  migrate-generate  Suggest v0.5 layered config files for a v0.3/v0.4 app.
 
 Output:
   JSON is written to stdout. Diagnostics are written to stderr.
 `)
 }
 
-function validateApp(appPath) {
+function validateApp(appPath, options = []) {
   const appRoot = resolve(appPath)
   const findings = []
+  const targetVersion = parseVersionFlag(options)
   if (!existsSync(appRoot) || !statSync(appRoot).isDirectory()) {
     findings.push(errorFinding('.', 'App path is not a directory.'))
     return envelope(false, 'failed', 'validate', basename(appRoot), findings)
@@ -86,6 +106,18 @@ function validateApp(appPath) {
   }
   if (properties.appType && !['agent-app', 'workflow-app', 'domain-app', 'customer-app', 'custom'].includes(properties.appType)) {
     findings.push(errorFinding('APP.md', `Unknown appType: ${properties.appType}.`))
+  }
+
+  if (properties.manifestVersion && !supportedManifestVersions.has(properties.manifestVersion)) {
+    findings.push(warningFinding('APP.md', `Unknown manifestVersion: ${properties.manifestVersion}. Supported: ${[...supportedManifestVersions].join(', ')}.`))
+  }
+  if (targetVersion && properties.manifestVersion && properties.manifestVersion !== targetVersion) {
+    findings.push(warningFinding('APP.md', `manifestVersion ${properties.manifestVersion} does not match requested --version ${targetVersion}.`))
+  }
+
+  const effectiveVersion = targetVersion || properties.manifestVersion || '0.4.0'
+  if (effectiveVersion === '0.5.0') {
+    checkV05Conventions(appRoot, properties, findings)
   }
 
   checkEntries(properties.entries, properties, findings)
@@ -436,6 +468,192 @@ function optionValue(args, option) {
   const index = args.indexOf(option)
   if (index === -1) return undefined
   return args[index + 1]
+}
+
+function parseVersionFlag(args) {
+  const raw = optionValue(args, '--version')
+  if (!raw) return undefined
+  if (/^0\.3(\.\d+)?$/.test(raw)) return '0.3.0'
+  if (/^0\.4(\.\d+)?$/.test(raw)) return '0.4.0'
+  if (/^0\.5(\.\d+)?$/.test(raw)) return '0.5.0'
+  return raw
+}
+
+function checkV05Conventions(appRoot, properties, findings) {
+  if (!properties.manifestVersion) {
+    findings.push(warningFinding('APP.md', 'manifestVersion is recommended for v0.5 packages.'))
+  }
+  if (!properties.triggers || (!properties.triggers.keywords && !properties.triggers.scenarios)) {
+    findings.push(warningFinding('APP.md', 'v0.5 recommends declaring triggers.keywords or triggers.scenarios for AI auto-discovery.'))
+  }
+  if (!properties.quickstart || !properties.quickstart.entry) {
+    findings.push(warningFinding('APP.md', 'v0.5 recommends declaring quickstart.entry for first-launch UX.'))
+  }
+  const skillsDir = join(appRoot, 'skills')
+  if (existsSync(skillsDir) && statSync(skillsDir).isDirectory()) {
+    for (const entry of readdirSync(skillsDir)) {
+      const skillRoot = join(skillsDir, entry)
+      if (!statSync(skillRoot).isDirectory()) continue
+      const skillMd = join(skillRoot, 'SKILL.md')
+      if (!existsSync(skillMd)) {
+        findings.push(errorFinding(`skills/${entry}/SKILL.md`, 'Bundled Skill must include SKILL.md per Agent Skills standard.'))
+      }
+    }
+  }
+}
+
+function migrateCheck(appPath, options = []) {
+  const appRoot = resolve(appPath)
+  const findings = []
+  if (!existsSync(appRoot) || !statSync(appRoot).isDirectory()) {
+    findings.push(errorFinding('.', 'App path is not a directory.'))
+    return envelope(false, 'failed', 'migrate-check', basename(appRoot), findings)
+  }
+  const appMd = join(appRoot, 'APP.md')
+  if (!existsSync(appMd)) {
+    findings.push(errorFinding('APP.md', 'Missing required APP.md.'))
+    return envelope(false, 'failed', 'migrate-check', basename(appRoot), findings)
+  }
+  const properties = readAppProperties(appMd)
+  const target = parseVersionFlag(options) || '0.5.0'
+  const sourceVersion = properties.manifestVersion || '0.3.0'
+  const gaps = []
+
+  if (sourceVersion === target) {
+    findings.push({ severity: 'info', path: 'APP.md', message: `Already on manifestVersion ${target}. No migration required.` })
+  }
+
+  if (target === '0.5.0') {
+    if (!properties.triggers) gaps.push({ field: 'triggers', suggestion: 'Add triggers.keywords and triggers.scenarios to APP.md frontmatter.' })
+    if (!properties.quickstart) gaps.push({ field: 'quickstart', suggestion: 'Add quickstart.entry pointing to a default entry key.' })
+    if (!properties.skills) gaps.push({ field: 'skills', suggestion: 'Move skillRefs into skills.bundled / skills.references and add SKILL.md under skills/.' })
+    for (const file of v05LayeredFiles) {
+      if (!existsSync(join(appRoot, file))) {
+        gaps.push({ field: file, suggestion: `Create ${file} for layered v0.5 configuration.` })
+      }
+    }
+    const localesDir = join(appRoot, 'locales')
+    if (!existsSync(localesDir)) {
+      gaps.push({ field: 'locales/', suggestion: 'Add locales/ directory with translation files for supported locales.' })
+    }
+  }
+
+  return envelope(gaps.length === 0, gaps.length === 0 ? 'ready' : 'needs-setup', 'migrate-check', basename(appRoot), findings, {
+    sourceVersion,
+    targetVersion: target,
+    gaps
+  })
+}
+
+function migrateGenerate(appPath, options = []) {
+  const appRoot = resolve(appPath)
+  if (!existsSync(appRoot) || !statSync(appRoot).isDirectory()) {
+    return envelope(false, 'failed', 'migrate-generate', basename(appRoot), [errorFinding('.', 'App path is not a directory.')])
+  }
+  const appMd = join(appRoot, 'APP.md')
+  if (!existsSync(appMd)) {
+    return envelope(false, 'failed', 'migrate-generate', basename(appRoot), [errorFinding('APP.md', 'Missing required APP.md.')])
+  }
+  const properties = readAppProperties(appMd)
+  const target = parseVersionFlag(options) || '0.5.0'
+  const suggestions = {}
+
+  if (target === '0.5.0') {
+    suggestions['APP.md.frontmatter'] = {
+      manifestVersion: '0.5.0',
+      triggers: properties.triggers || {
+        keywords: [properties.appType || 'agent-app', properties.name || 'app'].filter(Boolean),
+        scenarios: []
+      },
+      quickstart: properties.quickstart || {
+        entry: pickDefaultEntry(properties.entries) || 'dashboard'
+      }
+    }
+    suggestions['app.errors.yaml'] = sampleErrorsYaml()
+    suggestions['app.i18n.yaml'] = sampleI18nYaml()
+    suggestions['evals/readiness.yaml'] = sampleReadinessYaml()
+    suggestions['evals/health.yaml'] = sampleHealthYaml()
+    suggestions['app.signature.yaml'] = sampleSignatureYaml(properties.name || 'app', properties.version || '0.5.0')
+  }
+
+  return envelope(true, 'ready', 'migrate-generate', basename(appRoot), [], {
+    sourceVersion: properties.manifestVersion || '0.3.0',
+    targetVersion: target,
+    suggestions
+  })
+}
+
+function pickDefaultEntry(entries) {
+  if (!Array.isArray(entries) || entries.length === 0) return undefined
+  const page = entries.find(entry => entry && entry.kind === 'page')
+  return page?.key || entries[0]?.key
+}
+
+function sampleErrorsYaml() {
+  return [
+    'errors:',
+    '  CAPABILITY_NOT_AVAILABLE:',
+    '    code: APP_E001',
+    '    message: Required capability is not available',
+    '    recovery: Check Lime version and capability configuration',
+    '    userAction: Ask an admin to enable the capability',
+    '    retryable: false'
+  ].join('\n')
+}
+
+function sampleI18nYaml() {
+  return [
+    'i18n:',
+    '  defaultLocale: en-US',
+    '  supportedLocales: [zh-CN, zh-TW, en-US, ja-JP, ko-KR]',
+    '  translations:',
+    '    en-US: ./locales/en-US.json'
+  ].join('\n')
+}
+
+function sampleReadinessYaml() {
+  return [
+    'readiness:',
+    '  required:',
+    '    - check: sdk_version',
+    '      expect: ">=0.5.0"',
+    '      blocker: true',
+    '      message: Lime SDK v0.5.0 or higher is required',
+    '  recommended: []',
+    '  performance: []'
+  ].join('\n')
+}
+
+function sampleHealthYaml() {
+  return [
+    'health:',
+    '  startup:',
+    '    - check: sdk_connection',
+    '      timeout: 5s',
+    '      critical: true',
+    '  runtime: []',
+    '  metrics: []'
+  ].join('\n')
+}
+
+function sampleSignatureYaml(appName, appVersion) {
+  return [
+    'signature:',
+    '  package:',
+    '    algorithm: sha256',
+    '    hash: REPLACE_WITH_REAL_SHA256',
+    `    signedBy: sigstore`,
+    `    signatureRef: sigstore:${appName}@${appVersion}`,
+    '  manifest:',
+    '    algorithm: sha256',
+    '    hash: REPLACE_WITH_REAL_SHA256',
+    '  trust:',
+    '    publisher: REPLACE_WITH_PUBLISHER',
+    '    publisherId: REPLACE_WITH_PUBLISHER_ID',
+    '  revocation:',
+    '    checkUrl: https://revoke.example.com/check',
+    '    cacheSeconds: 3600'
+  ].join('\n')
 }
 
 function envelope(ok, status, command, app, findings = [], extra = {}) {

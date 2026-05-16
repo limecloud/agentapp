@@ -14,9 +14,13 @@
     },
     "status": {
       "type": "string",
+      "description": "v0.5 expands the state set: ready / ready-degraded / needs-setup / blocked / unknown. v0.4 values ready / needs-setup / failed remain valid.",
       "enum": [
         "ready",
+        "ready-degraded",
         "needs-setup",
+        "blocked",
+        "unknown",
         "failed"
       ]
     },
@@ -36,6 +40,50 @@
       "type": "array",
       "items": {
         "$ref": "#/$defs/check"
+      }
+    },
+    "tiers": {
+      "type": "object",
+      "description": "v0.5: aggregated check results by tier sourced from evals/readiness.yaml.",
+      "properties": {
+        "required": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/check"
+          }
+        },
+        "recommended": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/check"
+          }
+        },
+        "performance": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/check"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "setupActions": {
+      "type": "array",
+      "description": "v0.5: actionable repair steps the host can present to the user.",
+      "items": {
+        "$ref": "#/$defs/setupAction"
       }
     }
   },
@@ -75,10 +123,51 @@
         "blocking": {
           "type": "boolean"
         },
+        "tier": {
+          "type": "string",
+          "description": "v0.5: which readiness tier the check belongs to.",
+          "enum": [
+            "required",
+            "recommended",
+            "performance"
+          ]
+        },
         "message": {
           "type": "string"
         },
         "remediation": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "setupAction": {
+      "type": "object",
+      "description": "v0.5: a host-actionable repair step.",
+      "required": ["key", "title"],
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "bind-knowledge",
+            "configure-secret",
+            "grant-permission",
+            "install-tool",
+            "run-migration",
+            "open-settings",
+            "external"
+          ]
+        },
+        "target": {
           "type": "string"
         }
       },

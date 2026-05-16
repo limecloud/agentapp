@@ -1,43 +1,49 @@
 ---
-manifestVersion: 0.3.0
+manifestVersion: 0.5.0
 name: content-factory-app
-description: 内容工厂，用于知识库构建、内容场景规划、批量生成、策略报告和运营复盘。
-version: 0.3.0
+description: 内容工厂帮助团队规划、生产和管理营销内容。使用场景："创建内容日历"、"批量生成文案"、"内容资产管理"、"知识库构建"。
+version: 0.5.0
 status: ready
 appType: domain-app
 runtimeTargets:
   - local
   - hybrid
 requires:
-  lime:
-    appRuntime: ">=0.3.0 <1.0.0"
-  sdk: "@lime/app-sdk@^0.3.0"
+  sdk: "@lime/app-sdk@^0.5.0"
   capabilities:
-    lime.ui: "^0.3.0"
-    lime.storage: "^0.3.0"
-    lime.files: "^0.3.0"
-    lime.agent: "^0.3.0"
-    lime.knowledge: "^0.3.0"
-    lime.tools: "^0.3.0"
-    lime.artifacts: "^0.3.0"
-    lime.workflow: "^0.3.0"
-    lime.policy: "^0.3.0"
-    lime.evidence: "^0.3.0"
-    lime.secrets: "^0.3.0"
-capabilities:
-  - lime.ui
-  - lime.storage
-  - lime.files
-  - lime.agent
-  - lime.knowledge
-  - lime.tools
-  - lime.artifacts
-  - lime.workflow
-  - lime.policy
-  - lime.evidence
-  - lime.secrets
-  - agentskills
-  - agentknowledge
+    - lime.ui
+    - lime.storage
+    - lime.files
+    - lime.agent
+    - lime.knowledge
+    - lime.tools
+    - lime.artifacts
+    - lime.workflow
+    - lime.policy
+    - lime.evidence
+    - lime.secrets
+triggers:
+  keywords:
+    - 内容
+    - 营销
+    - 文案
+    - 创意
+    - 日历
+    - 知识库
+    - content
+    - marketing
+    - copywriting
+  scenarios:
+    - content_planning
+    - batch_generation
+    - asset_management
+    - knowledge_build
+quickstart:
+  entry: dashboard
+  sampleWorkflow: knowledge_builder
+  setupSteps:
+    - bind_knowledge: project_knowledge
+    - configure_tool: document_parser
 runtimePackage:
   ui:
     path: ./dist/ui
@@ -84,6 +90,21 @@ workflows:
   - key: content_calendar
     path: ./workflows/content-calendar.workflow.md
     humanReview: true
+skills:
+  bundled:
+    - path: ./skills/content_ideation
+      activation: on-demand
+    - path: ./skills/copywriting
+      activation: on-demand
+  references:
+    - id: knowledge-builder
+      version: ^1.0.0
+      activation: on-demand
+      required: true
+    - id: article-writer
+      version: ^1.0.0
+      activation: on-demand
+      required: true
 knowledgeTemplates:
   - key: personal_ip
     standard: agentknowledge
@@ -100,15 +121,6 @@ knowledgeTemplates:
     type: content-operations
     runtimeMode: data
     required: false
-skillRefs:
-  - id: article-writer
-    standard: agentskills
-    activation: entry
-    required: true
-  - id: knowledge-builder
-    standard: agentskills
-    activation: entry
-    required: true
 toolRefs:
   - key: document_parser
     provider: lime.tools
@@ -171,15 +183,109 @@ presentation:
   title: 内容工厂
   summary: 面向内容团队的行业 Agent App。
 compatibility:
-  minHostVersion: 0.3.0
+  minHostVersion: 0.5.0
 metadata:
   example: true
 ---
 
 # 内容工厂
 
-安装这个 App 后，宿主可以提供项目首页、知识库构建、内容生产、策略报告和运营复盘入口。
+一站式内容生产工作台，从知识库构建、内容场景规划、批量生产、人工审核到资产管理的完整闭环。
 
 `APP.md` 只声明应用边界和加载线索；真实 UI、worker、storage schema、workflow 和 Artifact 由 runtime package 提供，并通过 `@lime/app-sdk` 调用宿主能力。
 
 客户专属事实、品牌语气、禁用词、投放数据和私有 SOP 不进入官方 App 包，应通过 Agent Knowledge、workspace files、App storage、secrets 或 overlay 绑定。
+
+## 何时使用
+
+- ✅ 需要从原始资料构建可检索的知识库
+- ✅ 规划内容主题、场景、日历和发布渠道
+- ✅ 批量生成多版本文案和创意
+- ✅ 团队协作审核与人工确认
+- ✅ 内容资产版本管理与复用
+- ✅ 内容投放后的策略复盘
+
+## 不适用场景
+
+- ❌ 单次零散文案（用通用 Chat 即可）
+- ❌ 代码注释或开发文档（使用 Code Skills）
+- ❌ 数据分析报告（使用 Analytics App）
+- ❌ 客服对话回复（使用 Customer Support App）
+
+## 工作流程
+
+1. **知识库构建** - 从素材文件、网页、内部 SOP 构建可检索的项目知识库
+2. **场景规划** - 根据品牌、受众、渠道生成内容场景与日历
+3. **批量生产** - 调用 Agent 按场景批量生成文案与创意
+4. **人工审核** - 团队审阅与修改，记录评论与版本
+5. **资产沉淀** - 通过 Artifact 持久化内容资产并支持导出
+6. **复盘归因** - 根据投放数据回到知识库与策略迭代
+
+## 快速开始
+
+安装后宿主会引导你完成最小化 setup：
+
+1. 在 `dashboard` 入口点击"开始"。
+2. 绑定 `project_knowledge` 知识库（必需）。
+3. 启用 `document_parser` 工具（必需）。
+4. 进入 `knowledge_builder` workflow 跑通示例项目。
+
+## 红旗信号
+
+⚠️ 出现以下情况说明使用方式偏离正轨：
+
+- App 频繁回跳到通用 Chat 才能完成业务流程
+- 用户必须把数据复制粘贴到外部工具
+- Agent 任务失败后无法在 App 内重试
+- 同一份知识被多次手工录入而不是绑定到 `project_knowledge`
+- 客户私有信息被写入官方 package 而不是 overlay
+
+## 验证清单
+
+✅ 安装后应能：
+
+- [ ] 在 Agent Apps 页面看到内容工厂卡片
+- [ ] 进入 `dashboard` 看到工作台首页
+- [ ] 启动 `knowledge_builder` workflow 并完成示例项目
+- [ ] 看到生成的 `content_table` Artifact 和 `fact_grounding` Evidence
+- [ ] 在 `content_factory` 入口批量生成文案
+- [ ] 在 `content_calendar` 入口完成排期与复盘
+- [ ] 卸载 App 时按 `uninstallPolicy: ask` 询问数据保留
+
+## 故障排查
+
+### 问题：Agent 任务立即失败
+
+可能原因：
+
+1. 未绑定 `project_knowledge` 知识库（`needs-setup`）
+2. `document_parser` 工具未启用（`blocked`）
+3. SDK 版本低于 `^0.5.0`
+
+排查命令：
+
+```bash
+agentapp-ref readiness ./content-factory-app --workspace ./workspace
+agentapp-ref validate ./content-factory-app --version 0.5.0
+```
+
+### 问题：内容资产无法导出
+
+可能原因：
+
+1. `presentation_export` 工具未启用
+2. 缺少导出格式 viewer / exporter
+
+排查方式：
+
+```bash
+agentapp-ref project ./content-factory-app | jq '.artifactTypes'
+```
+
+### 问题：人工审核节点卡住
+
+工作流停在 `human_confirm`，确认：
+
+1. UI host 已正常加载 `content_factory` 页面
+2. 当前用户具备 `call_content_tools` 权限
+3. policy 没有禁用 `human-review` 节点

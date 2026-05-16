@@ -1,0 +1,67 @@
+# Agent App v0.5 detailed entry config
+# Loaded by manifest convention. Values here override matching frontmatter fields.
+
+entries:
+  - key: dashboard
+    kind: page
+    title: 内容工厂首页
+    titleI18n:
+      en-US: Content Factory Dashboard
+      zh-CN: 内容工厂首页
+    route: /dashboard
+    description: 工作台总览，展示进行中的场景、任务、Artifact 和健康指标。
+    permissions:
+      - read_selected_files
+    quickActions:
+      - new_scenario
+      - import_knowledge
+
+  - key: knowledge_builder
+    kind: workflow
+    title: 知识库构建
+    titleI18n:
+      en-US: Knowledge Builder
+      zh-CN: 知识库构建
+    workflow: ./workflows/knowledge-builder.workflow.md
+    requiredCapabilities:
+      - lime.files
+      - lime.agent
+      - lime.knowledge
+      - lime.tools
+      - lime.artifacts
+      - lime.evidence
+
+  - key: content_factory
+    kind: page
+    title: 内容生产工厂
+    titleI18n:
+      en-US: Content Factory
+      zh-CN: 内容生产工厂
+    route: /content-factory
+    description: 批量生成文案、创意、版本管理与人工审核。
+    requiredCapabilities:
+      - lime.agent
+      - lime.knowledge
+      - lime.artifacts
+      - lime.evidence
+
+  - key: content_strategist
+    kind: expert-chat
+    title: 内容策略专家
+    titleI18n:
+      en-US: Content Strategist
+      zh-CN: 内容策略专家
+    persona: ./agents/content-strategist.md
+    description: Chat-first 策略对话入口；用于头脑风暴、复盘讨论、规则确认。
+
+  - key: content_calendar
+    kind: workflow
+    title: 内容排期与复盘
+    titleI18n:
+      en-US: Content Calendar
+      zh-CN: 内容排期与复盘
+    workflow: ./workflows/content-calendar.workflow.md
+    requiredCapabilities:
+      - lime.workflow
+      - lime.artifacts
+      - lime.evidence

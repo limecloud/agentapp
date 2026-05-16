@@ -1,0 +1,56 @@
+{
+  "app": {
+    "title": "内容工厂",
+    "description": "面向内容团队的行业 Agent App"
+  },
+  "entries": {
+    "dashboard": {
+      "title": "工作台",
+      "description": "内容生产总览"
+    },
+    "content_factory": {
+      "title": "内容生产工厂",
+      "description": "批量生成与编辑内容"
+    },
+    "knowledge_builder": {
+      "title": "知识库构建",
+      "description": "从素材构建可检索知识库"
+    },
+    "content_calendar": {
+      "title": "内容排期与复盘",
+      "description": "排期、投放与复盘"
+    },
+    "content_strategist": {
+      "title": "内容策略专家",
+      "description": "Chat-first 策略对话入口"
+    }
+  },
+  "errors": {
+    "APP_E001": "所需能力不可用，请联系管理员",
+    "APP_E002": "权限被拒绝，请在设置中授权",
+    "APP_E003": "知识库未绑定，请先绑定项目知识库",
+    "APP_E101": "Agent 任务失败，请重试",
+    "APP_E102": "Agent 任务超时，请重试或拆分任务",
+    "APP_E201": "存储空间不足，请清理旧数据",
+    "APP_E301": "Workflow 处于无效状态，请重启或回到上一步"
+  },
+  "workflows": {
+    "knowledge_builder": {
+      "states": {
+        "parse_files": "解析文件",
+        "structure_sections": "结构化章节",
+        "human_confirm": "人工确认",
+        "persist_knowledge": "保存知识"
+      }
+    },
+    "content_calendar": {
+      "states": {
+        "input_topic": "输入主题",
+        "analyze_topic": "分析主题",
+        "generate_scenarios": "生成场景",
+        "human_review": "人工审核",
+        "save_calendar": "保存日历"
+      }
+    }
+  }
+}

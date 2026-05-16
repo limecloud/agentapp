@@ -1,0 +1,109 @@
+# Agent App v0.5 standardized error catalog
+# Stable error codes, recovery hints, and user actions for content-factory-app.
+
+errors:
+  # APP_E0xx: SDK / permission / configuration
+  CAPABILITY_NOT_AVAILABLE:
+    code: APP_E001
+    message: 所需能力不可用
+    recovery: 检查 Lime 版本和能力配置
+    userAction: 联系管理员启用所需能力
+    retryable: false
+
+  PERMISSION_DENIED:
+    code: APP_E002
+    message: 权限被拒绝
+    recovery: 请求用户授权
+    userAction: 在设置中授予权限
+    retryable: false
+
+  KNOWLEDGE_NOT_BOUND:
+    code: APP_E003
+    message: 知识库未绑定
+    recovery: 引导用户绑定知识库
+    userAction: 在设置中绑定 project_knowledge
+    retryable: false
+
+  SDK_VERSION_MISMATCH:
+    code: APP_E004
+    message: SDK 版本不兼容
+    recovery: 升级宿主或回退 App 版本
+    userAction: 升级 Lime 到 0.5.0 或更高
+    retryable: false
+
+  # APP_E1xx: Agent task
+  AGENT_TASK_FAILED:
+    code: APP_E101
+    message: Agent 任务失败
+    recovery: 检查输入参数和模型可用性
+    userAction: 重试或调整输入
+    retryable: true
+    maxRetries: 3
+
+  AGENT_TASK_TIMEOUT:
+    code: APP_E102
+    message: Agent 任务超时
+    recovery: 增加超时时间或简化任务
+    userAction: 重试或拆分任务
+    retryable: true
+    maxRetries: 2
+
+  AGENT_TASK_CANCELLED:
+    code: APP_E103
+    message: Agent 任务被取消
+    recovery: 用户主动取消或宿主限流取消
+    userAction: 重新启动任务
+    retryable: true
+
+  AGENT_COST_LIMIT_EXCEEDED:
+    code: APP_E104
+    message: Agent 任务超出成本限制
+    recovery: 增加成本预算或降低模型
+    userAction: 联系管理员调整预算
+    retryable: false
+
+  # APP_E2xx: Storage
+  STORAGE_QUOTA_EXCEEDED:
+    code: APP_E201
+    message: 存储空间不足
+    recovery: 清理旧数据或申请更多空间
+    userAction: 删除不需要的内容资产
+    retryable: false
+
+  STORAGE_MIGRATION_REQUIRED:
+    code: APP_E202
+    message: 需要执行存储迁移
+    recovery: 由宿主运行 migration
+    userAction: 在设置中确认迁移
+    retryable: true
+
+  STORAGE_SCHEMA_MISMATCH:
+    code: APP_E203
+    message: 存储 schema 不匹配
+    recovery: 验证 manifest 和 storage schema 一致性
+    userAction: 升级 App 或回滚 schema
+    retryable: false
+
+  # APP_E3xx: Workflow
+  WORKFLOW_INVALID_STATE:
+    code: APP_E301
+    message: Workflow 处于无效状态
+    recovery: 从最近的 checkpoint 恢复
+    userAction: 重启 workflow 或回到上一步
+    retryable: true
+
+  WORKFLOW_HUMAN_REVIEW_TIMEOUT:
+    code: APP_E302
+    message: 人工审核超时
+    recovery: 提醒审核人或自动跳过
+    userAction: 处理审核任务
+    retryable: true
+
+  # APP_E9xx: 未分类
+  UNKNOWN_ERROR:
+    code: APP_E999
+    message: 未知错误
+    recovery: 收集 traceId 和 evidence
+    userAction: 重试或联系支持
+    retryable: true
+    maxRetries: 1

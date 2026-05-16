@@ -114,6 +114,104 @@
         "$ref": "#/$defs/entry"
       }
     },
+    "triggers": {
+      "type": "object",
+      "description": "v0.5: AI auto-discovery hints. keywords drive semantic match; scenarios are machine-readable identifiers.",
+      "properties": {
+        "keywords": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "uniqueItems": true,
+          "maxItems": 32
+        },
+        "scenarios": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_]*$",
+            "maxLength": 64
+          },
+          "uniqueItems": true,
+          "maxItems": 32
+        }
+      },
+      "additionalProperties": false
+    },
+    "quickstart": {
+      "type": "object",
+      "description": "v0.5: first-launch onboarding hints. entry must match an entry key; sampleWorkflow must match a workflow key.",
+      "properties": {
+        "entry": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sampleWorkflow": {
+          "type": "string",
+          "minLength": 1
+        },
+        "setupSteps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "skills": {
+      "type": "object",
+      "description": "v0.5: bundled and referenced Agent Skills.",
+      "properties": {
+        "bundled": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["path"],
+            "properties": {
+              "path": {
+                "type": "string",
+                "minLength": 1
+              },
+              "activation": {
+                "type": "string",
+                "enum": ["auto", "on-demand", "manual"]
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "references": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id"],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "version": {
+                "type": "string"
+              },
+              "activation": {
+                "type": "string",
+                "enum": ["auto", "on-demand", "manual"]
+              },
+              "required": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
     "capabilities": {
       "oneOf": [
         {

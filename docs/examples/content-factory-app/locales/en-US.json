@@ -1,0 +1,56 @@
+{
+  "app": {
+    "title": "Content Factory",
+    "description": "Industry Agent App for content teams"
+  },
+  "entries": {
+    "dashboard": {
+      "title": "Dashboard",
+      "description": "Content production overview"
+    },
+    "content_factory": {
+      "title": "Content Factory",
+      "description": "Batch generate and edit content"
+    },
+    "knowledge_builder": {
+      "title": "Knowledge Builder",
+      "description": "Build retrievable knowledge from sources"
+    },
+    "content_calendar": {
+      "title": "Content Calendar",
+      "description": "Scheduling, distribution, and review"
+    },
+    "content_strategist": {
+      "title": "Content Strategist",
+      "description": "Chat-first strategy entry"
+    }
+  },
+  "errors": {
+    "APP_E001": "Required capability is not available; contact your admin",
+    "APP_E002": "Permission denied; grant permission in Settings",
+    "APP_E003": "Knowledge pack is not bound; bind project knowledge first",
+    "APP_E101": "Agent task failed; please retry",
+    "APP_E102": "Agent task timed out; retry or split the task",
+    "APP_E201": "Storage quota exceeded; clean up old data",
+    "APP_E301": "Workflow is in an invalid state; restart or go back"
+  },
+  "workflows": {
+    "knowledge_builder": {
+      "states": {
+        "parse_files": "Parse files",
+        "structure_sections": "Structure sections",
+        "human_confirm": "Human confirm",
+        "persist_knowledge": "Persist knowledge"
+      }
+    },
+    "content_calendar": {
+      "states": {
+        "input_topic": "Input topic",
+        "analyze_topic": "Analyze topic",
+        "generate_scenarios": "Generate scenarios",
+        "human_review": "Human review",
+        "save_calendar": "Save calendar"
+      }
+    }
+  }
+}

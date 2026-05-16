@@ -70,7 +70,7 @@ Compatible hosts should expose versioned, authorized, mockable capabilities such
 - `lime.evidence` for provenance and replay
 - `lime.secrets` for credentials without plaintext app access
 
-Apps must not import host internals. They declare capability requirements in the manifest and receive runtime handles from the host. v0.3 treats SDK calls as typed contracts with stable error codes, cancellation, retries, idempotency, provenance, and mock implementations.
+Apps must not import host internals. They declare capability requirements in the manifest and receive runtime handles from the host. v0.5 keeps the typed contract from v0.3/v0.4 and layers detailed configuration into independent files (`app.capabilities.yaml`, `app.errors.yaml`, `app.i18n.yaml`, `app.signature.yaml`, `evals/readiness.yaml`, `evals/health.yaml`) so the frontmatter stays small and authors opt in only what they need.
 
 ## Runtime contract
 
@@ -98,10 +98,12 @@ Compatible hosts should:
 ## Reference CLI
 
 ```bash
-npx agentapp-ref@0.4.0 validate ./my-agent-app
-npx agentapp-ref@0.4.0 to-catalog ./my-agent-app
-npx agentapp-ref@0.4.0 project ./my-agent-app
-npx agentapp-ref@0.4.0 readiness ./my-agent-app --workspace ./workspace
+npx agentapp-ref@0.5.0 validate ./my-agent-app --version 0.5
+npx agentapp-ref@0.5.0 to-catalog ./my-agent-app
+npx agentapp-ref@0.5.0 project ./my-agent-app
+npx agentapp-ref@0.5.0 readiness ./my-agent-app --workspace ./workspace
+npx agentapp-ref@0.5.0 migrate-check ./my-agent-app
+npx agentapp-ref@0.5.0 migrate-generate ./my-agent-app --target 0.5.0
 ```
 
 ## Local development

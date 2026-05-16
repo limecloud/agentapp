@@ -96,6 +96,102 @@
     "lifecycle": {
       "type": "object"
     },
+    "triggers": {
+      "type": "object",
+      "description": "v0.5: AI auto-discovery hints projected from manifest.",
+      "properties": {
+        "keywords": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "scenarios": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "quickstart": {
+      "type": "object",
+      "description": "v0.5: first-launch onboarding hints projected from manifest.",
+      "properties": {
+        "entry": {
+          "type": "string"
+        },
+        "sampleWorkflow": {
+          "type": "string"
+        },
+        "setupSteps": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "skills": {
+      "type": "object",
+      "description": "v0.5: bundled and referenced Agent Skills projected from manifest.",
+      "properties": {
+        "bundled": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "references": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "errors": {
+      "type": "array",
+      "description": "v0.5: standardized error catalog projected from app.errors.yaml.",
+      "items": {
+        "type": "object"
+      }
+    },
+    "i18n": {
+      "type": "object",
+      "description": "v0.5: i18n configuration projected from app.i18n.yaml.",
+      "properties": {
+        "defaultLocale": {
+          "type": "string"
+        },
+        "supportedLocales": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "fallback": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "signature": {
+      "type": "object",
+      "description": "v0.5: signature, trust chain, and revocation projected from app.signature.yaml.",
+      "additionalProperties": true
+    },
+    "health": {
+      "type": "object",
+      "description": "v0.5: runtime health checks projected from evals/health.yaml.",
+      "additionalProperties": true
+    },
     "provenance": {
       "$ref": "#/$defs/provenance"
     }

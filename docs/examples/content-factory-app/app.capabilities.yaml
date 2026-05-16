@@ -1,0 +1,148 @@
+# Agent App v0.5 capabilities config
+# Detailed capability configuration for content-factory-app.
+# Loaded by manifest convention; values here override matching frontmatter fields.
+
+capabilities:
+  lime.ui:
+    features:
+      - pages
+      - panels
+      - commands
+      - theme
+      - i18n
+    routes:
+      - path: /dashboard
+        component: ./dist/ui/Dashboard.js
+        title: 工作台
+      - path: /content-factory
+        component: ./dist/ui/ContentFactory.js
+        title: 内容工厂
+      - path: /content-calendar
+        component: ./dist/ui/ContentCalendar.js
+        title: 内容日历
+    panels:
+      - key: scenario_detail
+        component: ./dist/ui/ScenarioDetail.js
+        position: right
+        width: 400
+    commands:
+      - key: new_scenario
+        title: 新建场景
+        shortcut: Cmd+N
+        action: navigate:/content-factory/new
+
+  lime.storage:
+    namespace: content-factory-app
+    schema: ./storage/schema.json
+    migrations: ./storage/migrations/
+    retention: ask-on-uninstall
+    tables:
+      - name: content_scenarios
+        indexes:
+          - created_at
+          - status
+          - tags
+      - name: content_assets
+        indexes:
+          - scenario_id
+          - type
+          - created_at
+      - name: knowledge_sources
+        indexes:
+          - created_at
+          - mime_type
+
+  lime.agent:
+    entries:
+      - key: content_scenario_planning
+        title: 场景规划
+        model: claude-opus
+        maxTokens: 4000
+        temperature: 0.7
+      - key: batch_generation
+        title: 批量生成
+        model: claude-sonnet
+        maxTokens: 2000
+        temperature: 0.8
+      - key: knowledge_extraction
+        title: 知识抽取
+        model: claude-sonnet
+        maxTokens: 4000
+        temperature: 0.2
+    costLimit:
+      monthly: 100
+      perTask: 1
+
+  lime.knowledge:
+    templates:
+      - key: project_knowledge
+        title: 项目知识库
+        required: true
+        standard: agentknowledge
+        type: brand-product
+      - key: personal_ip
+        title: 个人 IP
+        required: false
+        standard: agentknowledge
+      - key: content_operations
+        title: 运营知识
+        required: false
+        standard: agentknowledge
+
+  lime.tools:
+    requirements:
+      - key: document_parser
+        required: true
+        fallback: manual_input
+      - key: competitor_research
+        required: false
+      - key: presentation_export
+        required: false
+
+  lime.artifacts:
+    types:
+      - key: content_table
+        title: 内容表格
+        viewer: ./dist/ui/ContentTableViewer.js
+        exporter:
+          - markdown
+          - csv
+          - json
+      - key: article_draft
+        title: 文章草稿
+        viewer: ./dist/ui/ArticleDraftViewer.js
+        exporter:
+          - markdown
+          - docx
+      - key: strategy_report
+        title: 策略报告
+        viewer: ./dist/ui/StrategyReportViewer.js
+        exporter:
+          - markdown
+          - pdf
+      - key: presentation_deck
+        title: 演示稿
+        viewer: ./dist/ui/PresentationDeckViewer.js
+        exporter:
+          - pptx
+          - pdf
+
+  lime.workflow:
+    definitions: ./workflows/
+    checkpoint: true
+    maxDuration: 3600s
+
+  lime.policy:
+    permissions: ./policies/permissions.yaml
+    costLimits: ./policies/cost_limits.yaml
+
+  lime.evidence:
+    retention: 90d
+    export: true
+
+  lime.secrets:
+    slots:
+      - key: publishing_workspace_token
+        title: 发布渠道令牌
+        required: false
+        provider: external_service

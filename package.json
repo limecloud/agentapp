@@ -1,6 +1,6 @@
 {
   "name": "agentapp-ref",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "type": "module",
   "description": "Reference CLI and documentation for Agent App packages.",
   "homepage": "https://limecloud.github.io/agentapp/",

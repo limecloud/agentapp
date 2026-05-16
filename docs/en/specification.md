@@ -1,6 +1,6 @@
 ---
 title: Specification
-description: Agent App v0.3 executable package and Capability SDK contract.
+description: Agent App v0.5 executable package and Capability SDK contract.
 ---
 
 # Specification
@@ -8,6 +8,8 @@ description: Agent App v0.3 executable package and Capability SDK contract.
 Agent App defines a complete installable application package for agent hosts. It is not a Markdown prompt and not a single chat expert. An app may include real UI bundles, worker or service code, data models, migrations, business workflows, agent entries, Skills, Knowledge bindings, Tools, Artifacts, Policies, and Evals.
 
 `APP.md` remains the required discovery entry. Hosts read it first for manifest data, human guidance, and progressive loading hints. But `APP.md` is only declaration and guidance; business capability must be implemented by the runtime package and by calls through the Lime Capability SDK.
+
+v0.5 absorbs the discovery and authoring discipline of the [Agent Skills standard](https://agentskills.io). `APP.md` frontmatter stays small while detailed configuration moves into independent files. New `triggers` and `quickstart` fields drive AI auto-discovery and first-launch UX. The `skills/` directory standardizes how apps bundle or reference Agent Skills. New independent files cover readiness self-check, error codes, signature, i18n, and runtime health, so authors opt in only what they need.
 
 ## Goals
 
@@ -39,6 +41,12 @@ Apps must not import Lime internal modules or bypass host services. Every platfo
 app-name/
 ├── APP.md                    # required: discovery manifest + app guide
 ├── app.manifest.json         # optional: separated machine manifest
+├── app.capabilities.yaml     # v0.5 optional: detailed capability config
+├── app.entries.yaml          # v0.5 optional: detailed entry config
+├── app.permissions.yaml      # v0.5 optional: permission config
+├── app.errors.yaml           # v0.5 optional: standardized error codes
+├── app.i18n.yaml             # v0.5 optional: i18n config
+├── app.signature.yaml        # v0.5 optional: signature and trust chain
 ├── dist/
 │   ├── ui/                   # optional: real UI bundle, route manifest, assets
 │   ├── worker/               # optional: business workers, background tasks, long-running jobs
@@ -48,16 +56,21 @@ app-name/
 │   └── migrations/           # optional: versioned migration scripts
 ├── workflows/                # optional: business workflow, state machine, human review nodes
 ├── agents/                   # optional: expert-chat personas and conversation entries
-├── skills/                   # optional: bundled or referenced Agent Skill packages
+├── skills/                   # v0.5 standardized: bundled Agent Skill packages (with SKILL.md)
 ├── knowledge-templates/      # optional: Agent Knowledge binding slot templates
 ├── artifacts/                # optional: artifact schemas, viewers, exporters, examples
 ├── evals/                    # optional: quality gates, readiness checks, regression fixtures
+│   ├── readiness.yaml        # v0.5 optional: self-check model
+│   └── health.yaml           # v0.5 optional: runtime health checks
 ├── policies/                 # optional: permissions, data boundaries, cost and risk policies
+├── locales/                  # v0.5 optional: i18n translation files
 ├── assets/                   # optional: icons, screenshots, templates, sample media
 └── examples/                 # optional: sample workspaces, inputs, outputs, replays
 ```
 
 Only `APP.md` is mandatory. Compatible hosts must read `APP.md` and catalog metadata first, then progressively load the runtime package according to user action, readiness, permission, and capability version checks.
+
+v0.5 introduces the layered configuration principle: `APP.md` carries only discovery metadata and human-readable guidance, while complex configuration (capabilities, entries, permissions, errors, i18n, signature) moves into independent `app.*.yaml` files when needed, preventing frontmatter bloat.
 
 ## `APP.md`
 
@@ -82,6 +95,8 @@ The frontmatter is the machine entry for installation and projection. The body i
 | `manifestVersion` | Agent App manifest version. |
 | `runtimeTargets` | `local`, `hybrid`, or `server-assisted`. `local` means execution happens in the local host runtime. |
 | `requires` | Host, SDK, and capability version constraints. |
+| `triggers` | v0.5 new: AI auto-discovery keywords and scenarios. Contains `keywords[]` and `scenarios[]`. |
+| `quickstart` | v0.5 new: recommended first-launch entry and sample workflow. |
 | `runtimePackage` | Locations and hashes for UI, workers, tools, storage, and migrations. |
 | `capabilities` | Required Lime capabilities or adjacent Agent standards. |
 | `permissions` | Permission requests that the host must authorize before install or runtime. |
@@ -90,7 +105,7 @@ The frontmatter is the machine entry for installation and projection. The body i
 | `storage` | App namespace, schema, indexes, migrations, and retention rules. |
 | `services` | Workers, background tasks, tool adapters, schedulers. |
 | `knowledgeTemplates` | Agent Knowledge slots to bind through user, tenant, or workspace overlays. |
-| `skillRefs` | Required or recommended Agent Skill packages. |
+| `skillRefs` | Required or recommended Agent Skill packages. v0.5 prefers the `skills/` directory for bundled Skills. |
 | `toolRefs` | Agent Tool surfaces, external connectors, or ToolHub capabilities. |
 | `artifactTypes` | Artifact contracts, viewers, or exporters the app can produce. |
 | `evals` | Quality gates, readiness checks, regression evals, and human review rules. |
@@ -101,6 +116,58 @@ The frontmatter is the machine entry for installation and projection. The body i
 | `presentation` | App card, icon, category, home copy, and sorting hints. |
 | `compatibility` | Compatibility matrix, fallback policy, and deprecation window. |
 | `metadata` | Namespaced implementation metadata. |
+
+### v0.5 layered configuration
+
+Detailed configuration can move to independent files; the frontmatter keeps only core metadata:
+
+| File | Purpose | Reference |
+| --- | --- | --- |
+| `app.capabilities.yaml` | Detailed capabilities and entries | Loaded by manifest convention |
+| `app.entries.yaml` | Detailed entry config | Loaded by manifest convention |
+| `app.permissions.yaml` | Permissions and policy detail | Loaded by manifest convention |
+| `app.errors.yaml` | Standardized error codes and recovery | Loaded by manifest convention |
+| `app.i18n.yaml` | i18n config | Loaded by manifest convention |
+| `app.signature.yaml` | Signature, trust, and revocation | Loaded by manifest convention |
+| `evals/readiness.yaml` | Readiness self-check model | Loaded by manifest convention |
+| `evals/health.yaml` | Runtime health checks | Loaded by manifest convention |
+
+Hosts load these files by file-name convention while parsing the manifest. When frontmatter and an independent file disagree, the independent file wins.
+
+### v0.5 trigger field
+
+`triggers` helps hosts and AI clients route natural-language requests to the right app, inspired by the Agent Skills practice of putting trigger phrases in `description`:
+
+```yaml
+triggers:
+  keywords:
+    - content
+    - marketing
+    - copywriting
+    - creative
+    - calendar
+  scenarios:
+    - content_planning
+    - batch_generation
+    - asset_management
+```
+
+`keywords` are user-facing semantic terms; `scenarios` are machine-readable identifiers used by catalog indexing, recommendation ranking, and command palettes.
+
+### v0.5 quickstart field
+
+`quickstart` declares the recommended first-launch entry and sample workflow:
+
+```yaml
+quickstart:
+  entry: dashboard
+  sampleWorkflow: content_scenario_planning
+  setupSteps:
+    - bind_knowledge: brand_guidelines
+    - configure_secret: api_key
+```
+
+Hosts use this for onboarding, sample workspaces, and verification checklists.
 
 ## Capability SDK
 
@@ -348,7 +415,270 @@ Readiness should check:
 - storage migrations are complete or waiting for user approval
 - policy allows the requested entry
 
-Readiness may return `ready`, `needs-setup`, or `failed`.
+Readiness may return `ready`, `needs-setup`, or `failed`. v0.5 extends the state set to `ready`, `ready-degraded`, `needs-setup`, `blocked`, and `unknown`.
+
+### v0.5 readiness self-check model
+
+`evals/readiness.yaml` moves readiness from host-coded logic to declarative app intent, in three tiers:
+
+```yaml
+readiness:
+  required:
+    - check: sdk_version
+      expect: ">=0.5.0"
+      blocker: true
+      message: Lime SDK v0.5.0 or higher is required
+    - check: capability_available
+      capability: lime.agent
+      blocker: true
+      message: Content Factory requires Agent Runtime
+    - check: knowledge_bound
+      template: brand_guidelines
+      blocker: true
+      message: Bind a brand guidelines knowledge pack first
+  recommended:
+    - check: knowledge_bound
+      template: product_catalog
+      blocker: false
+      message: Bind product catalog to improve content quality
+  performance:
+    - check: storage_quota
+      expect: ">= 100MB"
+      blocker: false
+      message: At least 100MB of storage is recommended
+```
+
+| Tier | On failure | State mapping |
+| --- | --- | --- |
+| `required` | Block launch | `needs-setup` or `blocked` |
+| `recommended` | Warn but allow | `ready-degraded` |
+| `performance` | Inform | `ready` or `ready-degraded` |
+
+Hosts must surface failures to the user and provide `setupActions[]` pointing to a fix flow.
+
+## v0.5 health checks
+
+`evals/health.yaml` describes runtime health observation:
+
+```yaml
+health:
+  startup:
+    - check: sdk_connection
+      timeout: 5s
+      critical: true
+    - check: storage_accessible
+      timeout: 3s
+      critical: true
+    - check: ui_bundle_loaded
+      timeout: 10s
+      critical: true
+  runtime:
+    - check: agent_runtime_available
+      interval: 60s
+      critical: false
+    - check: knowledge_sync_status
+      interval: 300s
+      critical: false
+  metrics:
+    - metric: task_success_rate
+      threshold: "> 0.8"
+      alert: true
+    - metric: average_task_duration
+      threshold: "< 30s"
+      alert: false
+```
+
+Failed `startup` checks regress readiness to `blocked`. Failed `runtime` checks trigger degradation or auto-recovery. `metrics` feed the host observability surface. Health checks must not run app business logic; they only read host-observable signals.
+
+## v0.5 standardized error codes
+
+`app.errors.yaml` turns error strings into a stable contract:
+
+```yaml
+errors:
+  CAPABILITY_NOT_AVAILABLE:
+    code: APP_E001
+    message: Required capability is not available
+    recovery: Check Lime version and capability configuration
+    userAction: Ask an admin to enable the capability
+  PERMISSION_DENIED:
+    code: APP_E002
+    message: Permission denied
+    recovery: Request user authorization
+    userAction: Grant permission in Settings
+  AGENT_TASK_FAILED:
+    code: APP_E101
+    message: Agent task failed
+    recovery: Check inputs and model availability
+    userAction: Retry or adjust input
+    retryable: true
+    maxRetries: 3
+```
+
+Code ranges:
+
+- `APP_E0xx` SDK / permission / configuration errors
+- `APP_E1xx` Agent task errors
+- `APP_E2xx` Storage errors
+- `APP_E3xx` Workflow errors
+- `APP_E9xx` Uncategorized errors
+
+Hosts pass error codes through evidence and telemetry; UIs render `userAction` as guidance; `retryable: true` errors must support manual or automatic retry.
+
+## v0.5 i18n configuration
+
+`app.i18n.yaml` standardizes localization so each app does not reinvent it:
+
+```yaml
+i18n:
+  defaultLocale: en-US
+  supportedLocales:
+    - zh-CN
+    - zh-TW
+    - en-US
+    - ja-JP
+    - ko-KR
+  translations:
+    zh-CN: ./locales/zh-CN.json
+    zh-TW: ./locales/zh-TW.json
+    en-US: ./locales/en-US.json
+    ja-JP: ./locales/ja-JP.json
+    ko-KR: ./locales/ko-KR.json
+  fallback:
+    zh-TW: zh-CN
+    ja-JP: en-US
+    ko-KR: en-US
+```
+
+Translation files are flat or nested JSON covering entries, errors, workflows, and UI copy. Hosts surface the active locale through `lime.ui.getLocale()`; apps stop guessing the host language.
+
+## v0.5 package signing and revocation
+
+`app.signature.yaml` describes signature, trust chain, and revocation:
+
+```yaml
+signature:
+  package:
+    algorithm: sha256
+    hash: aaaa...aaaa
+    signedBy: sigstore
+    signatureRef: sigstore:content-factory-app@0.5.0
+    timestamp: 2026-05-16T00:00:00Z
+  manifest:
+    algorithm: sha256
+    hash: bbbb...bbbb
+    signedBy: sigstore
+  trust:
+    publisher: Lime Official
+    publisherId: lime-official
+    verifiedDomain: limecloud.example
+  revocation:
+    checkUrl: https://revoke.limecloud.example/check
+    cacheSeconds: 3600
+```
+
+Hosts must verify in this order:
+
+1. Verify packageHash and manifest hash.
+2. Verify the sigstore signature.
+3. Call `revocation.checkUrl` (with cache) for revocation status.
+4. Verify publisher and verifiedDomain.
+5. Block install and alert on any failure.
+
+Signature verification does not replace Cloud release checks; it is a package-level repeatable verification.
+
+## v0.5 Skills integration
+
+Inspired by [Agent Skills](https://agentskills.io), apps may bundle or reference Skills, all called through the SDK.
+
+`skills/` directory convention:
+
+```text
+skills/
+└── content_ideation/
+    ├── SKILL.md            # required: Skill metadata + guidance
+    └── scripts/            # optional: helper scripts or fixtures
+```
+
+`SKILL.md` follows the Agent Skills standard. The app manifest does not duplicate Skill internals; it only declares activation:
+
+```yaml
+skills:
+  bundled:
+    - path: ./skills/content_ideation
+      activation: auto
+    - path: ./skills/copywriting
+      activation: on-demand
+  references:
+    - id: anthropic/marketing-skills/seo-optimization
+      version: ^1.0.0
+      activation: on-demand
+      required: false
+```
+
+Activation modes:
+
+- `auto`: host loads the Skill at startup into the agent context.
+- `on-demand`: agent matches by description during task execution.
+- `manual`: user enables explicitly.
+
+Skill execution still goes through `lime.agent`; apps must not spawn Skill processes directly, which would bypass readiness, policy, and evidence.
+
+## Workflow descriptor v0.5 enhancements
+
+v0.5 keeps the v0.3 state machine and adds human-readable overview, mermaid diagrams, and unified recovery policy:
+
+```yaml
+workflow:
+  key: content_scenario_planning
+  title: Content scenario planning
+  overview: |
+    1. User inputs topic and audience
+    2. Agent generates multiple scenarios
+    3. User reviews and adjusts
+    4. Save to content calendar
+  diagram: |
+    flowchart TD
+      A[Input topic] --> B[Agent analysis]
+      B --> C[Generate scenarios]
+      C --> D{User review}
+      D -->|approve| E[Save calendar]
+      D -->|modify| C
+      D -->|reject| F[Replan]
+  states:
+    - key: input_topic
+      kind: user-input
+      next: analyze_topic
+    - key: analyze_topic
+      kind: agent-task
+      entry: content_ideation
+      timeout: 60s
+      next: generate_scenarios
+      onError: show_error_and_retry
+  recovery:
+    onTimeout: retry_with_longer_timeout
+    onError: show_error_and_allow_retry
+    maxRetries: 3
+    saveCheckpoint: true
+```
+
+`recovery` is required in v0.5: hosts implement checkpoint resumption, timeout retry, and error fallback. `overview` and `diagram` are for humans, AI clients, and reviewers; they are not executed.
+
+## v0.5 APP.md body conventions
+
+Inspired by Agent Skills' SKILL.md structure, the APP.md body (Markdown after frontmatter) is recommended to follow these sections:
+
+| Section | Purpose | Audience |
+| --- | --- | --- |
+| `## When to Use` | App scenarios | Users, AI clients |
+| `## Not Suitable For` | Reverse scenarios to avoid misuse | Users, AI clients |
+| `## Workflow` | High-level business flow | Users |
+| `## Quickstart` | Install, setup, first-launch sample commands | Authors, users |
+| `## Red Flags` | Self-check: is current usage off the rails | Users, reviewers |
+| `## Verification Checklist` | Post-install capability self-check | Users |
+| `## Troubleshooting` | Common issues and diagnostic commands | Users |
+
+These sections are not mandatory schema, but hosts and catalogs may parse them to generate onboarding, install checklists, and user docs.
 
 ## Security rules
 

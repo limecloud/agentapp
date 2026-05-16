@@ -1,0 +1,61 @@
+# Agent App v0.5 detailed permissions config
+# Permission requests, scope, and host policy hints.
+
+permissions:
+  - key: read_selected_files
+    scope: filesystem
+    access: read
+    required: true
+    reason: 读取用户主动选择的资料文件，用于知识库构建。
+    reasonI18n:
+      en-US: Read user-selected source files to build the knowledge base.
+      zh-CN: 读取用户主动选择的资料文件，用于知识库构建。
+    consentPrompt: 内容工厂需要读取你选择的素材文件
+    policyHints:
+      auditTrail: required
+      maxFilesPerRequest: 50
+
+  - key: call_content_tools
+    scope: tool
+    access: execute
+    required: true
+    reason: 调用文档解析、调研和导出工具。
+    reasonI18n:
+      en-US: Invoke document parser, research, and export tools.
+      zh-CN: 调用文档解析、调研和导出工具。
+    consentPrompt: 内容工厂需要调用 ToolHub 中的内容工具
+    policyHints:
+      auditTrail: required
+
+  - key: write_app_storage
+    scope: storage
+    access: write
+    required: true
+    reason: 在 App namespace 写入内容场景、资产、引用关系。
+    reasonI18n:
+      en-US: Write content scenarios, assets, and citations into the app namespace.
+      zh-CN: 在 App namespace 写入内容场景、资产、引用关系。
+    consentPrompt: 允许内容工厂在自己的存储空间写入数据
+    policyHints:
+      retention: ask-on-uninstall
+
+  - key: invoke_agent_tasks
+    scope: agent
+    access: execute
+    required: true
+    reason: 启动 App 作用域的 Agent 任务用于知识抽取、内容生成、策略复盘。
+    reasonI18n:
+      en-US: Start app-scoped agent tasks for knowledge extraction, content generation, and review.
+      zh-CN: 启动 App 作用域的 Agent 任务用于知识抽取、内容生成、策略复盘。
+    consentPrompt: 允许内容工厂调用 Agent 任务运行时
+    policyHints:
+      costLimitRequired: true
+
+policy:
+  defaultModel: claude-opus
+  costLimit:
+    monthly: 100
+    perTask: 1
+  riskBoundaries:
+    - block_external_network: true
+    - require_human_review_for_external_publishing: true

@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.5.0
+
+- Inspired by the [Agent Skills standard](https://agentskills.io), introduces a layered manifest model that simplifies `APP.md` frontmatter and moves detailed configuration into independent files (`app.capabilities.yaml`, `app.entries.yaml`, `app.permissions.yaml`, `app.errors.yaml`, `app.i18n.yaml`, `app.signature.yaml`).
+- Adds `triggers` field with keywords and scenarios to improve AI auto-discovery accuracy.
+- Adds `quickstart` field for first-launch entry and sample workflow guidance.
+- Standardizes `skills/` directory for bundled and referenced Agent Skills, supporting `auto`, `on-demand`, and `manual` activation modes.
+- Introduces `evals/readiness.yaml` self-check model with `required`, `recommended`, and `performance` checks; readiness state extended to `ready`, `ready-degraded`, `needs-setup`, `blocked`, `unknown`.
+- Standardizes error codes via `app.errors.yaml` with stable codes, recovery strategies, retryability, and user-facing actions.
+- Strengthens package signing with `app.signature.yaml` covering sigstore signature reference, trust chain, and revocation check.
+- Adds `app.i18n.yaml` for first-class internationalization with default locale, supported locales, translation files, and fallback strategy.
+- Adds `evals/health.yaml` for startup, runtime, and metric-based health checks.
+- Improves workflow descriptors with mermaid diagrams, human-readable overviews, and recovery policies (`onTimeout`, `onError`, `maxRetries`, `saveCheckpoint`).
+- Enhances `APP.md` body conventions with "When to Use", "Not Suitable For", "Red Flags", "Verification Checklist", and "Troubleshooting" sections.
+- Reference CLI gains `migrate-check` and `migrate-generate` commands for v0.4 → v0.5 migration; `validate` accepts `--version` flag.
+- Backward compatible: v0.4 manifests remain valid; new fields are optional except in `manifestVersion: 0.5.0` packages where lifecycle and readiness expectations apply.
+
 ## 0.4.0
 
 - Documents Host Bridge v1 as the standard `lime.agentApp.bridge` runtime event protocol for sandboxed Agent App UI.

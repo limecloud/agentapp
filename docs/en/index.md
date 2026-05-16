@@ -6,7 +6,7 @@ description: Installable agent application packages.
 hero:
   name: Agent App
   text: Executable intelligent applications.
-  tagline: "A v0.3 package standard for complete intelligent apps with UI, workflows, storage, typed SDK calls, overlays, and readiness checks."
+  tagline: "A v0.5 package standard for complete intelligent apps with UI, workflows, storage, typed SDK calls, overlays, readiness, layered manifests, AI auto-discovery triggers, bundled Skills, standardized error codes, signing, i18n, and runtime health."
   actions:
     - theme: brand
       text: Read specification
@@ -62,9 +62,9 @@ features:
 | Standards reviewer | [Specification](./specification.md) | JSON Schemas, glossary, version notes. |
 | Product planner | [What is Agent App?](./what-is-agent-app.md) | App vs Skills and Knowledge, examples, mini-program analogy. |
 
-## v0.3 promise
+## v0.5 promise
 
-A v0.3 app should be understandable before execution, installable without changing host core, runnable through typed capability handles, and removable with a clear cleanup plan. If a package cannot explain its entries, permissions, data boundary, runtime assets, and quality gates from documentation and manifest fields, it is not ready to be distributed as an Agent App.
+A v0.5 app should be understandable before execution, installable without changing host core, runnable through typed capability handles, and removable with a clear cleanup plan. APP.md frontmatter stays small while detailed configuration moves into layered files. `triggers` and `quickstart` let AI clients route requests correctly. `skills/` bundles Agent Skills. `evals/readiness.yaml` shifts readiness from host-coded logic to declarative app intent. `app.errors.yaml` provides stable error codes and recovery. `app.signature.yaml` strengthens signing and revocation. `app.i18n.yaml` makes i18n first-class. If a package cannot explain its entries, permissions, data boundary, runtime assets, and quality gates from documentation and manifest fields, it is not ready to be distributed as an Agent App.
 
 ## What a complete app page should answer
 

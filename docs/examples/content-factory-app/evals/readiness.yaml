@@ -1,0 +1,72 @@
+# Agent App v0.5 readiness self-check model
+# Three tiers: required (blockers), recommended (warnings), performance (info).
+
+readiness:
+  required:
+    - check: sdk_version
+      expect: ">=0.5.0"
+      blocker: true
+      message: 需要 Lime SDK v0.5.0 或更高版本
+      remediation: 升级 Lime Desktop
+
+    - check: capability_available
+      capability: lime.agent
+      blocker: true
+      message: 内容工厂需要 Agent Runtime 能力
+      remediation: 启用 lime.agent capability
+
+    - check: capability_available
+      capability: lime.knowledge
+      blocker: true
+      message: 内容工厂需要 Knowledge 能力
+      remediation: 启用 lime.knowledge capability
+
+    - check: knowledge_bound
+      template: project_knowledge
+      blocker: true
+      message: 请先绑定项目知识库
+      remediation: 在设置中绑定 project_knowledge
+
+    - check: tool_available
+      tool: document_parser
+      blocker: true
+      message: 文档解析工具不可用
+      remediation: 在 ToolHub 启用 document_parser
+
+    - check: permission_granted
+      permission: read_selected_files
+      blocker: true
+      message: 需要文件读取权限
+      remediation: 在设置中授予权限
+
+  recommended:
+    - check: knowledge_bound
+      template: content_operations
+      blocker: false
+      message: 建议绑定运营知识库以提升复盘质量
+      remediation: 绑定 content_operations knowledge pack
+
+    - check: tool_available
+      tool: competitor_research
+      blocker: false
+      message: 建议启用竞品调研工具
+      remediation: 在 ToolHub 启用 competitor_research
+
+    - check: tool_available
+      tool: presentation_export
+      blocker: false
+      message: 建议启用演示稿导出工具
+      remediation: 在 ToolHub 启用 presentation_export
+
+  performance:
+    - check: storage_quota
+      expect: ">= 100MB"
+      blocker: false
+      message: 建议至少 100MB 存储空间
+      remediation: 清理旧数据或申请更多配额
+
+    - check: agent_cost_budget
+      expect: ">= 10 USD"
+      blocker: false
+      message: 建议每月至少 10 USD 模型预算
+      remediation: 联系管理员调整预算
