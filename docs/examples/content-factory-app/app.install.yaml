@@ -1,0 +1,33 @@
+install:
+  modes:
+    - in_lime
+    - standalone
+    - runtime_backed
+  runtime:
+    minVersion: 0.8.0
+    distribution:
+      standalone:
+        embedRuntime: true
+        shell: lime-app-shell
+      runtimeBacked:
+        requires: lime-runtime
+        minVersion: 0.8.0
+  standalone:
+    shell: lime-app-shell
+    bundleId: ai.limecloud.contentfactory
+    platforms:
+      - macos
+      - windows
+    autoUpdate: true
+  runtimeBacked:
+    requires: lime-runtime
+    minVersion: 0.8.0
+  branding:
+    name: Content Factory
+    icon: ./assets/icon.svg
+    windowTitle: Content Factory
+  compatibility:
+    hosts:
+      limeDesktop: ">=0.8.0 <1.0.0"
+      limeAppShell: ">=0.8.0 <1.0.0"
+      webHost: optional

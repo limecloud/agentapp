@@ -297,6 +297,11 @@
       "description": "v0.7: operation side effect and approval contracts.",
       "items": { "type": "object", "additionalProperties": true }
     },
+    "install": {
+      "type": "object",
+      "description": "v0.8: install modes, runtime relationship, standalone shell metadata, and runtime-backed constraints.",
+      "additionalProperties": true
+    },
     "provenance": {
       "$ref": "#/$defs/provenance"
     }

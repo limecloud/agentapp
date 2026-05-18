@@ -4,10 +4,10 @@ import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { basename, dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const cliVersion = '0.7.0'
+const cliVersion = '0.8.0'
 const currentEntryKinds = new Set(['page', 'panel', 'expert-chat', 'command', 'workflow', 'artifact', 'background-task', 'settings'])
 const legacyEntryKinds = new Set(['home', 'scene'])
-const supportedManifestVersions = new Set(['0.3.0', '0.4.0', '0.5.0', '0.6.0', '0.7.0'])
+const supportedManifestVersions = new Set(['0.3.0', '0.4.0', '0.5.0', '0.6.0', '0.7.0', '0.8.0'])
 const v05LayeredFiles = [
   'app.capabilities.yaml',
   'app.entries.yaml',
@@ -25,6 +25,7 @@ const v07LayeredFiles = [
   'app.integrations.yaml',
   'app.operations.yaml'
 ]
+const v08LayeredFiles = ['app.install.yaml']
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 
 function main() {
@@ -64,13 +65,13 @@ function printHelp() {
   console.log(`agentapp-ref ${cliVersion}
 
 Usage:
-  agentapp-ref validate <app> [--version <0.3|0.4|0.5|0.6|0.7>]
+  agentapp-ref validate <app> [--version <0.3|0.4|0.5|0.6|0.7|0.8>]
   agentapp-ref read-properties <app>
   agentapp-ref to-catalog <app>
   agentapp-ref project <app>
   agentapp-ref readiness <app> [--workspace <path>]
-  agentapp-ref migrate-check <app> [--target 0.7.0]
-  agentapp-ref migrate-generate <app> [--target 0.7.0]
+  agentapp-ref migrate-check <app> [--target 0.8.0]
+  agentapp-ref migrate-generate <app> [--target 0.8.0]
 
 Commands:
   validate          Validate APP.md shape and local references.
@@ -78,8 +79,8 @@ Commands:
   to-catalog        Emit compact app catalog metadata.
   project           Emit host catalog projection with provenance.
   readiness         Check static setup readiness without running an agent.
-  migrate-check     Inspect a v0.3-v0.6 app and report v0.7 migration gaps.
-  migrate-generate  Suggest v0.7 boundary, integration, operation, and delivery files for an existing app.
+  migrate-check     Inspect an older app and report current-version migration gaps.
+  migrate-generate  Suggest layered runtime, boundary, operation, and install files for an existing app.
 
 Output:
   JSON is written to stdout. Diagnostics are written to stderr.
@@ -123,14 +124,17 @@ function validateApp(appPath, options = []) {
   }
 
   const effectiveVersion = targetVersion || properties.manifestVersion || '0.4.0'
-  if (['0.5.0', '0.6.0', '0.7.0'].includes(effectiveVersion)) {
+  if (['0.5.0', '0.6.0', '0.7.0', '0.8.0'].includes(effectiveVersion)) {
     checkV05Conventions(appRoot, properties, findings)
   }
-  if (['0.6.0', '0.7.0'].includes(effectiveVersion)) {
+  if (['0.6.0', '0.7.0', '0.8.0'].includes(effectiveVersion)) {
     checkV06Conventions(appRoot, properties, findings)
   }
-  if (effectiveVersion === '0.7.0') {
+  if (['0.7.0', '0.8.0'].includes(effectiveVersion)) {
     checkV07Conventions(appRoot, properties, findings)
+  }
+  if (effectiveVersion === '0.8.0') {
+    checkV08Conventions(appRoot, properties, findings)
   }
 
   checkEntries(properties.entries, properties, findings)
@@ -168,6 +172,7 @@ function toCatalog(appPath) {
     'requires',
     'entries',
     'capabilities',
+    'install',
     'ui',
     'storage',
     'services',
@@ -226,6 +231,7 @@ function projectApp(appPath) {
     boundary: properties.boundary || readLayeredYaml(appRoot, 'app.boundary.yaml') || {},
     integrations: properties.integrations || readLayeredYaml(appRoot, 'app.integrations.yaml')?.integrations || [],
     operations: properties.operations || readLayeredYaml(appRoot, 'app.operations.yaml')?.operations || [],
+    install: properties.install || readLayeredYaml(appRoot, 'app.install.yaml')?.install || {},
     provenance
   }
 }
@@ -247,9 +253,11 @@ function readiness(appPath, args) {
   addRequirementChecks('overlay', properties.overlayTemplates, checks)
   const integrations = readLayeredYaml(appRoot, 'app.integrations.yaml')?.integrations
   const operations = readLayeredYaml(appRoot, 'app.operations.yaml')?.operations
+  const install = properties.install || readLayeredYaml(appRoot, 'app.install.yaml')?.install
   addRequirementChecks('integration', integrations, checks)
   addRequirementChecks('operation', operations, checks)
   addCapabilityChecks(properties.requires?.capabilities, checks)
+  addInstallChecks(install, checks)
 
   if (workspace && (!existsSync(resolve(workspace)) || !statSync(resolve(workspace)).isDirectory())) {
     checks.push({ severity: 'error', kind: 'workspace', key: workspace, message: 'Workspace path is not a directory.' })
@@ -307,6 +315,29 @@ function addCapabilityChecks(capabilities, checks) {
       required: true,
       version: range,
       message: `Host must satisfy capability ${key}@${range}.`
+    })
+  }
+}
+
+function addInstallChecks(install, checks) {
+  if (!install || typeof install !== 'object' || Array.isArray(install)) return
+  const modes = asArray(install.modes)
+  if (modes.includes('standalone')) {
+    checks.push({
+      severity: 'info',
+      kind: 'install',
+      key: 'standalone',
+      required: false,
+      message: 'Standalone packaging requires a compatible App Shell and local Runtime profile.'
+    })
+  }
+  if (modes.includes('runtime_backed')) {
+    checks.push({
+      severity: 'info',
+      kind: 'install',
+      key: 'runtime_backed',
+      required: false,
+      message: 'Runtime-backed packaging requires a system Lime Runtime that satisfies install.runtime constraints.'
     })
   }
 }
@@ -513,6 +544,7 @@ function parseVersionFlag(args) {
   if (/^0\.5(\.\d+)?$/.test(raw)) return '0.5.0'
   if (/^0\.6(\.\d+)?$/.test(raw)) return '0.6.0'
   if (/^0\.7(\.\d+)?$/.test(raw)) return '0.7.0'
+  if (/^0\.8(\.\d+)?$/.test(raw)) return '0.8.0'
   return raw
 }
 
@@ -641,6 +673,38 @@ function checkV07Conventions(appRoot, properties, findings) {
   }
 }
 
+function checkV08Conventions(appRoot, properties, findings) {
+  const installYaml = readLayeredYaml(appRoot, 'app.install.yaml')
+  const install = properties.install || installYaml?.install
+  if (isProductLevel(properties) && !install) {
+    findings.push(warningFinding('app.install.yaml', 'v0.8 recommends app.install.yaml so in-lime, standalone, and runtime-backed installation modes are explicit.'))
+    return
+  }
+  if (!install || typeof install !== 'object' || Array.isArray(install)) return
+
+  const modes = asArray(install.modes)
+  if (!modes.length) {
+    findings.push(warningFinding('app.install.yaml', 'v0.8 install.modes should include at least one of in_lime, standalone, or runtime_backed.'))
+  }
+  for (const mode of modes) {
+    if (!['in_lime', 'standalone', 'runtime_backed', 'web_host'].includes(mode)) {
+      findings.push(warningFinding('app.install.yaml', `Unknown v0.8 install mode: ${mode}.`))
+    }
+  }
+  if ((modes.includes('standalone') || modes.includes('runtime_backed')) && !install.runtime) {
+    findings.push(warningFinding('app.install.yaml', 'Standalone or runtime-backed apps should declare install.runtime constraints.'))
+  }
+  if (modes.includes('standalone') && !install.standalone?.shell) {
+    findings.push(warningFinding('app.install.yaml', 'Standalone apps should declare install.standalone.shell, for example lime-app-shell.'))
+  }
+  if (modes.includes('standalone') && (!properties.presentation?.icon && !install.branding?.icon)) {
+    findings.push(warningFinding('app.install.yaml', 'Standalone apps should declare an icon through presentation.icon or install.branding.icon.'))
+  }
+  if (modes.includes('runtime_backed') && !install.runtimeBacked?.requires) {
+    findings.push(warningFinding('app.install.yaml', 'Runtime-backed apps should declare install.runtimeBacked.requires, for example lime-runtime.'))
+  }
+}
+
 function usesLimeAgent(properties) {
   const requiredCapabilities = properties.requires?.capabilities
   if (Array.isArray(requiredCapabilities) && requiredCapabilities.includes('lime.agent')) return true
@@ -662,7 +726,7 @@ function migrateCheck(appPath, options = []) {
     return envelope(false, 'failed', 'migrate-check', basename(appRoot), findings)
   }
   const properties = readAppProperties(appMd)
-  const target = parseVersionFlag(options) || '0.7.0'
+  const target = parseVersionFlag(options) || '0.8.0'
   const sourceVersion = properties.manifestVersion || '0.3.0'
   const gaps = []
 
@@ -670,7 +734,7 @@ function migrateCheck(appPath, options = []) {
     findings.push({ severity: 'info', path: 'APP.md', message: `Already on manifestVersion ${target}. No migration required.` })
   }
 
-  if (['0.5.0', '0.6.0', '0.7.0'].includes(target)) {
+  if (['0.5.0', '0.6.0', '0.7.0', '0.8.0'].includes(target)) {
     if (!properties.triggers) gaps.push({ field: 'triggers', suggestion: 'Add triggers.keywords and triggers.scenarios to APP.md frontmatter.' })
     if (!properties.quickstart) gaps.push({ field: 'quickstart', suggestion: 'Add quickstart.entry pointing to a default entry key.' })
     if (!properties.skills) gaps.push({ field: 'skills', suggestion: 'Move skillRefs into skills.bundled / skills.references and add SKILL.md under skills/.' })
@@ -684,7 +748,7 @@ function migrateCheck(appPath, options = []) {
       gaps.push({ field: 'locales/', suggestion: 'Add locales/ directory with translation files for supported locales.' })
     }
   }
-  if (['0.6.0', '0.7.0'].includes(target)) {
+  if (['0.6.0', '0.7.0', '0.8.0'].includes(target)) {
     for (const file of v06LayeredFiles) {
       if (!existsSync(join(appRoot, file))) {
         gaps.push({ field: file, suggestion: `Create ${file} for v0.6 Agent task runtime contracts.` })
@@ -694,11 +758,21 @@ function migrateCheck(appPath, options = []) {
       gaps.push({ field: 'agentRuntime', suggestion: 'Declare agentRuntime policies for structured output, approvals, session resume/fork, tool discovery, checkpoint scope, and observability.' })
     }
   }
-  if (target === '0.7.0') {
+  if (['0.7.0', '0.8.0'].includes(target)) {
     for (const file of v07LayeredFiles) {
       if (!existsSync(join(appRoot, file))) {
         gaps.push({ field: file, suggestion: `Create ${file} for v0.7 requirement boundary and capability handoff contracts.` })
       }
+    }
+  }
+  if (target === '0.8.0') {
+    for (const file of v08LayeredFiles) {
+      if (!existsSync(join(appRoot, file))) {
+        gaps.push({ field: file, suggestion: `Create ${file} for v0.8 standalone installation and runtime separation contracts.` })
+      }
+    }
+    if (!properties.install && !existsSync(join(appRoot, 'app.install.yaml'))) {
+      gaps.push({ field: 'install', suggestion: 'Declare install.modes with in_lime, standalone, runtime_backed, or web_host support.' })
     }
   }
 
@@ -719,10 +793,10 @@ function migrateGenerate(appPath, options = []) {
     return envelope(false, 'failed', 'migrate-generate', basename(appRoot), [errorFinding('APP.md', 'Missing required APP.md.')])
   }
   const properties = readAppProperties(appMd)
-  const target = parseVersionFlag(options) || '0.7.0'
+  const target = parseVersionFlag(options) || '0.8.0'
   const suggestions = {}
 
-  if (['0.5.0', '0.6.0', '0.7.0'].includes(target)) {
+  if (['0.5.0', '0.6.0', '0.7.0', '0.8.0'].includes(target)) {
     suggestions['APP.md.frontmatter'] = {
       manifestVersion: target,
       triggers: properties.triggers || {
@@ -739,14 +813,17 @@ function migrateGenerate(appPath, options = []) {
     suggestions['evals/health.yaml'] = sampleHealthYaml()
     suggestions['app.signature.yaml'] = sampleSignatureYaml(properties.name || 'app', properties.version || target)
   }
-  if (['0.6.0', '0.7.0'].includes(target)) {
+  if (['0.6.0', '0.7.0', '0.8.0'].includes(target)) {
     suggestions['app.runtime.yaml'] = sampleRuntimeYaml()
   }
-  if (target === '0.7.0') {
+  if (['0.7.0', '0.8.0'].includes(target)) {
     suggestions['app.requirements.yaml'] = sampleRequirementsYaml()
     suggestions['app.boundary.yaml'] = sampleBoundaryYaml()
     suggestions['app.integrations.yaml'] = sampleIntegrationsYaml()
     suggestions['app.operations.yaml'] = sampleOperationsYaml()
+  }
+  if (target === '0.8.0') {
+    suggestions['app.install.yaml'] = sampleInstallYaml()
   }
 
   return envelope(true, 'ready', 'migrate-generate', basename(appRoot), [], {
@@ -921,6 +998,36 @@ function sampleOperationsYaml() {
     '    dryRunRequired: true',
     '    evidenceRequired: true',
     '    autoExecute: false'
+  ].join('\n')
+}
+
+function sampleInstallYaml() {
+  return [
+    'install:',
+    '  modes:',
+    '    - in_lime',
+    '    - standalone',
+    '    - runtime_backed',
+    '  runtime:',
+    '    minVersion: 0.8.0',
+    '    distribution:',
+    '      standalone:',
+    '        embedRuntime: true',
+    '        shell: lime-app-shell',
+    '      runtimeBacked:',
+    '        requires: lime-runtime',
+    '        minVersion: 0.8.0',
+    '  standalone:',
+    '    shell: lime-app-shell',
+    '    bundleId: ai.limecloud.example',
+    '    platforms: [macos, windows]',
+    '  runtimeBacked:',
+    '    requires: lime-runtime',
+    '    minVersion: 0.8.0',
+    '  branding:',
+    '    name: Example Agent App',
+    '    icon: ./assets/icon.png',
+    '    windowTitle: Example Agent App'
   ].join('\n')
 }
 

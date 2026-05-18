@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Content Factory icon">
+  <rect width="128" height="128" rx="28" fill="#102a43"/>
+  <path d="M32 38h64v12H32zM32 58h44v12H32zM32 78h64v12H32z" fill="#f7c948"/>
+  <circle cx="91" cy="64" r="14" fill="#2f9e44"/>
+</svg>

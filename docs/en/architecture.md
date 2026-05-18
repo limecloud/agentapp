@@ -1,15 +1,38 @@
 ---
 title: Architecture overview
-description: Project-level architecture, sequence, flow, and state-machine diagrams for Agent App v0.7.
+description: Project-level architecture, sequence, flow, and state-machine diagrams for Agent App v0.8.
 ---
 
 # Architecture overview
 
-This page collects the key structural, requirement-boundary, and runtime diagrams for Agent App v0.7 in one place. The [specification](./specification) defines rules; this page renders them.
+## 0. v0.8 host split
+
+v0.8 separates the product package from the runtime substrate. Lime Desktop remains a full multi-app workspace, but it is no longer the mandatory way to launch every Agent App. Standalone and runtime-backed apps still use the same Capability SDK boundary.
+
+```mermaid
+flowchart TD
+  App[Agent App Package
+UI / Worker / Workflow / Storage] --> SDK[@lime/app-sdk]
+  SDK --> Runtime[Lime Runtime Core
+Agent / Storage / Secrets / Policy / Evidence / Tools]
+  Runtime --> Desktop[Lime Desktop
+Multi-app workspace]
+  Runtime --> Shell[Lime App Shell
+Standalone branded app]
+  Runtime --> Backed[Runtime-backed shell
+Uses system lime-runtime]
+  Runtime --> Web[Compatible Web Host]
+  Desktop --> User[User]
+  Shell --> User
+  Backed --> User
+  Web --> User
+```
+
+This page collects the key structural, install-mode, requirement-boundary, and runtime diagrams for Agent App v0.8 in one place. The [specification](./specification) defines rules; this page renders them.
 
 ## 1. Standard layers
 
-v0.7 inherits v0.6 layering and splits delivery across App, Host, Cloud, connector, external-system, and human-decision planes. The layered manifest and Capability SDK are the stable boundaries; hosts and the Cloud control plane stay on contracts and never on business implementation.
+v0.8 inherits v0.6/v0.7 layering, splits delivery across App, Host, Cloud, connector, external-system, and human-decision planes, and adds install-mode separation across Lime Desktop, Lime App Shell, runtime-backed shells, and compatible web hosts. The layered manifest and Capability SDK are the stable boundaries; hosts and the Cloud control plane stay on contracts and never on business implementation.
 
 ```mermaid
 flowchart TD
@@ -20,10 +43,11 @@ flowchart TD
     Reg[Registration / License]
   end
 
-  subgraph Standard[Agent App v0.7 standard]
+  subgraph Standard[Agent App v0.8 standard]
     APPMD[APP.md frontmatter + sections]
     LAYERED[app.*.yaml layered config]
     BOUNDARY[requirements / boundary / integrations / operations]
+    INSTALL[app.install.yaml / install modes]
     SKILLS[skills/ bundled Skills]
     EVALS[evals/ readiness + health]
     SIG[app.signature.yaml]
@@ -58,6 +82,8 @@ flowchart TD
   LAYERED --> Project
   BOUNDARY --> Project
   BOUNDARY --> Readiness
+  INSTALL --> Project
+  INSTALL --> Readiness
   SKILLS --> SDK
   EVALS --> Readiness
   EVALS --> Health
@@ -361,7 +387,7 @@ flowchart LR
 ## 11. Further reading
 
 - [Specification](./specification): rules, fields, and constraints.
-- [Quickstart](./authoring/quickstart): build a v0.7 package from scratch.
+- [Quickstart](./authoring/quickstart): build a v0.8 package from scratch.
 - [Runtime model](./client-implementation/runtime-model): host implementation detail.
 - [Capability SDK](./client-implementation/capability-sdk): stable capability call contract.
 - [v0.7 snapshot](./versions/v0.7/overview): pinned version notes.

@@ -7,7 +7,7 @@ description: Agent App 是安装到 Lime 等宿主中的完整智能应用包。
 
 Agent App 是面向 Agent 宿主的完整可安装应用包标准。它可以包含真实 UI、业务流程、数据存储、后台任务、Agent 入口、Runtime 意图、Context 需求、Knowledge 绑定、Skill 引用、Tool / Connector 需求、Artifacts、Evidence、Policies 和 QC / Evals。
 
-一句话：**Agent App 是运行在 Lime 平台能力之上的智能应用，不是一个 Markdown 文件，也不是一个聊天专家。**
+一句话：**Agent App 是运行在 Lime Runtime 能力之上的智能应用，不是一个 Markdown 文件，不是一个聊天专家，也不一定要求用户先打开 Lime Desktop。**
 
 `APP.md` 只是发现入口和 manifest 载体；真正的业务能力来自 App runtime package，并通过 Lime Capability SDK 调用平台能力。
 
@@ -20,6 +20,12 @@ Agent App 是面向 Agent 宿主的完整可安装应用包标准。它可以包
 Agent App 应该是用户完成工作的地方：看板、表格、表单、人工确认队列、交付物、设置和内嵌助手都可以在 App 内出现。App 可以声明 Context 需求，并调用 `lime.agent`、`lime.knowledge`、`lime.tools`、`lime.connectors`、`lime.storage`、`lime.artifacts` 和 `lime.evidence`，但用户不应该为了完成 App 核心流程再跳回 Lime 通用聊天框。
 
 这也防止另一个错误方向：App 不应该为了绕开 Lime 而自建模型网关、凭证系统、权限系统、证据系统或工具调度器。那会让 Lime 退化成独立 SaaS 的分发壳。Agent App 要走中间路线：App 拥有业务形态和业务状态；Lime 拥有 Agent 运行时和受治理的平台能力。
+
+## 一等可安装产品
+
+v0.8 把 Lime Desktop 和 Lime Runtime 拆开。Lime Desktop 是多 App 工作台和应用管理器；Lime Runtime 是受治理的能力底座；Lime App Shell 是能把单个 Agent App 包装成独立品牌应用的最小宿主。
+
+这意味着用户可以直接安装“内容工厂”这样的业务 App，而不必先下载或理解 Lime Desktop。App 仍然通过同一套 SDK 调用 `lime.agent`、`lime.storage`、`lime.secrets`、`lime.policy`、`lime.evidence`，所以独立分发不是绕过治理的理由。
 
 ## 和 Lime 专家模块的区别
 
@@ -45,7 +51,7 @@ Lime 专家模块更像“可直接对话的专业助手”，适合快速回答
 | 小程序声明页面、组件、权限、存储。 | Agent App 声明 UI、entries、capabilities、storage、permissions。 |
 | 小程序调用 `wx.*` 能力。 | Agent App 通过 `@lime/app-sdk` 调用 `lime.ui`、`lime.storage`、`lime.agent` 等能力。 |
 | 平台管理审核、发布和权限。 | Cloud / Registry 管 release、tenant enablement、license、policy。 |
-| 客户端运行小程序。 | Lime Desktop 安装并本地运行 App package。 |
+| 客户端运行小程序。 | Lime Desktop、Lime App Shell、runtime-backed shell 或兼容 Web Host 安装并运行 App package。 |
 
 关键不是“像小程序一样长什么样”，而是“宿主开放能力，App 通过稳定 SDK 调用能力”。
 
@@ -59,12 +65,12 @@ Lime 专家模块更像“可直接对话的专业助手”，适合快速回答
 sequenceDiagram
   autonumber
   participant User as 用户
-  participant Lime as Lime 应用中心
+  participant Lime as 应用中心或独立安装器
   participant App as Agent App
   participant Assistant as 智能助手
   participant Result as 结果与记录
 
-  User->>Lime: 搜索或打开一个应用
+  User->>Lime: 搜索、下载或打开一个应用
   Lime-->>User: 展示用途、需要的权限和示例结果
   User->>Lime: 点击安装
   Lime->>App: 安装应用并准备工作区
@@ -111,8 +117,14 @@ flowchart TD
 flowchart TD
   Cloud[Lime Cloud
 Catalog / Release / License / Tenant Enablement] --> Desktop[Lime Desktop
-Install / Cache / Resolver]
+多 App 宿主]
+  Cloud --> Shell[Lime App Shell
+独立宿主]
+  Cloud --> RuntimeBacked[Runtime-backed shell
+系统 lime-runtime]
   Desktop --> Bridge[Capability Bridge]
+  Shell --> Bridge
+  RuntimeBacked --> Bridge
   Bridge --> SDK["@lime/app-sdk"]
   SDK --> App[Agent App Runtime Package
 UI / Worker / Workflow / Storage]
@@ -128,7 +140,7 @@ UI / Worker / Workflow / Storage]
   Bridge --> QC[Agent QC]
 ```
 
-Lime Cloud 可以分发、授权和启用 Agent App。Lime Desktop 负责安装、权限、能力注入和本地运行。Cloud 不应该在默认链路里变成隐藏 Agent Runtime。
+Lime Cloud 可以分发、授权和启用 Agent App。Lime Desktop、Lime App Shell 和 runtime-backed shell 负责安装、权限、能力注入，并通过 Lime Runtime 本地运行。Cloud 不应该在默认链路里变成隐藏 Agent Runtime。
 
 ## Agent App 适合什么
 

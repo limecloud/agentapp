@@ -13,7 +13,7 @@
   "properties": {
     "manifestVersion": {
       "type": "string",
-      "enum": ["0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0"]
+      "enum": ["0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0", "0.8.0"]
     },
     "name": {
       "type": "string",
@@ -663,6 +663,10 @@
     "operations": {
       "$ref": "app-operations.schema.json",
       "description": "v0.7: operation side effects, approval, dry-run, and evidence requirements shorthand."
+    },
+    "install": {
+      "$ref": "app-install.schema.json#/properties/install",
+      "description": "v0.8: standalone, in-Lime, runtime-backed, and web-host installation modes."
     },
     "presentation": {
       "type": "object",

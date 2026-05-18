@@ -1,5 +1,9 @@
 # Release Notes
 
+## v0.8.0
+
+v0.8 makes Agent Apps first-class standalone products without letting each app rebuild the platform. It separates Agent App package, Lime Runtime Core, Lime Desktop, and Lime App Shell. The release adds `app.install.yaml`, `app-install.schema.json`, install-mode projection, and reference CLI support for `--version 0.8` / `--target 0.8.0`. Apps can now declare `in_lime`, `standalone`, `runtime_backed`, and optional `web_host` distribution modes while still relying on Lime-governed capabilities for agent execution, secrets, policy, tools, storage, and evidence. v0.7 packages remain valid; v0.8 adds install topology above the existing requirement-boundary model.
+
 ## v0.7.0
 
 v0.7 standardizes Requirement Boundary & Capability Handoff. It helps teams turn a sanitized business request into a concrete Agent App plan: what the App owns, what Lime Host must execute locally, what Lime Cloud must govern, what connectors adapt, what remains in external systems, and what requires human confirmation. The release adds `app.requirements.yaml`, `app.boundary.yaml`, `app.integrations.yaml`, `app.operations.yaml`, and the App Fit Report schema. The documentation now includes end-user architecture, sequence, and flow diagrams, and the reference CLI can validate, project, and generate v0.7 boundary files. v0.6 apps remain valid; v0.7 adds planning and handoff contracts above the existing runtime control plane.

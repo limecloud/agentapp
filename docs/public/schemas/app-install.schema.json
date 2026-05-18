@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://limecloud.github.io/agentapp/schemas/app-install.schema.json",
+  "title": "Agent App Install Contract",
+  "type": "object",
+  "required": ["install"],
+  "properties": {
+    "install": {
+      "type": "object",
+      "required": ["modes"],
+      "properties": {
+        "modes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["in_lime", "standalone", "runtime_backed", "web_host"]
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "runtime": {
+          "type": "object",
+          "properties": {
+            "minVersion": { "type": "string" },
+            "distribution": {
+              "type": "object",
+              "properties": {
+                "standalone": {
+                  "type": "object",
+                  "properties": {
+                    "embedRuntime": { "type": "boolean" },
+                    "shell": { "type": "string" }
+                  },
+                  "additionalProperties": true
+                },
+                "runtimeBacked": {
+                  "type": "object",
+                  "properties": {
+                    "requires": { "type": "string" },
+                    "minVersion": { "type": "string" }
+                  },
+                  "additionalProperties": true
+                }
+              },
+              "additionalProperties": true
+            }
+          },
+          "additionalProperties": true
+        },
+        "standalone": {
+          "type": "object",
+          "properties": {
+            "shell": { "type": "string" },
+            "bundleId": { "type": "string" },
+            "platforms": {
+              "type": "array",
+              "items": { "type": "string", "enum": ["macos", "windows", "linux"] },
+              "uniqueItems": true
+            },
+            "autoUpdate": { "type": "boolean" }
+          },
+          "additionalProperties": true
+        },
+        "runtimeBacked": {
+          "type": "object",
+          "properties": {
+            "requires": { "type": "string" },
+            "minVersion": { "type": "string" }
+          },
+          "additionalProperties": true
+        },
+        "branding": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string", "minLength": 1 },
+            "icon": { "type": "string" },
+            "windowTitle": { "type": "string" }
+          },
+          "additionalProperties": true
+        },
+        "compatibility": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}

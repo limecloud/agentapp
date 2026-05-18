@@ -1,6 +1,6 @@
 ---
 title: Specification
-description: Agent App v0.7 executable package, Capability SDK contract, Agent task runtime control plane, and requirement boundaries.
+description: Agent App v0.8 executable package, Capability SDK contract, Agent task runtime control plane, requirement boundaries, and standalone install modes.
 ---
 
 # Specification
@@ -9,7 +9,7 @@ Agent App defines a complete installable application package for agent hosts. It
 
 `APP.md` remains the required discovery entry. Hosts read it first for manifest data, human guidance, and progressive loading hints. But `APP.md` is only declaration and guidance; business capability must be implemented by the runtime package and by calls through the Lime Capability SDK.
 
-v0.7 inherits the v0.6 `lime.agent` task runtime control plane and adds **Requirement Boundary & Capability Handoff**. Apps must map business requirements to App, Host, Cloud, connector, external-system, and human-decision responsibilities instead of pushing customer-private systems, vendor adapters, or cloud-service duties into the app package.
+v0.8 inherits the v0.6 `lime.agent` task runtime control plane and v0.7 **Requirement Boundary & Capability Handoff**, then adds **Standalone Installation & Runtime Separation**. Apps must map business requirements to App, Host, Cloud, connector, external-system, and human-decision responsibilities, and must also declare whether they install inside Lime Desktop, as standalone branded apps, against a shared system Lime Runtime, or inside compatible web hosts.
 
 > Project-level architecture, sequence, flow, and state-machine diagrams live in [Architecture overview](./architecture). This specification only embeds diagrams that bind to specific clauses.
 
@@ -21,12 +21,14 @@ v0.7 inherits the v0.6 `lime.agent` task runtime control plane and adds **Requir
 4. Keep Cloud responsible for catalog, release, license, tenant enablement, and gateway, not hidden agent execution.
 5. Keep customer data, credentials, and tenant differences in workspace state, Agent Knowledge, secrets, or overlays, not official packages.
 6. Preserve app provenance on every projected entry, task, tool call, artifact, eval, and evidence record.
+7. Let Agent Apps become standalone products without making Lime Desktop the mandatory entry point for every user.
 
 ## Layers
 
 ```text
-Lime Platform
-  Host services: UI / Storage / Files / Agent Runtime / Tool Broker / Knowledge / Artifact / Policy / Evidence / Secrets
+Lime Runtime Core
+  Governed services: UI / Storage / Files / Agent Runtime / Tool Broker / Knowledge / Artifact / Policy / Evidence / Secrets
+    ↑ used by Lime Desktop / Lime App Shell / runtime-backed shells / compatible web hosts
     ↓ Capability Bridge
 @lime/app-sdk
   Stable, versioned, authorized, mockable capability facade
@@ -54,6 +56,7 @@ app-name/
 ├── app.boundary.yaml         # v0.7 optional: App / Host / Cloud / Connector / External / Human boundary
 ├── app.integrations.yaml     # v0.7 optional: Host/Cloud-managed external integration needs
 ├── app.operations.yaml       # v0.7 optional: side effects, approval, dry-run, evidence
+├── app.install.yaml          # v0.8 optional: in-Lime, standalone, runtime-backed install modes
 ├── dist/
 │   ├── ui/                   # optional: real UI bundle, route manifest, assets
 │   ├── worker/               # optional: business workers, background tasks, long-running jobs
@@ -77,7 +80,7 @@ app-name/
 
 Only `APP.md` is mandatory. Compatible hosts must read `APP.md` and catalog metadata first, then progressively load the runtime package according to user action, readiness, permission, and capability version checks.
 
-v0.7 keeps the layered configuration principle: `APP.md` carries only discovery metadata and human-readable guidance, while complex configuration (capabilities, entries, permissions, errors, i18n, signature, Agent task runtime contracts, requirement boundaries, integrations, and operation side effects) moves into independent `app.*.yaml` files when needed, preventing frontmatter bloat.
+v0.8 keeps the layered configuration principle: `APP.md` carries only discovery metadata and human-readable guidance, while complex configuration (capabilities, entries, permissions, errors, i18n, signature, Agent task runtime contracts, requirement boundaries, integrations, operation side effects, and install modes) moves into independent `app.*.yaml` files when needed, preventing frontmatter bloat.
 
 ## `APP.md`
 
@@ -125,7 +128,7 @@ For open-platform distribution, v0.5 promotes "app identity, version, timeline, 
 
 | Field | Purpose |
 | --- | --- |
-| `manifestVersion` | Manifest protocol version; current packages should set `0.7.0`. |
+| `manifestVersion` | Manifest protocol version; current packages should set `0.8.0`. |
 | `version` | App package version (SemVer). |
 | `createdAt` | ISO 8601; first appearance in any registry. |
 | `updatedAt` | ISO 8601; manifest last updated. |
@@ -219,12 +222,13 @@ Hosts must mark apps with `endOfLifeAt < now` as `blocked` in readiness and surf
 | `boundary` | v0.7 shorthand for App / Host / Cloud / Connector / External / Human boundaries; prefer `app.boundary.yaml` for detailed config. |
 | `integrations` | v0.7 shorthand for external integration needs; prefer `app.integrations.yaml` for detailed config. |
 | `operations` | v0.7 shorthand for side effects, approval, dry-run, and evidence; prefer `app.operations.yaml` for detailed config. |
+| `install` | v0.8 shorthand for in-Lime, standalone, runtime-backed, and web-host install modes; prefer `app.install.yaml` for detailed config. |
 | `overlayTemplates` | Configurable slots for tenant, workspace, user, or customer overlays. |
 | `presentation` | App card, icon, category, home copy, and sorting hints. |
 | `compatibility` | Compatibility matrix, fallback policy, and deprecation window. |
 | `metadata` | Namespaced implementation metadata. |
 
-### v0.5/v0.6/v0.7 layered configuration
+### v0.5/v0.6/v0.7/v0.8 layered configuration
 
 Detailed configuration can move to independent files; the frontmatter keeps only core metadata:
 
@@ -241,10 +245,45 @@ Detailed configuration can move to independent files; the frontmatter keeps only
 | `app.boundary.yaml` | v0.7 App / Host / Cloud / Connector / External / Human responsibility boundary | Loaded by manifest convention |
 | `app.integrations.yaml` | v0.7 Host/Cloud-managed external systems, CLIs, MCPs, APIs, webhooks, or browser adapter needs | Loaded by manifest convention |
 | `app.operations.yaml` | v0.7 operation side effects, approval, dry-run, idempotency, and evidence requirements | Loaded by manifest convention |
+| `app.install.yaml` | v0.8 in-Lime, standalone, runtime-backed, and web-host installation modes | Loaded by manifest convention |
 | `evals/readiness.yaml` | Readiness self-check model | Loaded by manifest convention |
 | `evals/health.yaml` | Runtime health checks | Loaded by manifest convention |
 
 Hosts load these files by file-name convention while parsing the manifest. When frontmatter and an independent file disagree, the independent file wins.
+
+### v0.8 install modes
+
+`app.install.yaml` is the v0.8 boundary between product packaging and runtime substrate. It lets an app be distributed in more than one shape without changing the business package:
+
+```yaml
+install:
+  modes:
+    - in_lime
+    - standalone
+    - runtime_backed
+  runtime:
+    minVersion: 0.8.0
+    distribution:
+      standalone:
+        embedRuntime: true
+        shell: lime-app-shell
+      runtimeBacked:
+        requires: lime-runtime
+        minVersion: 0.8.0
+  standalone:
+    shell: lime-app-shell
+    bundleId: ai.limecloud.contentfactory
+    platforms: [macos, windows]
+  runtimeBacked:
+    requires: lime-runtime
+    minVersion: 0.8.0
+  branding:
+    name: Content Factory
+    icon: ./assets/icon.svg
+    windowTitle: Content Factory
+```
+
+The install contract does not let an app bypass governance. Standalone and runtime-backed apps still receive `lime.*` capability handles from a compatible host shell, and Lime Runtime still owns model routing, tool execution, secrets, policy, storage namespace, and evidence.
 
 ### v0.5 trigger field
 
@@ -904,9 +943,9 @@ Readiness may return `ready`, `needs-setup`, or `failed`. v0.5 extends the state
 readiness:
   required:
     - check: sdk_version
-      expect: ">=0.7.0"
+      expect: ">=0.8.0"
       blocker: true
-      message: Lime SDK v0.7.0 or higher is required
+      message: Lime SDK v0.8.0 or higher is required
     - check: capability_available
       capability: lime.agent
       blocker: true
@@ -1041,7 +1080,7 @@ signature:
     algorithm: sha256
     hash: aaaa...aaaa
     signedBy: sigstore
-    signatureRef: sigstore:content-factory-app@0.7.0
+    signatureRef: sigstore:content-factory-app@0.8.0
     timestamp: 2026-05-16T00:00:00Z
   manifest:
     algorithm: sha256

@@ -5,7 +5,7 @@ description: How to publish immutable Agent App releases without overwriting cus
 
 # Release and distribution
 
-Agent App releases should be immutable, reviewable, and safe to roll back. A registry can distribute packages and authorize tenants, but the host still performs local verification, readiness, policy checks, and runtime execution.
+Agent App releases should be immutable, reviewable, and safe to roll back. A registry can distribute packages and authorize tenants, but the host still performs local verification, readiness, policy checks, and runtime execution. v0.8 adds one more release decision: the same package may be offered for in-Lime installation, standalone branded installation, runtime-backed installation, or compatible web hosts.
 
 ## Release object
 
@@ -21,6 +21,7 @@ A release should include enough metadata for a host to decide whether it can ins
 | `manifestHash` | Integrity check for `APP.md` or extracted manifest. |
 | `signatureRef` | Optional signature or supply-chain attestation. |
 | `compatibility` | Host, SDK, and capability version ranges. |
+| `install` | v0.8 install modes and runtime relationship from `app.install.yaml`. |
 | `releaseNotesUrl` | Human-readable change notes. |
 | `rollbackTarget` | Known safe previous release. |
 
@@ -54,7 +55,7 @@ sequenceDiagram
   Host->>Host: Install only after consent and policy pass
 ```
 
-The registry distributes. The host installs and runs.
+The registry distributes. The host installs and runs. For standalone releases, the host may be Lime App Shell embedded in the branded app bundle; for runtime-backed releases, the host must verify that the system `lime-runtime` satisfies the declared version range.
 
 ## What must not be overwritten
 
@@ -110,6 +111,7 @@ Before publishing a release:
 - `agentapp-ref readiness` produces actionable setup tasks.
 - Package hash and manifest hash are recorded.
 - Compatibility ranges are accurate.
+- `app.install.yaml` declares supported install modes and runtime requirements.
 - Release notes describe breaking changes and migrations.
 - Example workspace still passes expected evals.
 - Customer data is not bundled in the official package.

@@ -5,7 +5,7 @@ description: Product-level Agent App example for content factory workflows.
 
 # Content Factory App
 
-The Content Factory App shows why Agent App is an application package, not a single expert or a prompt collection. It packages a business workflow with UI, storage, workflows, workers, Knowledge bindings, Tools, Artifacts, Evals, permissions, overlays, and v0.7 requirement-boundary files.
+The Content Factory App shows why Agent App is an application package, not a single expert or a prompt collection. It packages a business workflow with UI, storage, workflows, workers, Knowledge bindings, Tools, Artifacts, Evals, permissions, overlays, v0.7 requirement-boundary files, and v0.8 install metadata.
 
 Reference package: [`docs/examples/content-factory-app/APP.md`](../../examples/content-factory-app/APP.md)
 
@@ -101,6 +101,17 @@ The fixture now includes:
 
 For ordinary users this means the app shows what it can do in the workspace, what must be connected by Lime, and which external writes or publishes still require human confirmation.
 
+## v0.8 install metadata
+
+The fixture includes [`app.install.yaml`](../../examples/content-factory-app/app.install.yaml) to declare:
+
+- `in_lime` installation for Lime Desktop users
+- `standalone` packaging through Lime App Shell
+- `runtime_backed` packaging for machines that already have `lime-runtime`
+- branded window metadata and platform targets
+
+This proves that Content Factory can be a direct product download without reimplementing model routing, secrets, policy, tools, storage, or evidence outside Lime Runtime governance.
+
 ## Readiness behavior
 
 The fixture validates successfully, but readiness can report `needs-setup` because required Runtime, Context, Knowledge, Skills, Tools / Connectors, Artifacts, Evidence, Policy, QC, and services must be satisfied by the host.
@@ -121,7 +132,7 @@ That is correct behavior. The package is structurally valid; the workspace may s
 ## Try it locally
 
 ```bash
-npm run cli -- validate docs/examples/content-factory-app --version 0.7
+npm run cli -- validate docs/examples/content-factory-app --version 0.8
 npm run cli -- project docs/examples/content-factory-app
 npm run cli -- readiness docs/examples/content-factory-app
 ```

@@ -12,10 +12,10 @@ description: 完整 Agent App manifest 的检查表和注释结构。
 ## 必需身份字段
 
 ```yaml
-manifestVersion: 0.7.0
+manifestVersion: 0.8.0
 name: content-factory-app
 description: 内容工厂，用于知识库构建、内容场景规划、内容生产和数据复盘。
-version: 0.7.0
+version: 0.8.0
 status: ready
 appType: domain-app
 runtimeTargets:
@@ -29,13 +29,13 @@ runtimeTargets:
 ```yaml
 requires:
   lime:
-    appRuntime: ">=0.7.0 <1.0.0"
-  sdk: "@lime/app-sdk@^0.7.0"
+    appRuntime: ">=0.8.0 <1.0.0"
+  sdk: "@lime/app-sdk@^0.8.0"
   capabilities:
-    lime.ui: "^0.7.0"
-    lime.storage: "^0.7.0"
-    lime.agent: "^0.7.0"
-    lime.connectors: "^0.7.0"
+    lime.ui: "^0.8.0"
+    lime.storage: "^0.8.0"
+    lime.agent: "^0.8.0"
+    lime.connectors: "^0.8.0"
 ```
 
 Requirements 描述宿主必须提供什么，而不是宿主内部如何实现。
@@ -167,7 +167,7 @@ app.operations.yaml     # 操作副作用、审批、dry-run、evidence
 ## 验证命令
 
 ```bash
-npm run cli -- validate docs/examples/content-factory-app --version 0.7
+npm run cli -- validate docs/examples/content-factory-app --version 0.8
 npm run cli -- project docs/examples/content-factory-app
 npm run cli -- readiness docs/examples/content-factory-app
 ```

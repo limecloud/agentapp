@@ -12,6 +12,9 @@ const enNav = [
     text: 'Version',
     items: [
       { text: 'latest', link: '/en/specification' },
+      { text: 'v0.8 overview', link: '/en/versions/v0.8/overview' },
+      { text: 'v0.8 specification', link: '/en/versions/v0.8/specification' },
+      { text: 'v0.8 changelog', link: '/en/versions/v0.8/changelog' },
       { text: 'v0.7 overview', link: '/en/versions/v0.7/overview' },
       { text: 'v0.7 specification', link: '/en/versions/v0.7/specification' },
       { text: 'v0.7 changelog', link: '/en/versions/v0.7/changelog' },
@@ -48,6 +51,9 @@ const zhNav = [
     text: '版本',
     items: [
       { text: 'latest', link: '/zh/specification' },
+      { text: 'v0.8 概览', link: '/zh/versions/v0.8/overview' },
+      { text: 'v0.8 规范', link: '/zh/versions/v0.8/specification' },
+      { text: 'v0.8 变更记录', link: '/zh/versions/v0.8/changelog' },
       { text: 'v0.7 概览', link: '/zh/versions/v0.7/overview' },
       { text: 'v0.7 规范', link: '/zh/versions/v0.7/specification' },
       { text: 'v0.7 变更记录', link: '/zh/versions/v0.7/changelog' },
@@ -138,6 +144,9 @@ const enSidebar = [
   {
     text: 'Versions',
     items: [
+      { text: 'v0.8 overview', link: '/en/versions/v0.8/overview' },
+      { text: 'v0.8 specification', link: '/en/versions/v0.8/specification' },
+      { text: 'v0.8 changelog', link: '/en/versions/v0.8/changelog' },
       { text: 'v0.7 overview', link: '/en/versions/v0.7/overview' },
       { text: 'v0.7 specification', link: '/en/versions/v0.7/specification' },
       { text: 'v0.7 changelog', link: '/en/versions/v0.7/changelog' },
@@ -227,6 +236,9 @@ const zhSidebar = [
   {
     text: '版本',
     items: [
+      { text: 'v0.8 概览', link: '/zh/versions/v0.8/overview' },
+      { text: 'v0.8 规范', link: '/zh/versions/v0.8/specification' },
+      { text: 'v0.8 变更记录', link: '/zh/versions/v0.8/changelog' },
       { text: 'v0.7 概览', link: '/zh/versions/v0.7/overview' },
       { text: 'v0.7 规范', link: '/zh/versions/v0.7/specification' },
       { text: 'v0.7 变更记录', link: '/zh/versions/v0.7/changelog' },

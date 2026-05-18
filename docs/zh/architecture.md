@@ -1,15 +1,38 @@
 ---
 title: 架构概览
-description: Agent App v0.7 的项目级架构图、时序图、流程图和状态机示意。
+description: Agent App v0.8 的项目级架构图、时序图、流程图和状态机示意。
 ---
 
 # 架构概览
 
-本页用图集中展示 Agent App v0.7 的关键结构、需求边界与运行时流程。各章节图与 [规范](./specification) 互相补充：规范是规则，本页是图。
+## 0. v0.8 Host 拆分
+
+v0.8 把产品包和 Runtime 底座拆开。Lime Desktop 仍是完整多 App 工作台，但不再是所有 Agent App 的强制启动入口。Standalone 和 runtime-backed App 仍走同一 Capability SDK 边界。
+
+```mermaid
+flowchart TD
+  App[Agent App Package
+UI / Worker / Workflow / Storage] --> SDK[@lime/app-sdk]
+  SDK --> Runtime[Lime Runtime Core
+Agent / Storage / Secrets / Policy / Evidence / Tools]
+  Runtime --> Desktop[Lime Desktop
+多 App 工作台]
+  Runtime --> Shell[Lime App Shell
+独立品牌 App]
+  Runtime --> Backed[Runtime-backed shell
+复用系统 lime-runtime]
+  Runtime --> Web[兼容 Web Host]
+  Desktop --> User[用户]
+  Shell --> User
+  Backed --> User
+  Web --> User
+```
+
+本页用图集中展示 Agent App v0.8 的关键结构、安装模式、需求边界与运行时流程。各章节图与 [规范](./specification) 互相补充：规范是规则，本页是图。
 
 ## 1. 标准分层架构
 
-v0.7 继承 v0.6 分层，并把整个生态切成 App、Host、Cloud、Connector、外部系统和人工决策平面。分层 manifest 与 Capability SDK 是稳定边界，宿主和 Cloud 控制面只看接口、不看业务实现。
+v0.8 继承 v0.6/v0.7 分层，把整个生态切成 App、Host、Cloud、Connector、外部系统和人工决策平面，并新增 Lime Desktop、Lime App Shell、runtime-backed shell 和兼容 Web Host 的安装模式拆分。分层 manifest 与 Capability SDK 是稳定边界，宿主和 Cloud 控制面只看接口、不看业务实现。
 
 ```mermaid
 flowchart TD
@@ -20,10 +43,11 @@ flowchart TD
     Reg[Registration / License]
   end
 
-  subgraph Standard[Agent App v0.7 标准]
+  subgraph Standard[Agent App v0.8 标准]
     APPMD[APP.md frontmatter + 人类章节]
     LAYERED[app.*.yaml 分层配置]
     BOUNDARY[requirements / boundary / integrations / operations]
+    INSTALL[app.install.yaml / install modes]
     SKILLS[skills/ 内置 Skills]
     EVALS[evals/ readiness + health]
     SIG[app.signature.yaml]
@@ -58,6 +82,8 @@ flowchart TD
   LAYERED --> Project
   BOUNDARY --> Project
   BOUNDARY --> Readiness
+  INSTALL --> Project
+  INSTALL --> Readiness
   SKILLS --> SDK
   EVALS --> Readiness
   EVALS --> Health
@@ -361,7 +387,7 @@ flowchart LR
 ## 11. 后续阅读
 
 - [规范](./specification)：字段、约束、契约的规则文本。
-- [快速开始](./authoring/quickstart)：从零创建一个 v0.7 包。
+- [快速开始](./authoring/quickstart)：从零创建一个 v0.8 包。
 - [运行时模型](./client-implementation/runtime-model)：宿主侧实现细节。
 - [Capability SDK](./client-implementation/capability-sdk)：稳定能力调用契约。
 - [v0.7 当前快照](./versions/v0.7/overview)：定格版本说明。

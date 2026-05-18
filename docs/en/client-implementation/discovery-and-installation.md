@@ -5,7 +5,7 @@ description: Host-side flow for discovering, verifying, installing, and activati
 
 # Discovery and installation
 
-Installation is not execution. A host should discover and verify an Agent App before it creates runtime state or exposes executable entries.
+Installation is not execution. A host should discover and verify an Agent App before it creates runtime state or exposes executable entries. In v0.8, "host" can mean Lime Desktop, Lime App Shell, a runtime-backed shell, or a compatible Web Host; all of them must converge on the same manifest, projection, readiness, and Capability SDK contract.
 
 ## Discovery sources
 
@@ -16,6 +16,8 @@ A host may discover apps from:
 - a tenant bootstrap payload
 - a private package URL
 - a development fixture
+- a standalone installer bundle that embeds Lime App Shell
+- a runtime-backed app package that targets an installed system `lime-runtime`
 
 All sources should converge into the same package identity and manifest parser.
 
@@ -32,6 +34,7 @@ sequenceDiagram
   Host->>Registry: Fetch catalog and release metadata
   Registry-->>Host: Manifest summary, package URL, hashes
   Host->>Host: Check compatibility and policy preview
+  Host->>Host: Resolve install mode and runtime requirement
   Host->>Package: Download package
   Host->>Host: Verify package hash and manifest hash
   Host->>Host: Project catalog entries
@@ -47,6 +50,7 @@ Package identity should include:
 - app name
 - package version
 - manifest version
+- install mode
 - source URI
 - package hash
 - manifest hash
@@ -68,6 +72,8 @@ Readiness turns projection into a setup report. It should identify blockers befo
 Common blockers:
 
 - unsupported host version
+- unsupported install mode
+- missing or incompatible system `lime-runtime`
 - missing required capability
 - unbound required Knowledge template
 - unavailable required Tool
@@ -118,4 +124,5 @@ On update, the host should:
 - Readiness runs without executing app code.
 - Installation review shows permissions and data boundaries.
 - App data is namespaced from the first install.
+- Install mode is recorded before activation.
 - Uninstall plan is available before real runtime execution.

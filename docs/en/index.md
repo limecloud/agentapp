@@ -6,7 +6,7 @@ description: Installable agent application packages.
 hero:
   name: Agent App
   text: Executable intelligent applications.
-  tagline: "A v0.7 package standard for complete intelligent apps that can separate App work from Host, Cloud, connector, external-system, and human responsibilities."
+  tagline: "A v0.8 package standard for complete intelligent apps that can run inside Lime, as standalone branded apps, or against a shared Lime Runtime."
   actions:
     - theme: brand
       text: Read specification
@@ -24,6 +24,8 @@ hero:
 features:
   - title: Runtime package
     details: "APP.md is discovery only; real UI, workers, storage, workflows, and business implementation live in the runtime package."
+  - title: Standalone install
+    details: "v0.8 adds app.install.yaml so an Agent App can declare in-Lime, standalone, runtime-backed, and web-host install modes."
   - title: Capability SDK
     details: "Apps call Lime through stable capabilities such as lime.ui, lime.storage, lime.agent, lime.connectors, lime.artifacts, and lime.evidence instead of internals."
   - title: Capability composition
@@ -63,9 +65,9 @@ features:
 | Standards reviewer | [Specification](./specification.md) | JSON Schemas, glossary, version notes. |
 | Product planner | [What is Agent App?](./what-is-agent-app.md) | Standards ecosystem boundary, examples, mini-program analogy. |
 
-## v0.7 promise
+## v0.8 promise
 
-A v0.7 app should be understandable before execution, installable without changing host core, runnable through typed capability handles, observable through stable Agent task events, and explicit about delivery boundaries. v0.7 keeps the v0.5 layered manifest model and v0.6 `app.runtime.yaml`, then adds `app.requirements.yaml`, `app.boundary.yaml`, `app.integrations.yaml`, and `app.operations.yaml`. If a package cannot explain its entries, permissions, data boundary, runtime assets, task output contracts, external integrations, side effects, and human approval boundaries, it is not ready to be distributed as an Agent App.
+A v0.8 app should be understandable before execution, installable without changing host core, runnable through typed capability handles, observable through stable Agent task events, explicit about delivery boundaries, and clear about how users install it. v0.8 keeps the v0.5 layered manifest model, v0.6 `app.runtime.yaml`, and v0.7 `app.requirements.yaml` / `app.boundary.yaml` / `app.integrations.yaml` / `app.operations.yaml`, then adds `app.install.yaml` for in-Lime, standalone, runtime-backed, and web-host packaging. If a package cannot explain its entries, permissions, data boundary, runtime assets, task output contracts, external integrations, side effects, human approval boundaries, and install mode, it is not ready to be distributed as an Agent App.
 
 ## What a complete app page should answer
 
@@ -75,7 +77,8 @@ Every Agent App page in this documentation should help a reader answer four ques
 
 1. Define the app boundary and user-visible entries.
 2. Write the v0.7 requirement, boundary, integration, and operation files.
-3. Declare capabilities, storage, Runtime, UI, Context, Knowledge, Skills, Tools / Connectors, Artifacts, Evidence, Policy, QC, permissions, and Evals.
-4. Add runtime package assets and call host services through the Capability SDK.
-5. Build projection and readiness checks before enabling execution.
-6. Release with package hashes, compatibility metadata, overlays, and rollback guidance.
+3. Write the v0.8 install contract for in-Lime, standalone, runtime-backed, or web-host distribution.
+4. Declare capabilities, storage, Runtime, UI, Context, Knowledge, Skills, Tools / Connectors, Artifacts, Evidence, Policy, QC, permissions, and Evals.
+5. Add runtime package assets and call host services through the Capability SDK.
+6. Build projection and readiness checks before enabling execution.
+7. Release with package hashes, compatibility metadata, overlays, install metadata, and rollback guidance.

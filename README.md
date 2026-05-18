@@ -1,8 +1,10 @@
 # Agent App
 
-Agent App is a draft standard for complete installable intelligent applications in the Agent standards ecosystem. It packages real app implementation - UI bundles, workers, storage schemas, workflows, agent entries, Skills, Knowledge bindings, tool requirements, artifact contracts, policies, evals, presentation metadata, and v0.7 requirement-boundary files - without moving agent execution into the cloud.
+Agent App is a draft standard for complete installable intelligent applications in the Agent standards ecosystem. It packages real app implementation - UI bundles, workers, storage schemas, workflows, agent entries, Skills, Knowledge bindings, tool requirements, artifact contracts, policies, evals, presentation metadata, v0.7 requirement-boundary files, and v0.8 standalone installation metadata - without moving agent execution into the cloud or forcing every user through Lime Desktop.
 
-Agent Runtime answers **how tasks execute**. Agent UI answers **how interaction surfaces render**. Agent Context answers **how context is assembled**. Skills answer **how reusable work is done**. Knowledge answers **what trusted facts are**. Tools connect external capabilities; Artifacts persist deliverables; Evidence, Policy, and QC make results trustworthy. Agent App answers **how all of those become a complete installable application with host capabilities, UI, data boundaries, entries, lifecycle, and v0.7 requirement handoff**.
+Agent Runtime answers **how tasks execute**. Agent UI answers **how interaction surfaces render**. Agent Context answers **how context is assembled**. Skills answer **how reusable work is done**. Knowledge answers **what trusted facts are**. Tools connect external capabilities; Artifacts persist deliverables; Evidence, Policy, and QC make results trustworthy. Agent App answers **how all of those become a complete installable application with host capabilities, UI, data boundaries, entries, lifecycle, v0.7 requirement handoff, and v0.8 install modes**.
+
+v0.8 makes one product boundary explicit: **Agent App is the product, Lime Runtime is the capability substrate, Lime Desktop is one host, and Lime App Shell is the standalone single-app host.** Users can install an Agent App inside Lime Desktop, download it as a standalone branded app, or run it against a shared system Lime Runtime.
 
 ## Core boundary
 
@@ -19,8 +21,9 @@ Agent App is the business workspace. Lime Agent is the intelligent runtime capab
 | Agent Artifact | Durable deliverables, schemas, viewers, exporters, state. | Artifact schema | Stored and displayed by host artifact services. |
 | Agent Evidence / Policy / QC | Provenance, permissions, risk, quality gates, audits, waivers. | Evidence, policy, eval descriptors | Enforced and recorded by Host/Cloud; App declares inputs and gates. |
 | Agent Expert | Chat-first entry composed from persona, context, tools, and app state. | Expert entry | Runs inside a host conversation surface; optional App entry, not the App itself. |
-| Agent App | Complete installable app package: UI, workers, storage, workflows, entries, permissions, artifacts, evals, lifecycle, and v0.7 boundaries. | `APP.md` + runtime package | Runs in the host through `@lime/app-sdk` capability handles. |
-| Lime Host / Cloud | Local execution, sandbox, secrets, registry, tenant policy, OAuth, webhook, scheduled sync. | `lime.*` capabilities | Injected into apps as authorized handles; apps do not import host internals. |
+| Agent App | Complete installable app package: UI, workers, storage, workflows, entries, permissions, artifacts, evals, lifecycle, v0.7 boundaries, and v0.8 install modes. | `APP.md` + runtime package | Runs in a compatible host through `@lime/app-sdk` capability handles. |
+| Lime Runtime Core | Agent execution, storage, tools, connectors, secrets, policy, evidence, artifacts, and local governance. | `lime.*` capabilities | Shared by Lime Desktop, Lime App Shell, runtime-backed apps, and compatible hosts. |
+| Lime Host / Cloud | Local shells, sandbox, registry, tenant policy, OAuth, webhook, scheduled sync. | Host shell + `lime.*` capabilities | Injected into apps as authorized handles; apps do not import host internals. |
 
 ## App and Lime responsibilities
 
@@ -58,6 +61,7 @@ my-agent-app/
 ├── app.boundary.yaml         # optional: v0.7 App / Host / Cloud / Connector / Human boundary
 ├── app.integrations.yaml     # optional: v0.7 Host/Cloud-managed external integrations
 ├── app.operations.yaml       # optional: v0.7 side effects, approvals, evidence
+├── app.install.yaml          # optional: v0.8 in-Lime, standalone, runtime-backed install modes
 ├── overlay-templates/        # optional: tenant / workspace overlay schemas
 ├── app.lock.json             # optional: package file hashes and signatures
 └── examples/                 # optional: sample workspaces, prompts, outputs
@@ -82,7 +86,16 @@ Compatible hosts should expose versioned, authorized, mockable capabilities such
 - `lime.evidence` for provenance and replay
 - `lime.secrets` for credentials without plaintext app access
 
-Apps must not import host internals. They declare capability requirements in the manifest and receive runtime handles from the host. v0.7 keeps the layered manifest model, keeps v0.6 `app.runtime.yaml` for the `lime.agent` task control plane, and adds requirement-boundary files so each business request can be split across App, Host, Cloud, connector, external-system, and human-decision responsibilities.
+Apps must not import host internals. They declare capability requirements in the manifest and receive runtime handles from the host. v0.8 keeps the layered manifest model, keeps v0.6 `app.runtime.yaml` for the `lime.agent` task control plane, keeps v0.7 requirement-boundary files, and adds `app.install.yaml` so packages can declare `in_lime`, `standalone`, `runtime_backed`, and `web_host` install modes.
+
+## v0.8 install modes
+
+| Mode | User experience | Runtime relationship |
+| --- | --- | --- |
+| `in_lime` | Install and launch from Lime Desktop. | Uses the Desktop-hosted Lime Runtime. |
+| `standalone` | Download a branded business app directly. | Bundles a compatible Lime Runtime profile through Lime App Shell. |
+| `runtime_backed` | Install a lightweight app package. | Requires an already installed system `lime-runtime`. |
+| `web_host` | Open in a compatible hosted environment. | Host provides web capability handles and policy. |
 
 ## Runtime contract
 
@@ -110,12 +123,12 @@ Compatible hosts should:
 ## Reference CLI
 
 ```bash
-npx agentapp-ref@0.7.0 validate ./my-agent-app --version 0.7
-npx agentapp-ref@0.7.0 to-catalog ./my-agent-app
-npx agentapp-ref@0.7.0 project ./my-agent-app
-npx agentapp-ref@0.7.0 readiness ./my-agent-app --workspace ./workspace
-npx agentapp-ref@0.7.0 migrate-check ./my-agent-app
-npx agentapp-ref@0.7.0 migrate-generate ./my-agent-app --target 0.7.0
+npx agentapp-ref@0.8.0 validate ./my-agent-app --version 0.8
+npx agentapp-ref@0.8.0 to-catalog ./my-agent-app
+npx agentapp-ref@0.8.0 project ./my-agent-app
+npx agentapp-ref@0.8.0 readiness ./my-agent-app --workspace ./workspace
+npx agentapp-ref@0.8.0 migrate-check ./my-agent-app
+npx agentapp-ref@0.8.0 migrate-generate ./my-agent-app --target 0.8.0
 ```
 
 ## Local development

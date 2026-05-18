@@ -110,17 +110,17 @@ Host implementors should provide TypeScript types, schemas, mocks, and contract 
 
 ```ts
 lime.ui.registerRoute(route)
-lime.storage.table(name).get(id)
-lime.storage.table(name).insert(record)
-lime.files.read(ref)
+lime.storage.set({ key, value })
+lime.storage.get({ key })
+lime.files.readRef(ref)
 lime.agent.startTask(request)
 lime.knowledge.search(request)
 lime.tools.invoke(request)
-lime.artifacts.create(request)
+lime.artifacts.create({ kind, title, content })
 lime.workflow.start(request)
 lime.policy.requestPermission(request)
-lime.secrets.getRef(key)
-lime.evidence.record(event)
+lime.secrets.getRef({ key })
+lime.evidence.record({ kind, message, refs })
 ```
 
 Every call must return stable error codes and support permission denial, cancellation, retries, timeouts, cost limits, and traceId.

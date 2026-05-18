@@ -17,6 +17,7 @@ Agent App publishes JSON Schemas so hosts, registries, editors, and CI jobs can 
 | [`app-boundary.schema.json`](/schemas/app-boundary.schema.json) | Validates v0.7 App / Host / Cloud / connector / external system / human responsibility boundaries. |
 | [`app-integrations.schema.json`](/schemas/app-integrations.schema.json) | Validates v0.7 host/cloud-managed external integration requirements. |
 | [`app-operations.schema.json`](/schemas/app-operations.schema.json) | Validates v0.7 operation side effects, approvals, dry-run, and evidence contracts. |
+| [`app-install.schema.json`](/schemas/app-install.schema.json) | Validates v0.8 in-Lime, standalone, runtime-backed, and web-host installation contracts. |
 | [`app-fit-report.schema.json`](/schemas/app-fit-report.schema.json) | Validates v0.7 pre-implementation fit reports for business requirements. |
 | [`app-projection.schema.json`](/schemas/app-projection.schema.json) | Validates host projection output with provenance. |
 | [`app-readiness.schema.json`](/schemas/app-readiness.schema.json) | Validates readiness output and setup findings. |
@@ -46,6 +47,7 @@ The manifest schema covers fields such as:
 - permissions, secrets, lifecycle, overlays
 - v0.6 `agentRuntime` shorthand for task control-plane intent
 - v0.7 `requirements`, `boundary`, `integrations`, and `operations` shorthands
+- v0.8 `install` shorthand for in-Lime, standalone, runtime-backed, and web-host install modes
 - presentation and compatibility
 
 v0.3 current entry kinds are `page`, `panel`, `expert-chat`, `command`, `workflow`, `artifact`, `background-task`, and `settings`.

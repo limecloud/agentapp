@@ -7,7 +7,7 @@ description: Agent App is a complete installable intelligent application package
 
 Agent App is a draft standard for complete installable applications in agent hosts. An app may include real UI, business workflows, data storage, background jobs, agent entries, Runtime intent, Context needs, Knowledge bindings, Skill references, Tool / Connector requirements, Artifacts, Evidence, Policies, and QC / Evals.
 
-In one sentence: **Agent App is an intelligent application running on Lime platform capabilities. It is not a Markdown file and not a single chat expert.**
+In one sentence: **Agent App is an intelligent application running on Lime Runtime capabilities. It is not a Markdown file, not a single chat expert, and not necessarily something the user must open through Lime Desktop.**
 
 `APP.md` is only the discovery entry and manifest carrier. Real business capability comes from the runtime package and from calls through the Lime Capability SDK.
 
@@ -20,6 +20,12 @@ The product boundary is:
 An Agent App should be the surface where the user finishes the job: dashboards, forms, tables, review queues, artifacts, settings, and embedded assistant panels all belong there. The app can declare Context needs and call `lime.agent`, `lime.knowledge`, `lime.tools`, `lime.connectors`, `lime.storage`, `lime.artifacts`, and `lime.evidence`, but the user should not have to jump back to a generic Lime chat just to complete the app's core workflow.
 
 This also prevents the opposite failure mode. An app should not rebuild its own model gateway, credential store, permission system, evidence store, or tool broker just to avoid Lime. That would make Lime a distribution shell for independent SaaS products. Agent App exists for the middle path: the app owns business shape and business state; Lime owns the agent runtime and governed platform capabilities.
+
+## First-class installable product
+
+v0.8 separates Lime Desktop from Lime Runtime. Lime Desktop is a multi-app workspace and app manager; Lime Runtime is the governed capability substrate; Lime App Shell is the minimal host that can wrap one Agent App as a standalone branded app.
+
+That means a user can install a Content Factory app directly without first downloading or understanding Lime Desktop. The app still calls `lime.agent`, `lime.storage`, `lime.secrets`, `lime.policy`, and `lime.evidence` through the same SDK, so standalone distribution does not become an excuse to bypass governance.
 
 ## Difference from Lime Experts
 
@@ -45,7 +51,7 @@ Agent App can be understood as a mini-program-like model for AI agents, without 
 | Mini-programs declare pages, components, permissions, storage. | Agent Apps declare UI, entries, capabilities, storage, permissions. |
 | Mini-programs call `wx.*`. | Agent Apps call `lime.ui`, `lime.storage`, `lime.agent`, etc. through `@lime/app-sdk`. |
 | The platform manages review, release, and permissions. | Cloud / Registry manages release, tenant enablement, license, policy. |
-| The client runs the mini-program. | Lime Desktop installs and runs the app package locally. |
+| The client runs the mini-program. | Lime Desktop, Lime App Shell, a runtime-backed shell, or a compatible Web Host installs and runs the app package. |
 
 The important part is not how it looks, but that the host opens capabilities and apps call those capabilities through a stable SDK.
 
@@ -59,12 +65,12 @@ Regular users do not need to understand manifests, SDKs, or runtimes. An Agent A
 sequenceDiagram
   autonumber
   participant User as User
-  participant Lime as Lime app center
+  participant Lime as App center or standalone installer
   participant App as Agent App
   participant Assistant as Assistant
   participant Result as Results and history
 
-  User->>Lime: Search for or open an app
+  User->>Lime: Search for, download, or open an app
   Lime-->>User: Show purpose, permissions, and example outputs
   User->>Lime: Install the app
   Lime->>App: Install and prepare the workspace
@@ -111,8 +117,14 @@ Regular users only need to remember three things:
 flowchart TD
   Cloud[Lime Cloud
 Catalog / Release / License / Tenant Enablement] --> Desktop[Lime Desktop
-Install / Cache / Resolver]
+Multi-app host]
+  Cloud --> Shell[Lime App Shell
+Standalone host]
+  Cloud --> RuntimeBacked[Runtime-backed shell
+System lime-runtime]
   Desktop --> Bridge[Capability Bridge]
+  Shell --> Bridge
+  RuntimeBacked --> Bridge
   Bridge --> SDK["@lime/app-sdk"]
   SDK --> App[Agent App Runtime Package
 UI / Worker / Workflow / Storage]
@@ -128,7 +140,7 @@ UI / Worker / Workflow / Storage]
   Bridge --> QC[Agent QC]
 ```
 
-Lime Cloud may distribute, authorize, and enable Agent Apps. Lime Desktop installs, authorizes, injects capabilities, and runs them locally. Cloud should not become a hidden Agent Runtime by default.
+Lime Cloud may distribute, authorize, and enable Agent Apps. Lime Desktop, Lime App Shell, and runtime-backed shells install, authorize, inject capabilities, and run them through Lime Runtime. Cloud should not become a hidden Agent Runtime by default.
 
 ## Good fits
 

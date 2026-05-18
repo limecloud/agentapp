@@ -6,7 +6,7 @@ description: Installable agent application packages.
 hero:
   name: Agent App
   text: Complete installable intelligent applications for host runtimes.
-  tagline: "Package UI, workers, storage, workflows, Runtime, Context, Skills, Knowledge, Tools, Connectors, Artifacts, Evidence, Policy, Evals, and permissions into a local-running intelligent app."
+  tagline: "Package UI, workers, storage, workflows, Runtime, Context, Skills, Knowledge, Tools, Connectors, Artifacts, Evidence, Policy, Evals, permissions, and standalone install metadata into a governed intelligent app."
   actions:
     - theme: brand
       text: Read the spec
@@ -20,11 +20,11 @@ hero:
 
 features:
   - title: Host platform model
-    details: "Agent Apps run inside a host such as Lime Desktop. Registries distribute and authorize; the host injects SDK capabilities and executes locally."
+    details: "Agent Apps can run in Lime Desktop, Lime App Shell, a runtime-backed shell, or a compatible Web Host while still using host-injected SDK capabilities."
   - title: Capability SDK boundary
     details: "Apps use lime.ui, lime.storage, lime.agent, lime.connectors, lime.artifacts, lime.evidence, lime.policy, and adjacent Agent standards without importing host internals."
   - title: App-like installation
-    details: "Like mini-program platforms, a host installs an app package, resolves permissions, and exposes entries to users."
+    details: "v0.8 supports in-Lime, standalone, runtime-backed, and web-host install modes so users can launch the business app directly."
 ---
 
 ## What to read first
@@ -32,7 +32,7 @@ features:
 Agent App is the application layer for agent hosts. If you are new to the standard, read in this order:
 
 1. [What is Agent App?](/en/what-is-agent-app) explains the boundary between complete apps, experts, Runtime, UI, Context, Knowledge, Skills, Tools / Connectors, Artifacts, Evidence, Policy, and QC.
-2. [Specification](/en/specification) defines the v0.7 package contract.
+2. [Specification](/en/specification) defines the v0.8 package contract.
 3. [Quickstart](/en/authoring/quickstart) shows the smallest useful package.
 4. [Runtime package design](/en/authoring/runtime-package) explains where real UI, worker, storage, and workflow implementation lives.
 5. [Capability SDK](/en/client-implementation/capability-sdk) explains how apps call host capabilities without importing internals.
@@ -51,17 +51,17 @@ Agent App is the application layer for agent hosts. If you are new to the standa
 
 ## Current version
 
-The current line is v0.7. It keeps the executable package contract, v0.5 layered configuration, and v0.6 Agent task runtime control plane, then adds Requirement Boundary & Capability Handoff: `app.requirements.yaml`, `app.boundary.yaml`, `app.integrations.yaml`, `app.operations.yaml`, and App Fit Reports. A v0.7 app can explain what the App owns, what Host/Cloud must provide, what connectors adapt, what remains in external systems, and what humans must approve.
+The current line is v0.8. It keeps the executable package contract, v0.5 layered configuration, v0.6 Agent task runtime control plane, and v0.7 Requirement Boundary & Capability Handoff, then adds Standalone Installation & Runtime Separation through `app.install.yaml`. A v0.8 app can explain both delivery responsibilities and whether it installs inside Lime, as a standalone branded app, against a system Lime Runtime, or in a compatible web host.
 
 ## Package maturity ladder
 
 | Level | What exists | Host expectation |
 | --- | --- | --- |
 | Catalog draft | `APP.md` with identity, entries, and intended setup. | Can be indexed and reviewed, but may not activate. |
-| Runnable local app | Runtime assets, declared capabilities, storage namespace, and permissions. | Can install, project, authorize, and run under host policy. |
+| Runnable local app | Runtime assets, declared capabilities, storage namespace, permissions, and install mode. | Can install, project, authorize, and run under host policy. |
 | Tenant-ready app | Overlay templates, Knowledge binding plan, secrets, evals, and release metadata. | Can be enabled per workspace without forking the official package. |
 | Marketplace-ready app | Provenance hashes, migration plan, compatibility matrix, examples, and support policy. | Can be distributed, upgraded, audited, and removed predictably. |
 
 ## Design boundary
 
-Agent App intentionally sits above the surrounding standards as the composition layer. Runtime executes tasks; UI renders interaction surfaces; Context assembles task context; Skills describe reusable procedures; Knowledge supplies trusted facts; Tools and Connectors call external systems; Artifacts persist deliverables; Evidence, Policy, and QC make results trustworthy. Agent App packages those pieces with workflow, storage, permissions, lifecycle, and v0.7 boundary files so the host can run a complete product experience without baking vertical business logic into host core.
+Agent App intentionally sits above the surrounding standards as the composition layer. Runtime executes tasks; UI renders interaction surfaces; Context assembles task context; Skills describe reusable procedures; Knowledge supplies trusted facts; Tools and Connectors call external systems; Artifacts persist deliverables; Evidence, Policy, and QC make results trustworthy. Agent App packages those pieces with workflow, storage, permissions, lifecycle, v0.7 boundary files, and v0.8 install metadata so a compatible host can run a complete product experience without baking vertical business logic into host core.

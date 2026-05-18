@@ -12,10 +12,10 @@ Use `docs/examples/content-factory-app/APP.md` as the current fixture. The secti
 ## Required identity
 
 ```yaml
-manifestVersion: 0.7.0
+manifestVersion: 0.8.0
 name: content-factory-app
 description: Content Factory App for knowledge building, content scenario planning, content production, and review.
-version: 0.7.0
+version: 0.8.0
 status: ready
 appType: domain-app
 runtimeTargets:
@@ -29,13 +29,13 @@ Identity fields let registries and hosts index the package. They should be stabl
 ```yaml
 requires:
   lime:
-    appRuntime: ">=0.7.0 <1.0.0"
-  sdk: "@lime/app-sdk@^0.7.0"
+    appRuntime: ">=0.8.0 <1.0.0"
+  sdk: "@lime/app-sdk@^0.8.0"
   capabilities:
-    lime.ui: "^0.7.0"
-    lime.storage: "^0.7.0"
-    lime.agent: "^0.7.0"
-    lime.connectors: "^0.7.0"
+    lime.ui: "^0.8.0"
+    lime.storage: "^0.8.0"
+    lime.agent: "^0.8.0"
+    lime.connectors: "^0.8.0"
 ```
 
 Requirements should describe what the host must provide. They should not describe host internals.
@@ -167,7 +167,7 @@ The Markdown body should answer:
 ## Validation commands
 
 ```bash
-npm run cli -- validate docs/examples/content-factory-app --version 0.7
+npm run cli -- validate docs/examples/content-factory-app --version 0.8
 npm run cli -- project docs/examples/content-factory-app
 npm run cli -- readiness docs/examples/content-factory-app
 ```

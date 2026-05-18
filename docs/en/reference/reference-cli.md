@@ -20,7 +20,7 @@ npm run cli -- validate docs/examples/content-factory-app
 From npm after publishing:
 
 ```bash
-npx agentapp-ref@0.7.0 validate ./my-agent-app --version 0.7
+npx agentapp-ref@0.8.0 validate ./my-agent-app --version 0.8
 ```
 
 ## Commands
@@ -32,8 +32,8 @@ npx agentapp-ref@0.7.0 validate ./my-agent-app --version 0.7
 | `to-catalog <app>` | Emit compact catalog metadata. |
 | `project <app>` | Emit host catalog projection with provenance. |
 | `readiness <app>` | Check static setup readiness without running an agent. |
-| `migrate-check <app> [--target 0.7.0]` | Report migration gaps for the current target version. |
-| `migrate-generate <app> [--target 0.7.0]` | Suggest layered config files, including v0.6 `app.runtime.yaml` and v0.7 boundary / integration / operation files. |
+| `migrate-check <app> [--target 0.8.0]` | Report migration gaps for the current target version. |
+| `migrate-generate <app> [--target 0.8.0]` | Suggest layered config files, including v0.6 `app.runtime.yaml`, v0.7 boundary / integration / operation files, and v0.8 `app.install.yaml`. |
 
 ## Validate
 
@@ -49,7 +49,7 @@ Use this in CI before publishing. It catches missing required fields, unsupporte
 npm run cli -- project docs/examples/content-factory-app
 ```
 
-Projection output includes app summary, entries, capability requirements, storage, services, workflows, permissions, requirements, boundary, integrations, operations, and provenance. Hosts can use this as a model for their own projection layer.
+Projection output includes app summary, entries, capability requirements, storage, services, workflows, permissions, requirements, boundary, integrations, operations, install metadata, and provenance. Hosts can use this as a model for their own projection layer.
 
 ## Readiness
 

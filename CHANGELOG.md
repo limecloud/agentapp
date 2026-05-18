@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.8.0
+
+- Adds Standalone Installation & Runtime Separation so Agent Apps can be distributed inside Lime, as standalone branded apps, against a shared system Lime Runtime, or in compatible web hosts.
+- Adds `app.install.yaml` as the v0.8 layered file for install modes, runtime requirements, standalone shell metadata, runtime-backed constraints, branding, and compatibility.
+- Splits the product model into Agent App package, Lime Runtime Core, Lime Desktop host, and Lime App Shell.
+- Adds `app-install.schema.json` and extends `app-manifest.schema.json` with `manifestVersion: 0.8.0` and the `install` shorthand.
+- Updates the reference CLI to 0.8.0 with `--version 0.8`, v0.8 migration gaps, `app.install.yaml` generation, readiness install hints, and projection of install metadata.
+- Updates Content Factory to a v0.8 example with standalone and runtime-backed install metadata.
+- Backward compatible: v0.7 apps remain valid; v0.8 adds distribution shape without weakening capability governance.
+
 ## 0.7.0
 
 - Adds Requirement Boundary & Capability Handoff so a business request can be split across App, Host, Cloud, connector, external-system, and human-decision planes.

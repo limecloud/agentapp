@@ -5,7 +5,7 @@ description: 宿主如何发现、校验、安装和激活 Agent App。
 
 # 发现与安装
 
-安装不是执行。宿主应该先发现和校验 Agent App，再创建运行状态或暴露可执行 entry。
+安装不是执行。宿主应该先发现和校验 Agent App，再创建运行状态或暴露可执行 entry。v0.8 中的“宿主”可以是 Lime Desktop、Lime App Shell、runtime-backed shell 或兼容 Web Host；它们都必须收敛到同一套 manifest、projection、readiness 和 Capability SDK 契约。
 
 ## 发现来源
 
@@ -16,6 +16,8 @@ description: 宿主如何发现、校验、安装和激活 Agent App。
 - tenant bootstrap payload
 - private package URL
 - development fixture
+- 内嵌 Lime App Shell 的独立安装包
+- 依赖系统 `lime-runtime` 的 runtime-backed package
 
 所有来源都应收敛到同一个 package identity 和 manifest parser。
 
@@ -32,6 +34,7 @@ sequenceDiagram
   Host->>Registry: 拉取 catalog 和 release metadata
   Registry-->>Host: manifest summary、package URL、hash
   Host->>Host: 检查兼容性和 policy preview
+  Host->>Host: 解析安装模式和 Runtime 要求
   Host->>Package: 下载 package
   Host->>Host: 校验 package hash 和 manifest hash
   Host->>Host: 生成 projection
@@ -42,7 +45,7 @@ sequenceDiagram
 
 ## Package identity
 
-Package identity 应包含 app name、package version、manifest version、source URI、package hash、manifest hash、installed timestamp、release channel 或 tenant enablement ref。
+Package identity 应包含 app name、package version、manifest version、install mode、source URI、package hash、manifest hash、installed timestamp、release channel 或 tenant enablement ref。
 
 这个 identity 会附加到 projection、runtime run、artifact、evidence 和 cleanup plan。
 
@@ -54,7 +57,7 @@ Projection 是安全的安装审查输入。
 
 ## 先 Readiness，再运行
 
-Readiness 会识别 blocker：宿主版本不支持、缺必需 capability、未绑定 Knowledge、Tool 不可用、secret 未绑定、permission denied、migration 风险等。
+Readiness 会识别 blocker：宿主版本不支持、安装模式不支持、系统 `lime-runtime` 缺失或版本不兼容、缺必需 capability、未绑定 Knowledge、Tool 不可用、secret 未绑定、permission denied、migration 风险等。
 
 ## 激活
 
@@ -83,4 +86,5 @@ Readiness 会识别 blocker：宿主版本不支持、缺必需 capability、未
 - readiness 不执行 app code。
 - 安装审查展示权限和数据边界。
 - 首次安装就建立 app namespace。
+- 激活前记录 install mode。
 - 真实 runtime 前已经有 uninstall plan。
