@@ -52,6 +52,7 @@ features:
 - [Standards ecosystem boundary](./agent-standards-boundary.md)
 - [Runtime package design](./authoring/runtime-package.md)
 - [Capability SDK](./client-implementation/capability-sdk.md)
+- [Desktop host conformance](./client-implementation/desktop-host-conformance.md)
 - [Runtime model](./client-implementation/runtime-model.md)
 - [Content Factory example](./examples/content-factory.md)
 - [Lightweight Content Ops example](./examples/lightweight-content-ops.md)
@@ -61,7 +62,7 @@ features:
 | Role | Start here | Then read |
 | --- | --- | --- |
 | App author | [Quickstart](./authoring/quickstart.md) | Runtime package, manifest design, permissions, release. |
-| Host implementor | [Runtime model](./client-implementation/runtime-model.md) | Capability SDK, projection, readiness, security. |
+| Host implementor | [Desktop host conformance](./client-implementation/desktop-host-conformance.md) | Runtime model, Capability SDK, projection, readiness, security. |
 | Standards reviewer | [Specification](./specification.md) | JSON Schemas, glossary, version notes. |
 | Product planner | [What is Agent App?](./what-is-agent-app.md) | Standards ecosystem boundary, examples, mini-program analogy. |
 

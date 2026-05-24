@@ -85,6 +85,7 @@ Compatible hosts should expose versioned, authorized, mockable capabilities such
 - `lime.policy` for permissions, cost, risk, data boundary
 - `lime.evidence` for provenance and replay
 - `lime.secrets` for credentials without plaintext app access
+- `lime.cloudSession`, `lime.modelSettings`, `lime.branding`, `lime.billing`, and `lime.appUpdates` for shared desktop platform capabilities
 
 Apps must not import host internals. They declare capability requirements in the manifest and receive runtime handles from the host. v0.8 keeps the layered manifest model, keeps v0.6 `app.runtime.yaml` for the `lime.agent` task control plane, keeps v0.7 requirement-boundary files, and adds `app.install.yaml` so packages can declare `in_lime`, `standalone`, `runtime_backed`, and `web_host` install modes.
 
@@ -116,6 +117,7 @@ Compatible hosts should:
 - [What is Agent App?](docs/en/what-is-agent-app.md)
 - [Runtime package design](docs/en/authoring/runtime-package.md)
 - [Capability SDK](docs/en/client-implementation/capability-sdk.md)
+- [Desktop host conformance](docs/en/client-implementation/desktop-host-conformance.md)
 - [Agent App and Standards Ecosystem Boundary](docs/en/agent-standards-boundary.md)
 - [Runtime model](docs/en/client-implementation/runtime-model.md)
 - [中文规范](docs/zh/specification.md)

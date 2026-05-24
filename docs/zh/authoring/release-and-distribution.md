@@ -55,6 +55,12 @@ sequenceDiagram
 
 Registry 负责分发，宿主负责安装和运行。对 standalone release 来说，宿主可以是嵌入品牌安装包的 Lime App Shell；对 runtime-backed release 来说，宿主必须确认系统 `lime-runtime` 满足声明的版本范围。
 
+开发者工具的发布认证不属于宿主业务面。嵌入式 App 可以通过 `lime.cloudSession` just-in-time 获取宿主当前会话令牌，再由 App 自己调用 registry / control plane；宿主只提供通用登录、会话和授权能力，不代理具体发布动作，也不把 token 落到 App 配置里。
+
+如果 just-in-time token 被控制面拒绝，App 可以调用 `lime.cloudSession.requestLogin` 并传入 `{ "force": true }`，然后重试一次。该重试仍然属于通用宿主会话能力：宿主只刷新授权，不代 App 执行发布操作。
+
+面向普通开发者的可视化发布入口必须保持极简主路径：默认只展示应用目录、识别结果、发布按钮和发布结果。Token、Release ID、API Base、payload、hash、dry-run 明细等诊断信息必须默认收进折叠详情或 CLI 输出，不能作为主页面的常驻内容。
+
 ## 不能覆盖什么
 
 升级 release 不得覆盖：

@@ -57,6 +57,12 @@ sequenceDiagram
 
 The registry distributes. The host installs and runs. For standalone releases, the host may be Lime App Shell embedded in the branded app bundle; for runtime-backed releases, the host must verify that the system `lime-runtime` satisfies the declared version range.
 
+Developer-tool publish authentication is not part of the host business layer. An embedded app may use `lime.cloudSession` to fetch the current host session token just in time, then call the registry or control plane itself. The host only provides generic login, session, and authorization support; it must not proxy the publish flow or persist the token into app config.
+
+If a just-in-time token is rejected by the control plane, the app may call `lime.cloudSession.requestLogin` with `{ "force": true }` and retry once. The retry still belongs to the generic host session capability; the host must refresh authorization only, not execute the publish operation on behalf of the app.
+
+Visual publish tools for everyday developers must keep the primary path minimal: app directory, inspection result, publish action, and publish result. Token, release ID, API base, payload, hash, and dry-run diagnostics must default to a collapsed details panel or CLI output, not permanent page chrome.
+
 ## What must not be overwritten
 
 A release upgrade must not overwrite:

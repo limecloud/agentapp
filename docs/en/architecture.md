@@ -28,7 +28,7 @@ Uses system lime-runtime]
   Web --> User
 ```
 
-This page collects the key structural, install-mode, requirement-boundary, and runtime diagrams for Agent App v0.8 in one place. The [specification](./specification) defines rules; this page renders them.
+This page collects the key structural, install-mode, requirement-boundary, and runtime diagrams for Agent App v0.8 in one place. The [specification](./specification) defines rules; this page renders them. Desktop host implementations such as `lime-desktop-platform` must also satisfy [Desktop host conformance](./client-implementation/desktop-host-conformance.md).
 
 ## 1. Standard layers
 
@@ -54,7 +54,7 @@ flowchart TD
     I18N[app.i18n.yaml + locales]
   end
 
-  subgraph Host[Host runtime - Lime Desktop]
+  subgraph Host[Host runtime - Lime Desktop / lime-desktop-platform]
     Discover[Discovery & trigger routing]
     Verify[Signature & hash verify]
     Project[Projection]

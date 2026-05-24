@@ -25,7 +25,7 @@ Current fact source: **Agent App is the installable application composition laye
 | Agent Policy | Permissions, risk, retention, cost, tenant rules, human-review thresholds. | App declares policy inputs; Host and Cloud enforce decisions. |
 | Agent QC | Quality gates, acceptance criteria, regression checks, waivers, reports. | App declares evals, readiness, and review gates. |
 | Domain standards | Long-running workspace semantics and file shapes for a business domain. | App may implement domain profiles without hardcoding domain logic into Host Core. |
-| Lime Host / Cloud | Local execution, sandbox, secrets, registry, tenant policy, OAuth, webhook, scheduled sync. | App declares requirements; Host and Cloud provide governed capabilities. |
+| Lime Host / Cloud | Local execution, sandbox, secrets, registry, tenant policy, OAuth, webhook, scheduled sync, shared platform capabilities. | App declares requirements; Host and Cloud provide governed capabilities. |
 
 ## What Agent App owns
 
@@ -43,7 +43,7 @@ It does not own the underlying standards.
 ## What Agent App must not absorb
 
 - A private model gateway, scheduler, MCP runtime, or tool broker belongs to Runtime / Host / Cloud.
-- OAuth, secrets, tenant policy, registry sync, and connector execution belong to Host / Cloud.
+- OAuth, secrets, tenant policy, registry sync, connector execution, model settings, OEM, billing, and app updates belong to Host / Cloud.
 - Private customer facts belong to Knowledge packs, workspace files, secrets, or overlays.
 - Reusable methods belong to Skills; domain-wide semantics belong to domain standards.
 - Durable output contracts belong to Artifact; trust chains belong to Evidence; gates belong to Policy and QC.

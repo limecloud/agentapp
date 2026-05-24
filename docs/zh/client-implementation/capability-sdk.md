@@ -155,6 +155,26 @@ UI runtime 中的 `getLimeRuntime()` 可以由 Host Bridge 承载，但语义仍
 
 App 作者不应该直接手写私有 `postMessage` 协议。需要宿主能力时，优先调用 SDK；只有 `app:ready`、`host:getSnapshot` 这类 runtime 生命周期事件可以由轻量 bootstrap 直接发送。
 
+主题同步也属于 SDK 边界，而不是业务 App 的页面逻辑。Host 负责通过 `host:snapshot` 和 `theme:update` 发送 `lime.ui` 主题快照；App 侧必须使用 SDK helper 应用主题，不应该在每个 App 中重复解析 `theme.tokens`、猜测 Lime 主题或读取外层 DOM。
+
+```js
+import {
+  createLimeHostBridgeCapabilityInvoker,
+  syncLimeHostTheme,
+} from '@limecloud/agent-app-runtime';
+
+const invoker = createLimeHostBridgeCapabilityInvoker({
+  appId: 'my-app',
+  entryKey: 'dashboard',
+});
+
+const stopThemeSync = syncLimeHostTheme(invoker);
+```
+
+如果 App 需要处理一次性的宿主快照或测试数据，应使用 `applyLimeHostTheme(payload)`。该 helper 只应用受支持的 `--lime-*` 和 `--app-*` CSS 变量，并维护 `data-lime-theme`、`data-lime-theme-effective` 和 `data-lime-color-scheme`。业务 App 只消费这些 CSS 变量来定义自己的视觉 token。
+
+桌面共享能力也遵循同一规则。模型设置、云端会话、OEM 品牌、billing 和 App 更新都是宿主能力，通过 `lime.modelSettings`、`lime.cloudSession`、`lime.branding`、`lime.billing`、`lime.appUpdates` 等 SDK handle 暴露。业务 App 可以读取有效投影或请求 setup，但不得把宿主会话、全局模型配置、billing 账本或更新状态保存为 App 私有事实。
+
 Host 实现者必须保证：
 
 - 所有 Host Bridge 消息都有 `protocol="lime.agentApp.bridge"` 和 `version=1`。

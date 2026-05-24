@@ -28,7 +28,7 @@ Agent / Storage / Secrets / Policy / Evidence / Tools]
   Web --> User
 ```
 
-本页用图集中展示 Agent App v0.8 的关键结构、安装模式、需求边界与运行时流程。各章节图与 [规范](./specification) 互相补充：规范是规则，本页是图。
+本页用图集中展示 Agent App v0.8 的关键结构、安装模式、需求边界与运行时流程。各章节图与 [规范](./specification) 互相补充：规范是规则，本页是图。`lime-desktop-platform` 这类桌面宿主实现还必须满足 [桌面宿主一致性](./client-implementation/desktop-host-conformance.md)。
 
 ## 1. 标准分层架构
 
@@ -54,7 +54,7 @@ flowchart TD
     I18N[app.i18n.yaml + locales]
   end
 
-  subgraph Host[宿主运行时（Lime Desktop）]
+  subgraph Host[宿主运行时（Lime Desktop / lime-desktop-platform）]
     Discover[Discovery & Trigger 路由]
     Verify[签名与 hash 校验]
     Project[Projection 投影]

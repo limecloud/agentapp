@@ -25,7 +25,7 @@ Agent App 是 Agent 标准生态中的应用层。它应该组合相邻标准，
 | Agent Policy | 权限、风险、保留、成本、租户规则、人审门槛。 | App 声明 policy 输入，Host 和 Cloud 执行决策。 |
 | Agent QC | 质量门禁、验收标准、回归检查、waiver、报告。 | App 声明 evals、readiness 和 review gates。 |
 | 领域标准 | 某类业务域的长期工作台语义和文件结构。 | App 可实现领域 profile，不把领域逻辑写进 Host Core。 |
-| Lime Host / Cloud | 本地执行、沙箱、密钥、registry、tenant policy、OAuth、webhook、scheduled sync。 | App 声明需求，Host 和 Cloud 提供受治理的能力。 |
+| Lime Host / Cloud | 本地执行、沙箱、密钥、registry、tenant policy、OAuth、webhook、scheduled sync、共享平台能力。 | App 声明需求，Host 和 Cloud 提供受治理的能力。 |
 
 ## Agent App 负责什么
 
@@ -43,7 +43,7 @@ Agent App 负责组合：
 ## Agent App 不应该吸收什么
 
 - 私有模型网关、调度器、MCP runtime 或 tool broker 属于 Runtime / Host / Cloud。
-- OAuth、secrets、tenant policy、registry sync 和 connector 执行属于 Host / Cloud。
+- OAuth、secrets、tenant policy、registry sync、connector 执行、模型设置、OEM、billing 和 App 更新属于 Host / Cloud。
 - 客户私有事实属于 Knowledge packs、workspace files、secrets 或 overlays。
 - 可复用方法属于 Skills；领域通用语义属于领域标准。
 - 持久输出契约属于 Artifact；可信链路属于 Evidence；门禁属于 Policy 和 QC。

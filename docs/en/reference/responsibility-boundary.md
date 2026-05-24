@@ -27,8 +27,8 @@ flowchart LR
 | Plane | Owns | Must not own |
 | --- | --- | --- |
 | Agent App | User experience, business workflow, app state, artifacts, review, acceptance rules | Credential hosting, direct MCP/CLI startup, bypassing host policy, direct external-system control |
-| Lime Host | Local AgentRuntime, MCP, CLI, tools, files, sandbox, user confirmation, local evidence | Vertical business rules, customer-private workflow, hard-coded vendor-specific adapters |
-| Lime Cloud | Registry, tenant policy, OAuth broker, webhook, scheduled sync, team governance | Default local agent execution, customer business implementation, non-core vendor logic |
+| Lime Host | Local AgentRuntime, MCP, CLI, tools, files, sandbox, user confirmation, local evidence, generic login and session handling | Vertical business rules, customer-private workflow, hard-coded vendor-specific adapters, proxying business publish flows |
+| Lime Cloud | Registry, tenant policy, OAuth broker, webhook, scheduled sync, team governance, session minting | Default local agent execution, customer business implementation, non-core vendor logic, proxying vertical app publish flows |
 | Connector / Tool Adapter | External protocol adaptation, field mapping, read/write actions, error translation | Product UX, final tenant-policy decision, plaintext credential storage |
 | External System | Source-of-truth records, third-party state, publishing platform, existing business system | Agent App internal state, Lime permission model |
 | Human | High-risk decisions, final review, publish confirmation, exception handling | Repetitive mechanical execution that is safe to automate |
@@ -59,7 +59,8 @@ flowchart TD
 - Apps **must** declare external side effects, required connections, acceptance criteria, and non-goals before execution.
 - Host / Cloud **must** own MCP, CLI, tools, credentials, policy, authorization, and evidence execution.
 - Apps **must not** store plaintext third-party credentials.
+- Apps **may** fetch the current host session token just in time through an explicit capability, but must not write that token into snapshots, logs, artifacts, or persistent config.
 - Apps **must not** directly start MCP servers, CLIs, or tool runtimes.
 - Apps **must not** auto-execute publish, delete, or bulk-update operations by default.
+- Hosts **may** expose generic login, session, token-minting, and OAuth callback bridge capabilities, but **must not** act as a proxy executor for vertical app publishing or other domain actions.
 - Non-core vendor adapters should be installed as connector packages, MCP servers, CLI adapters, browser adapters, or customer overlays.
-

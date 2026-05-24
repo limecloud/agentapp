@@ -7,6 +7,8 @@ description: 宿主客户端接入 Agent App 的分阶段实现路径。
 
 宿主可以分阶段支持 Agent App，不需要一开始就执行任意 App 代码。安全路径是先做 package discovery、projection、readiness 和 cleanup，再逐步开放受控 SDK capability。
 
+桌面宿主还应同时遵循 [桌面宿主一致性](./desktop-host-conformance.md)。该文档把这里的通用宿主职责映射到 Lime Desktop Platform、Electron adapter、Tauri adapter、共享设置、OAuth、OEM、billing 和更新行为。
+
 ## 宿主最低职责
 
 | 职责 | 含义 |
@@ -67,7 +69,9 @@ UI Host 和 Workflow Runtime 都应 feature-flagged。App UI 只能拿 injected 
   "capabilities": {
     "lime.ui": { "version": "0.3.0", "enabled": true },
     "lime.storage": { "version": "0.3.0", "enabled": true },
-    "lime.agent": { "version": "0.3.0", "enabled": true }
+    "lime.agent": { "version": "0.3.0", "enabled": true },
+    "lime.cloudSession": { "version": "0.8.0", "enabled": true },
+    "lime.modelSettings": { "version": "0.8.0", "enabled": true }
   }
 }
 ```

@@ -7,6 +7,8 @@ description: Implementation path for adding Agent App support to a host client.
 
 A host can add Agent App support incrementally. It does not need to start by executing arbitrary app code. The safest path is to begin with package discovery, projection, readiness, and cleanup, then add controlled SDK capabilities.
 
+For desktop hosts, also apply [Desktop host conformance](./desktop-host-conformance.md). It maps the generic host responsibilities here to Lime Desktop Platform, Electron adapters, Tauri adapters, shared settings, OAuth, OEM, billing, and update behavior.
+
 ## Minimum host responsibilities
 
 | Responsibility | Meaning |
@@ -85,7 +87,9 @@ A host should publish the capability versions it supports:
   "capabilities": {
     "lime.ui": { "version": "0.3.0", "enabled": true },
     "lime.storage": { "version": "0.3.0", "enabled": true },
-    "lime.agent": { "version": "0.3.0", "enabled": true }
+    "lime.agent": { "version": "0.3.0", "enabled": true },
+    "lime.cloudSession": { "version": "0.8.0", "enabled": true },
+    "lime.modelSettings": { "version": "0.8.0", "enabled": true }
   }
 }
 ```

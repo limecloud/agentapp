@@ -27,8 +27,8 @@ flowchart LR
 | 平面 | 应该负责 | 不应该负责 |
 | --- | --- | --- |
 | Agent App | 用户界面、业务 workflow、App 状态、Artifact、Review、验收规则 | 凭证托管、直接启动 MCP/CLI、绕过 Host 权限、直接接管外部系统 |
-| Lime Host | 本地 AgentRuntime、MCP、CLI、tools、文件、sandbox、用户确认、本地 evidence | 垂直业务规则、客户私有流程、厂商专属适配硬编码 |
-| Lime Cloud | Registry、tenant policy、OAuth broker、webhook、scheduled sync、团队治理 | 默认执行本地 Agent task、承载客户业务实现、接管非核心厂商逻辑 |
+| Lime Host | 本地 AgentRuntime、MCP、CLI、tools、文件、sandbox、用户确认、本地 evidence、通用登录与会话能力 | 垂直业务规则、客户私有流程、厂商专属适配硬编码、代业务发布 |
+| Lime Cloud | Registry、tenant policy、OAuth broker、webhook、scheduled sync、团队治理、会话签发 | 默认执行本地 Agent task、承载客户业务实现、接管非核心厂商逻辑、替 App 代理垂直业务发布 |
 | Connector / Tool Adapter | 外部系统协议适配、字段映射、读写动作、错误翻译 | 业务产品体验、租户策略最终裁决、明文凭证保存 |
 | External System | 事实源、第三方状态、发布平台、已有业务系统 | Agent App 内部状态、Lime 权限模型 |
 | Human | 高风险决策、最终审核、发布确认、例外处理 | 重复性机械执行、已声明可自动化的低风险动作 |
@@ -59,7 +59,8 @@ flowchart TD
 - App **必须**在执行前声明外部副作用、依赖连接、验收条件和非目标。
 - Host / Cloud **必须**托管 MCP、CLI、tools、凭证、策略、授权和 evidence 相关执行。
 - App **不得**保存第三方明文凭证。
+- App **可以**通过显式 capability 以 just-in-time 方式获取当前宿主会话令牌，但不得把令牌写入 snapshot、log、artifact 或持久配置。
 - App **不得**直接启动 MCP server、CLI 或 tool runtime。
 - App **不得**默认自动执行发布、删除、批量更新等高风险动作。
+- Host **可以**提供通用登录、会话、令牌签发和 OAuth 本机回调桥能力，但 **不得** 代垂直业务 App 执行发布或其他领域动作。
 - 非 Lime 核心厂商适配应作为 connector package、MCP server、CLI adapter、browser adapter 或 customer overlay 接入。
-

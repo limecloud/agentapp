@@ -36,7 +36,8 @@ Agent App is the application layer for agent hosts. If you are new to the standa
 3. [Quickstart](/en/authoring/quickstart) shows the smallest useful package.
 4. [Runtime package design](/en/authoring/runtime-package) explains where real UI, worker, storage, and workflow implementation lives.
 5. [Capability SDK](/en/client-implementation/capability-sdk) explains how apps call host capabilities without importing internals.
-6. [Content Factory example](/en/examples/content-factory) shows a product-level app shape.
+6. [Desktop host conformance](/en/client-implementation/desktop-host-conformance) explains how Lime Desktop Platform, Electron hosts, and Tauri hosts conform to the same standard.
+7. [Content Factory example](/en/examples/content-factory) shows a product-level app shape.
 
 ## What the standard covers
 

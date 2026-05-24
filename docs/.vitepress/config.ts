@@ -111,6 +111,7 @@ const enSidebar = [
     text: 'For client implementors',
     items: [
       { text: 'Adding support', link: '/en/client-implementation/adding-support' },
+      { text: 'Desktop host conformance', link: '/en/client-implementation/desktop-host-conformance' },
       { text: 'Discovery and installation', link: '/en/client-implementation/discovery-and-installation' },
       { text: 'Runtime model', link: '/en/client-implementation/runtime-model' },
       { text: 'Capability SDK', link: '/en/client-implementation/capability-sdk' },
@@ -203,6 +204,7 @@ const zhSidebar = [
     text: '客户端实现者',
     items: [
       { text: '接入支持', link: '/zh/client-implementation/adding-support' },
+      { text: '桌面宿主一致性', link: '/zh/client-implementation/desktop-host-conformance' },
       { text: '发现与安装', link: '/zh/client-implementation/discovery-and-installation' },
       { text: '运行时模型', link: '/zh/client-implementation/runtime-model' },
       { text: 'Capability SDK', link: '/zh/client-implementation/capability-sdk' },

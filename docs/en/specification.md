@@ -337,9 +337,14 @@ The Capability SDK is the only stable boundary between apps and Lime. It should 
 | `lime.policy` | Permission requests, risk confirmation, cost limits, enterprise policy, data boundaries. |
 | `lime.evidence` | Record model calls, tool calls, knowledge sources, artifact provenance, eval results. |
 | `lime.secrets` | Host API keys, OAuth tokens, and external credentials without exposing plaintext to the app. |
+| `lime.cloudSession` | Host session snapshot, login trigger, and just-in-time access token; snapshots do not expose the token. |
+| `lime.modelSettings` | Effective model provider/profile projection and setup status; apps do not persist global model settings. |
+| `lime.branding` | OEM brand, shell copy, and visual token projection; apps consume tokens instead of hardcoding host branding. |
+| `lime.billing` | Tenant billing, subscription, quota, and needs-payment projection; apps do not own the ledger. |
+| `lime.appUpdates` | Host-managed release check, download, switch, rollback, and installed package status. |
 | `lime.events` | Publish and subscribe app events so workflow and UI stay decoupled. |
 
-Apps must declare capability and version requirements before install. Hosts perform capability negotiation at install, activation, and runtime.
+Apps must declare capability and version requirements before install. Hosts perform capability negotiation at install, activation, and runtime. `lime.cloudSession` snapshots must never include bearer tokens. Apps that need to call a control plane may explicitly request a just-in-time token. If that token is rejected, apps may call `lime.cloudSession.requestLogin` with `{ "force": true }` and retry once; hosts must only refresh the generic session, may use a local OAuth callback bridge to complete login, and must not proxy the app's business operation.
 
 ```yaml
 requires:
@@ -351,6 +356,8 @@ requires:
     lime.storage: "^0.3.0"
     lime.agent: "^0.3.0"
     lime.artifacts: "^0.3.0"
+    lime.cloudSession: "^0.8.0"
+    lime.modelSettings: "^0.8.0"
 ```
 
 v0.3 treats the SDK as a typed contract, not only a list of capability names. Compatible hosts should stabilize at least these call semantics:

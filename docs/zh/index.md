@@ -52,6 +52,7 @@ features:
 - [App 与 Agent 标准生态边界](./agent-standards-boundary.md)
 - [Runtime Package 设计](./authoring/runtime-package.md)
 - [Capability SDK](./client-implementation/capability-sdk.md)
+- [桌面宿主一致性](./client-implementation/desktop-host-conformance.md)
 - [运行时模型](./client-implementation/runtime-model.md)
 - [内容工厂示例](./examples/content-factory.md)
 - [轻量内容运营工作台示例](./examples/lightweight-content-ops.md)
@@ -61,7 +62,7 @@ features:
 | 角色 | 先读 | 再读 |
 | --- | --- | --- |
 | App 作者 | [快速开始](./authoring/quickstart.md) | Runtime Package、Manifest 设计、权限、发布。 |
-| 宿主实现者 | [运行时模型](./client-implementation/runtime-model.md) | Capability SDK、投影、Readiness、安全模型。 |
+| 宿主实现者 | [桌面宿主一致性](./client-implementation/desktop-host-conformance.md) | 运行时模型、Capability SDK、投影、Readiness、安全模型。 |
 | 标准审查者 | [规范](./specification.md) | JSON Schemas、术语表、版本说明。 |
 | 产品规划者 | [什么是 Agent App？](./what-is-agent-app.md) | App 与 Agent 标准生态边界、示例、小程序类比。 |
 

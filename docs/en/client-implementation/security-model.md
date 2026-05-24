@@ -108,6 +108,16 @@ Rules:
 - app receives secret handles or scoped operations
 - secret access is policy checked and auditable
 
+## Session and token boundary
+
+`lime.cloudSession` is a host-provided generic session capability only.
+
+- `host:snapshot` exposes tenant context, control-plane base URL, and session presence, but not the bearer token.
+- A bearer token may only be fetched through an explicit capability invoke, and only for the current control-plane call.
+- `lime.cloudSession.requestLogin` may accept `{ "force": true }` to refresh an existing but rejected session before one retry.
+- The host may open the login flow, but it must not act as the business publish executor for the app.
+- The token must not be written into app config, storage, artifacts, evidence, or logs, and must not become a long-lived business fact.
+
 ## Cleanup security
 
 Uninstall is part of security. Users must be able to remove package code and app data.
@@ -125,3 +135,4 @@ Cleanup should include package cache, projection, readiness state, storage names
 - UI and worker runtimes are sandboxed.
 - Evidence records trust-sensitive actions.
 - Uninstall can remove app-owned data.
+- `lime.cloudSession` does not leak tokens in snapshots, and tokens are for short-lived use only.

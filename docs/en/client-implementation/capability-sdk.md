@@ -96,6 +96,26 @@ Inside UI runtime, `getLimeRuntime()` may be transported by Host Bridge, but its
 
 App authors should not hand-roll private `postMessage` protocols. They should call the SDK for host capabilities. Only runtime lifecycle events such as `app:ready` and `host:getSnapshot` may be sent by a small bootstrap.
 
+Theme synchronization is also an SDK boundary, not page logic inside each business app. The host sends `lime.ui` theme snapshots through `host:snapshot` and `theme:update`; the app must use SDK helpers to apply them instead of parsing `theme.tokens`, guessing Lime themes, or reading the outer DOM in every app.
+
+```js
+import {
+  createLimeHostBridgeCapabilityInvoker,
+  syncLimeHostTheme,
+} from '@limecloud/agent-app-runtime';
+
+const invoker = createLimeHostBridgeCapabilityInvoker({
+  appId: 'my-app',
+  entryKey: 'dashboard',
+});
+
+const stopThemeSync = syncLimeHostTheme(invoker);
+```
+
+For one-off host snapshots or tests, use `applyLimeHostTheme(payload)`. The helper only applies supported `--lime-*` and `--app-*` CSS variables and maintains `data-lime-theme`, `data-lime-theme-effective`, and `data-lime-color-scheme`. Business apps should consume those CSS variables as their own visual tokens.
+
+Desktop shared capabilities follow the same rule. Model settings, cloud session, OEM branding, billing, and app updates are host capabilities exposed through SDK handles such as `lime.modelSettings`, `lime.cloudSession`, `lime.branding`, `lime.billing`, and `lime.appUpdates`. Business apps may read effective projections or request setup, but must not persist host sessions, global model configuration, billing ledgers, or updater state as app-local facts.
+
 Host implementors must ensure that:
 
 - every Host Bridge message has `protocol="lime.agentApp.bridge"` and `version=1`

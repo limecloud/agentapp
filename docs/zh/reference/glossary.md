@@ -13,9 +13,12 @@ description: Agent App 标准中的核心术语。
 | `APP.md` | 必需发现入口，包含 YAML frontmatter 和人类可读指南。 |
 | Runtime package | `APP.md` 引用的 UI、worker、storage、workflow、artifact、eval 等文件。 |
 | Host | 安装、投影、授权并运行 App 的客户端或平台。 |
+| Desktop host | 桌面 App 宿主类别，包括 Lime Desktop Platform、Electron adapter、Tauri adapter 和共享同一 Agent App 契约的 runtime-backed shell。 |
+| Lime Desktop Platform | Lime 的标准桌面宿主实现，负责应用中心、共享设置、OAuth、OEM、billing、更新、Host Bridge 和 Agent App 生命周期。 |
 | Host Bridge | 沙箱 UI 与宿主之间的标准事件桥，协议为 `lime.agentApp.bridge`。 |
 | Capability SDK | 宿主注入的稳定 API，例如 `lime.ui`、`lime.storage`。 |
 | Capability | App 通过 SDK 调用的宿主能力。 |
+| Shared platform capability | 跨 App 共享的平台能力，例如 `lime.cloudSession`、`lime.modelSettings`、`lime.branding`、`lime.billing` 或 `lime.appUpdates`，不应在每个 App 里重复实现。 |
 | Entry | 宿主可见入口，例如 page、command、workflow、artifact、background-task、settings。 |
 | Expert | 聊天优先入口；v0.3 中是 `expert-chat`，不是整个 App。 |
 | Projection | 从 manifest 到宿主 catalog objects 的确定性编译。 |
