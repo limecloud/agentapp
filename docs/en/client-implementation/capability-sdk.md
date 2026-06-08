@@ -75,6 +75,16 @@ Every handle should include:
 - mock implementation for app tests
 - telemetry and evidence hooks
 
+## Shared user state and app-owned services
+
+The SDK follows a mini-program style boundary: the host shares user state and platform capabilities, while apps keep their own product code, storage namespace, and backend services.
+
+Apps may read host projections such as user id, workspace id, tenant id, locale, theme, effective model profile, billing entitlement, and capability availability. These are projections, not credentials. The SDK must never expose bearer tokens, refresh tokens, provider keys, plaintext secrets, database handles, filesystem paths, Electron objects, Tauri commands, or RuntimeCore internals.
+
+App-owned backend services use the same SDK contract as UI and workflow code. A Python parser, Go report engine, Rust indexer, Node worker, Wasm transform, or remote service may exist inside the app package, but it requests `lime.files`, `lime.storage`, `lime.agent`, `lime.artifacts`, `lime.secrets`, and other capabilities through host-mediated handles. Backend services must not open host databases, read workspace files, or fetch secrets directly.
+
+Storage calls are logical namespace calls. The host may map them to per-app SQLite files, per-app database schemas, dedicated databases, or shared metadata tables, but apps see only the SDK namespace contract.
+
 ## App-scoped agent tasks
 
 `lime.agent` is the capability that lets an app use Lime Agent without sending the user back to generic chat or rebuilding agent infrastructure inside the app.
@@ -140,7 +150,7 @@ Host implementors must ensure that:
 - unavailable capabilities return stable blocked errors instead of writing fake data or returning mock success
 - theme, locale, visibility, and entry context are host snapshots, not app business state
 
-## v0.3 minimal typed API
+## Minimal typed API
 
 Host implementors should provide TypeScript types, schemas, mocks, and contract tests for at least:
 

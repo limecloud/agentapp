@@ -5,7 +5,7 @@ description: Terms used by the Agent App standard.
 
 # Glossary
 
-This glossary defines terms as they are used in Agent App v0.3.
+This glossary defines terms as they are used in the current Agent App standard.
 
 | Term | Meaning |
 | --- | --- |
@@ -20,7 +20,7 @@ This glossary defines terms as they are used in Agent App v0.3.
 | Capability | A host-provided service an app can call through the SDK. |
 | Shared platform capability | Host capability such as `lime.cloudSession`, `lime.modelSettings`, `lime.branding`, `lime.billing`, or `lime.appUpdates` that should be shared across apps instead of reimplemented in each app. |
 | Entry | Host-visible launch point such as page, command, workflow, artifact, background task, or settings. |
-| Expert | Chat-first entry. In v0.3 it is represented as `expert-chat`, not as the whole app. |
+| Expert | Chat-first entry. In current manifests it is represented as `expert-chat`, not as the whole app. |
 | Projection | Deterministic compilation from manifest to host catalog objects. |
 | Readiness | Static setup and compatibility check before runtime execution. |
 | Overlay | Tenant, workspace, user, or customer-specific configuration outside the official package. |
@@ -40,7 +40,7 @@ This glossary defines terms as they are used in Agent App v0.3.
 
 | Term | Status |
 | --- | --- |
-| `scene` entry | Legacy compatibility term. v0.3 apps should use `page`, `command`, `workflow`, `artifact`, `background-task`, or `settings`. |
+| `scene` entry | Legacy compatibility term. Current apps should use `page`, `command`, `workflow`, `artifact`, `background-task`, or `settings`. |
 | `home` entry | Legacy compatibility term. Use `page` for app home or dashboard. |
 
 ## Naming guidance

@@ -57,9 +57,9 @@ entries:
     persona: ./agents/advisor.md
 ```
 
-## v0.3 额外要求
+## 额外要求
 
-- `scene` / `home` 只作为 v0.1 兼容入口；新 App 使用 `page`、`command`、`workflow`、`artifact`、`background-task` 或 `settings`。
+- `scene` / `home` 只作为兼容入口；新 App 使用 `page`、`command`、`workflow`、`artifact`、`background-task` 或 `settings`。
 - Product-level App 应声明 `runtimePackage`，并让每个 entry 能追溯到 UI、worker、workflow、expert 或 artifact。
 - 有可执行 entry、worker、tool adapter 或 secret 时，必须声明 `permissions`。
 - 客户差异进入 `overlayTemplates`，不要 fork 官方包。

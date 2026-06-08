@@ -1,11 +1,11 @@
 ---
 title: Responsibility Boundary
-description: v0.7 ownership across App, Host, Cloud, connectors, external systems, and human decisions.
+description: Ownership across App, Host, Cloud, connectors, external systems, and human decisions.
 ---
 
 # Responsibility Boundary
 
-v0.7 asks a practical delivery question: not only “can AI help”, but “which plane should own each part of the requirement”. Agent App owns product experience and workflow orchestration. Lime Host, Lime Cloud, connectors, external systems, and human decisions own execution, governance, integration, source-of-truth state, and risk approval.
+This page asks a practical delivery question: not only “can AI help”, but “which plane should own each part of the requirement”. Agent App owns product experience and workflow orchestration. Lime Host, Lime Cloud, connectors, external systems, and human decisions own execution, governance, integration, source-of-truth state, and risk approval.
 
 ## Boundary overview
 

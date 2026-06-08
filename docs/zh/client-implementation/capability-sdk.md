@@ -75,6 +75,16 @@ await lime.evidence.record({ subject: artifact.id, sources: hits })
 - mock implementation，用于 App 单测。
 - telemetry 和 evidence hook。
 
+## 共享用户态与 App 自有服务
+
+SDK 遵循类似小程序的边界：宿主共享用户态和平台能力，App 保留自己的产品代码、storage namespace 和后端服务。
+
+App 可以读取 user id、workspace id、tenant id、locale、theme、有效模型 profile、billing entitlement 和 capability 可用状态等宿主 projection。这些是 projection，不是凭证。SDK 不得暴露 bearer token、refresh token、provider key、明文 secret、database handle、filesystem path、Electron 对象、Tauri command 或 RuntimeCore 内部类型。
+
+App 自有后端服务使用与 UI、workflow code 相同的 SDK 契约。App 包内可以有 Python parser、Go report engine、Rust indexer、Node worker、Wasm transform 或远端服务，但它们请求 `lime.files`、`lime.storage`、`lime.agent`、`lime.artifacts`、`lime.secrets` 等能力时仍必须通过宿主中介的 handle。后端服务不得直接打开宿主数据库、读取 workspace 文件或获取 secret。
+
+Storage 调用是逻辑 namespace 调用。宿主可以把它映射到每 App SQLite file、每 App database schema、独立 database 或共享 metadata table，但 App 只能看到 SDK namespace contract。
+
 ## App 作用域内的 Agent Task
 
 `lime.agent` 是 App 使用 Lime Agent 的能力边界：它让 App 在自己的业务界面内调用智能任务，而不是把用户送回通用聊天框，也不是让 App 自建 Agent 基础设施。
@@ -199,7 +209,7 @@ Host 实现者必须保证：
 - 未开放能力返回稳定 blocked error，不写入假数据、不返回 mock 成功。
 - 主题、语言、可见性和入口上下文是 Host 快照，不是 App 业务状态。
 
-## v0.3 最小 typed API
+## 最小 typed API
 
 Host 实现者至少要为这些调用提供类型、schema、mock 和 contract tests：
 

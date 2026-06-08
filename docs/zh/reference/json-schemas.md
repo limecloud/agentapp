@@ -12,13 +12,13 @@ Agent App 发布 JSON Schemas，让宿主、registry、编辑器和 CI 可以机
 | Schema | 用途 |
 | --- | --- |
 | [`app-manifest.schema.json`](/schemas/app-manifest.schema.json) | 校验 `APP.md` 或 `app.manifest.json` 中的 manifest 字段。 |
-| [`app-runtime.schema.json`](/schemas/app-runtime.schema.json) | 校验 v0.6 `app.runtime.yaml` Agent task runtime contract 和 v0.9 App Server bridge profile。 |
-| [`app-requirements.schema.json`](/schemas/app-requirements.schema.json) | 校验 v0.7 业务需求、MVP 范围、非目标和验收标准。 |
-| [`app-boundary.schema.json`](/schemas/app-boundary.schema.json) | 校验 v0.7 App / Host / Cloud / connector / external system / human 职责边界。 |
-| [`app-integrations.schema.json`](/schemas/app-integrations.schema.json) | 校验 v0.7 Host/Cloud 托管的外部集成需求。 |
-| [`app-operations.schema.json`](/schemas/app-operations.schema.json) | 校验 v0.7 操作副作用、审批、dry-run 和 evidence 契约。 |
-| [`app-install.schema.json`](/schemas/app-install.schema.json) | 校验 v0.8 Lime 内安装、独立安装、Runtime-backed 和 Web Host 安装契约，以及 v0.9 runtime distribution metadata。 |
-| [`app-fit-report.schema.json`](/schemas/app-fit-report.schema.json) | 校验 v0.7 商业需求适配评估报告。 |
+| [`app-runtime.schema.json`](/schemas/app-runtime.schema.json) | 校验 `app.runtime.yaml` Agent task runtime contract 和 App Server bridge profile。 |
+| [`app-requirements.schema.json`](/schemas/app-requirements.schema.json) | 校验业务需求、MVP 范围、非目标和验收标准。 |
+| [`app-boundary.schema.json`](/schemas/app-boundary.schema.json) | 校验 App / Host / Cloud / connector / external system / human 职责边界。 |
+| [`app-integrations.schema.json`](/schemas/app-integrations.schema.json) | 校验 Host/Cloud 托管的外部集成需求。 |
+| [`app-operations.schema.json`](/schemas/app-operations.schema.json) | 校验操作副作用、审批、dry-run 和 evidence 契约。 |
+| [`app-install.schema.json`](/schemas/app-install.schema.json) | 校验 Lime 内安装、独立安装、Runtime-backed 和 Web Host 安装契约，以及 runtime distribution metadata。 |
+| [`app-fit-report.schema.json`](/schemas/app-fit-report.schema.json) | 校验商业需求适配评估报告。 |
 | [`app-projection.schema.json`](/schemas/app-projection.schema.json) | 校验带 provenance 的宿主 projection 输出。 |
 | [`app-readiness.schema.json`](/schemas/app-readiness.schema.json) | 校验 readiness 输出和 setup findings。 |
 
@@ -33,9 +33,9 @@ Schema 不替代 runtime policy，只校验结构。
 
 ## Manifest Schema
 
-Manifest schema 覆盖 identity、runtime targets、SDK/capability requirements、runtime package、entries、Runtime、UI、Context、storage、services、workflows、Knowledge、Skills、Tools / Connectors、Artifacts、Evidence、Policy、QC、Evals、permissions、secrets、lifecycle、overlays、v0.6 `agentRuntime` 简写、v0.7 `requirements` / `boundary` / `integrations` / `operations` 简写、v0.8 `install` 安装模式简写、v0.9 `agentRuntime.bridge` profile、presentation、compatibility。
+Manifest schema 覆盖 identity、runtime targets、SDK/capability requirements、runtime package、entries、Runtime、UI、Context、storage、services、workflows、Knowledge、Skills、Tools / Connectors、Artifacts、Evidence、Policy、QC、Evals、permissions、secrets、lifecycle、overlays、`agentRuntime` 简写、`requirements` / `boundary` / `integrations` / `operations` 简写、`install` 安装模式简写、`agentRuntime.bridge` profile、presentation、compatibility。
 
-v0.3 current entry kinds 是 `page`、`panel`、`expert-chat`、`command`、`workflow`、`artifact`、`background-task`、`settings`。
+当前 entry kinds 是 `page`、`panel`、`expert-chat`、`command`、`workflow`、`artifact`、`background-task`、`settings`。
 
 ## Projection Schema
 

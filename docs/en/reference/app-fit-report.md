@@ -1,11 +1,11 @@
 ---
 title: App Fit Report
-description: v0.7 report for mapping natural-language requirements to App, Host, Cloud, connector, external-system, and human boundaries.
+description: Report for mapping natural-language requirements to App, Host, Cloud, connector, external-system, and human boundaries.
 ---
 
 # App Fit Report
 
-An App Fit Report is the v0.7 planning artifact. It maps natural-language business requirements into delivery planes so a team knows what can become an Agent App, what requires Lime Host, what requires Lime Cloud, what needs a connector or external system, and what must remain a human decision.
+An App Fit Report is the planning artifact. It maps natural-language business requirements into delivery planes so a team knows what can become an Agent App, what requires Lime Host, what requires Lime Cloud, what needs a connector or external system, and what must remain a human decision.
 
 ## Fit flow
 

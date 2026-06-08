@@ -5,7 +5,7 @@ description: Host-side flow for discovering, verifying, installing, and activati
 
 # Discovery and installation
 
-Installation is not execution. A host should discover and verify an Agent App before it creates runtime state or exposes executable entries. In v0.8, "host" can mean Lime Desktop, Lime App Shell, a runtime-backed shell, or a compatible Web Host; all of them must converge on the same manifest, projection, readiness, and Capability SDK contract.
+Installation is not execution. A host should discover and verify an Agent App before it creates runtime state or exposes executable entries. Here, "host" can mean Lime Desktop, Lime App Shell, a runtime-backed shell, or a compatible Web Host; all of them must converge on the same manifest, projection, readiness, and Capability SDK contract.
 
 ## Discovery sources
 

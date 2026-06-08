@@ -13,7 +13,7 @@ Current fact source: **Agent App is the installable application composition laye
 
 | Layer | Owns | App relationship |
 | --- | --- | --- |
-| Agent App | Installable package, entries, runtime package, workflow, storage, readiness, release, v0.7 boundary files. | Composes a complete business product without becoming the host runtime. |
+| Agent App | Installable package, entries, runtime package, workflow, storage, readiness, release, boundary files. | Composes a complete business product without becoming the host runtime. |
 | Agent Runtime | Task execution, model routing, sessions, checkpoints, event streams, structured output. | App declares task intent through `app.runtime.yaml` and calls `lime.agent`. |
 | Agent UI | Pages, panels, commands, viewers, Host Bridge interaction surfaces. | App declares entries and may ship UI assets, while Host renders them in controlled surfaces. |
 | Agent Context | Context assembly, budgets, priority, compression, missing-context requests. | App describes what context each entry or workflow needs. |

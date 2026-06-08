@@ -5,7 +5,7 @@ description: How to publish immutable Agent App releases without overwriting cus
 
 # Release and distribution
 
-Agent App releases should be immutable, reviewable, and safe to roll back. A registry can distribute packages and authorize tenants, but the host still performs local verification, readiness, policy checks, and runtime execution. v0.8 adds one more release decision: the same package may be offered for in-Lime installation, standalone branded installation, runtime-backed installation, or compatible web hosts.
+Agent App releases should be immutable, reviewable, and safe to roll back. A registry can distribute packages and authorize tenants, but the host still performs local verification, readiness, policy checks, and runtime execution. The install contract adds one more release decision: the same package may be offered for in-Lime installation, standalone branded installation, runtime-backed installation, or compatible web hosts.
 
 ## Release object
 
@@ -21,7 +21,7 @@ A release should include enough metadata for a host to decide whether it can ins
 | `manifestHash` | Integrity check for `APP.md` or extracted manifest. |
 | `signatureRef` | Optional signature or supply-chain attestation. |
 | `compatibility` | Host, SDK, and capability version ranges. |
-| `install` | v0.8 install modes and runtime relationship from `app.install.yaml`. |
+| `install` | install modes and runtime relationship from `app.install.yaml`. |
 | `releaseNotesUrl` | Human-readable change notes. |
 | `rollbackTarget` | Known safe previous release. |
 

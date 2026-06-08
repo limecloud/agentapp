@@ -1,10 +1,12 @@
 # Agent App
 
-Agent App is a draft standard for complete installable intelligent applications in the Agent standards ecosystem. It packages real app implementation - UI bundles, workers, storage schemas, workflows, agent entries, Skills, Knowledge bindings, tool requirements, artifact contracts, policies, evals, presentation metadata, v0.7 requirement-boundary files, v0.8 standalone installation metadata, and v0.9 App Server bridge contracts - without moving agent execution into the cloud or forcing every user through Lime Desktop.
+Agent App is a draft standard for complete installable intelligent applications in the Agent standards ecosystem. It packages real app implementation - UI bundles, workers, app backend services, storage schemas, workflows, agent entries, Skills, Knowledge bindings, tool requirements, artifact contracts, policies, evals, presentation metadata, requirement boundaries, installation metadata, and App Server bridge contracts - without moving agent execution into the cloud or forcing every user through Lime Desktop.
 
-Agent Runtime answers **how tasks execute**. Agent UI answers **how interaction surfaces render**. Agent Context answers **how context is assembled**. Skills answer **how reusable work is done**. Knowledge answers **what trusted facts are**. Tools connect external capabilities; Artifacts persist deliverables; Evidence, Policy, and QC make results trustworthy. Agent App answers **how all of those become a complete installable application with host capabilities, UI, data boundaries, entries, lifecycle, v0.7 requirement handoff, v0.8 install modes, and v0.9 App Server bridge mapping**.
+Agent Runtime answers **how tasks execute**. Agent UI answers **how interaction surfaces render**. Agent Context answers **how context is assembled**. Skills answer **how reusable work is done**. Knowledge answers **what trusted facts are**. Tools connect external capabilities; Artifacts persist deliverables; Evidence, Policy, and QC make results trustworthy. Agent App answers **how all of those become a complete installable application with host capabilities, UI, data boundaries, entries, lifecycle, requirement handoff, install modes, and App Server bridge mapping**.
 
-v0.9 makes the runtime bridge explicit: **Agent App is the product package, the Capability SDK / Host Bridge is the app-facing API, Desktop Host IPC owns shell transport, and App Server JSON-RPC / RuntimeCore is the backend fact source.** Users can still install an Agent App inside Lime Desktop, download it as a standalone branded app, or run it against a shared system Lime Runtime.
+The runtime bridge is explicit: **Agent App is the product package, the Capability SDK / Host Bridge is the app-facing API, Desktop Host IPC owns shell transport, and App Server JSON-RPC / RuntimeCore is the backend fact source.** Users can still install an Agent App inside Lime Desktop, download it as a standalone branded app, or run it against a shared system Lime Runtime.
+
+Agent App follows a mini-program style host model: apps are isolated packages, but user state and platform capabilities are shared through host-governed Capability SDK handles. Apps may own UI, workflow, app-local storage, and app backend services, but identity, session, model settings, secrets, billing, policy, files, artifacts, and agent runtime remain host-governed capabilities.
 
 ## Core boundary
 
@@ -21,7 +23,7 @@ Agent App is the business workspace. Lime Agent is the intelligent runtime capab
 | Agent Artifact | Durable deliverables, schemas, viewers, exporters, state. | Artifact schema | Stored and displayed by host artifact services. |
 | Agent Evidence / Policy / QC | Provenance, permissions, risk, quality gates, audits, waivers. | Evidence, policy, eval descriptors | Enforced and recorded by Host/Cloud; App declares inputs and gates. |
 | Agent Expert | Chat-first entry composed from persona, context, tools, and app state. | Expert entry | Runs inside a host conversation surface; optional App entry, not the App itself. |
-| Agent App | Complete installable app package: UI, workers, storage, workflows, entries, permissions, artifacts, evals, lifecycle, v0.7 boundaries, v0.8 install modes, and v0.9 bridge profile. | `APP.md` + runtime package | Runs in a compatible host through `@lime/app-sdk` capability handles. |
+| Agent App | Complete installable app package: UI, workers, app backend services, storage, workflows, entries, permissions, artifacts, evals, lifecycle, boundaries, install modes, and bridge profile. | `APP.md` + runtime package | Runs in a compatible host through `@lime/app-sdk` capability handles. |
 | App Server / RuntimeCore | Agent execution, session / turn facts, storage, tools, connectors, secrets, policy, evidence, artifacts, and local governance. | App Server JSON-RPC + `lime.*` projections | Shared by Lime Desktop, Lime App Shell, runtime-backed apps, and compatible hosts. |
 | Lime Host / Cloud | Local shells, sandbox, registry, tenant policy, OAuth, webhook, scheduled sync. | Host shell + `lime.*` capabilities | Injected into apps as authorized handles; apps do not import host internals. |
 
@@ -30,8 +32,9 @@ Agent App is the business workspace. Lime Agent is the intelligent runtime capab
 | Area | Agent App owns | Lime owns |
 | --- | --- | --- |
 | Product experience | Business UI, pages, tables, forms, dashboards, review steps, and delivery views. | Host shell, navigation, theme, locale, installation, and app lifecycle. |
-| Business logic | Workflow state, domain rules, storage schema, structured result write-back, and human confirmation. | Agent task runtime, capability enforcement, retries, cancellation, cost limits, and telemetry. |
-| Data boundary | App-local records, package assets, overlays, and references to workspace data. | Namespaced storage, files, Knowledge binding, secrets, policy, cleanup, and audit. |
+| Business logic | Workflow state, domain rules, app backend service code, storage schema, structured result write-back, and human confirmation. | Agent task runtime, capability enforcement, retries, cancellation, cost limits, and telemetry. |
+| User and platform state | Requested user / workspace / tenant projections and setup prompts. | Identity, session, OAuth, model settings, billing, policy, secrets, and capability availability. |
+| Data boundary | App-local records, package assets, overlays, and references to workspace data. | Namespaced storage, files, Knowledge binding, secrets, database placement, cleanup, and audit. |
 | Agent execution | Decides when to call an agent task and how the result updates product state. | Runs `lime.agent` tasks, model calls, tools, traces, artifacts, and evidence through SDK contracts. |
 
 The boundary is intentionally strict: business should not leave the app context, and agents should not leave Lime capability governance. If an app bypasses Lime to build its own model gateway, permission system, or evidence store, it is becoming an independent SaaS instead of an Agent App. If an app sends users back to generic chat for core work, it is only a chat wrapper rather than a product-level app.
@@ -46,6 +49,7 @@ my-agent-app/
 │   ├── ui/                   # optional: UI bundle and route manifest
 │   ├── worker/               # optional: business workers and background jobs
 │   └── tools/                # optional: packaged tool adapters
+├── services/                 # optional: app-owned backend services, possibly multi-language
 ├── storage/
 │   ├── schema.json           # optional: app namespace data model
 │   └── migrations/           # optional: versioned migrations
@@ -56,18 +60,24 @@ my-agent-app/
 ├── artifacts/                # optional: output contracts, viewers, exporters
 ├── evals/                    # optional: readiness and quality checks
 ├── policies/                 # optional: permissions and data boundaries
-├── app.runtime.yaml          # optional: v0.6 agent task runtime control plane
-├── app.requirements.yaml     # optional: v0.7 requirements, MVP, non-goals, acceptance
-├── app.boundary.yaml         # optional: v0.7 App / Host / Cloud / Connector / Human boundary
-├── app.integrations.yaml     # optional: v0.7 Host/Cloud-managed external integrations
-├── app.operations.yaml       # optional: v0.7 side effects, approvals, evidence
-├── app.install.yaml          # optional: v0.8+ in-Lime, standalone, runtime-backed install modes
+├── app.runtime.yaml          # optional: agent task runtime control plane and bridge profile
+├── app.requirements.yaml     # optional: requirements, MVP, non-goals, acceptance
+├── app.boundary.yaml         # optional: App / Host / Cloud / Connector / Human boundary
+├── app.integrations.yaml     # optional: Host/Cloud-managed external integrations
+├── app.operations.yaml       # optional: side effects, approvals, evidence
+├── app.install.yaml          # optional: in-Lime, standalone, runtime-backed install modes
 ├── overlay-templates/        # optional: tenant / workspace overlay schemas
 ├── app.lock.json             # optional: package file hashes and signatures
 └── examples/                 # optional: sample workspaces, prompts, outputs
 ```
 
 `APP.md` is not the app implementation. It is the discovery and review surface. Product-level functionality belongs in the runtime package and calls host services through the Capability SDK.
+
+## Shared host model
+
+Compatible hosts share user state and platform capabilities across installed apps, but they do not give apps raw authority. A host snapshot may expose non-sensitive user, tenant, workspace, locale, theme, model profile, billing entitlement, and capability availability. It must not expose bearer tokens, refresh tokens, provider keys, plaintext secrets, host database handles, or internal filesystem paths.
+
+Apps can declare their own storage namespace, schema, migrations, and app backend services. The host may co-locate multiple app stores in one physical database engine, but the logical boundary must remain per app and per workspace or tenant. Host core state must stay separate from app-owned migrations. On desktop, per-app SQLite databases are the preferred default; on server, shared PostgreSQL instances may use per-app schemas or dedicated databases for high-risk apps.
 
 ## Capability SDK contract
 
@@ -87,9 +97,9 @@ Compatible hosts should expose versioned, authorized, mockable capabilities such
 - `lime.secrets` for credentials without plaintext app access
 - `lime.cloudSession`, `lime.modelSettings`, `lime.branding`, `lime.billing`, and `lime.appUpdates` for shared desktop platform capabilities
 
-Apps must not import host internals. They declare capability requirements in the manifest and receive runtime handles from the host. v0.9 keeps the layered manifest model, keeps v0.6 `app.runtime.yaml` for the `lime.agent` task control plane, keeps v0.7 requirement-boundary files, keeps v0.8 `app.install.yaml`, and adds `agentRuntime.bridge` so hosts can map App tasks to App Server JSON-RPC without exposing transport internals.
+Apps must not import host internals. They declare capability requirements in the manifest and receive runtime handles from the host. The layered manifest model keeps task runtime control, requirement boundaries, installation metadata, and `agentRuntime.bridge` outside business UI code, so hosts can map App tasks to App Server JSON-RPC without exposing transport internals.
 
-## v0.9 runtime bridge and install modes
+## Runtime Bridge And Install Modes
 
 `agentRuntime.bridge.kind=app-server-json-rpc` declares that `lime.agent` / `lime.workflow` calls flow through:
 
@@ -137,12 +147,12 @@ Compatible hosts should:
 ## Reference CLI
 
 ```bash
-npx agentapp-ref@0.9.0 validate ./my-agent-app --version 0.9
-npx agentapp-ref@0.9.0 to-catalog ./my-agent-app
-npx agentapp-ref@0.9.0 project ./my-agent-app
-npx agentapp-ref@0.9.0 readiness ./my-agent-app --workspace ./workspace
-npx agentapp-ref@0.9.0 migrate-check ./my-agent-app
-npx agentapp-ref@0.9.0 migrate-generate ./my-agent-app --target 0.9.0
+npx agentapp-ref validate ./my-agent-app
+npx agentapp-ref to-catalog ./my-agent-app
+npx agentapp-ref project ./my-agent-app
+npx agentapp-ref readiness ./my-agent-app --workspace ./workspace
+npx agentapp-ref migrate-check ./my-agent-app
+npx agentapp-ref migrate-generate ./my-agent-app
 ```
 
 ## Local development

@@ -1,4 +1,4 @@
-# Agent App v0.7 requirement boundary for content-factory-app.
+# Agent App requirement boundary for content-factory-app.
 # Keep private customer facts in workspace data, Knowledge, secrets, or overlays.
 
 requirements:

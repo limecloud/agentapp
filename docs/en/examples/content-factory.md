@@ -5,7 +5,7 @@ description: Product-level Agent App example for content factory workflows.
 
 # Content Factory App
 
-The Content Factory App shows why Agent App is an application package, not a single expert or a prompt collection. It packages a business workflow with UI, storage, workflows, workers, Knowledge bindings, Tools, Artifacts, Evals, permissions, overlays, v0.7 requirement-boundary files, and v0.9 install and bridge metadata.
+The Content Factory App shows why Agent App is an application package, not a single expert or a prompt collection. It packages a business workflow with UI, storage, workflows, workers, app backend services, Knowledge bindings, Tools, Artifacts, Evals, permissions, overlays, requirement-boundary files, install metadata, and bridge metadata.
 
 Reference package: [`docs/examples/content-factory-app/APP.md`](../../examples/content-factory-app/APP.md)
 
@@ -78,7 +78,7 @@ Customer-specific facts are not bundled. They are bound through Knowledge, works
 | `lime.policy` | Review file, tool, model, and export permissions. |
 | `lime.secrets` | Bind optional publishing workspace token. |
 
-## v0.6 Agent task runtime
+## Agent task runtime
 
 The fixture includes [`app.runtime.yaml`](../../examples/content-factory-app/app.runtime.yaml) to make `lime.agent` execution explicit. It declares:
 
@@ -90,7 +90,7 @@ The fixture includes [`app.runtime.yaml`](../../examples/content-factory-app/app
 - checkpoint boundaries for workflow state, app storage, artifacts, tracked files, conversation, and external side effects
 - OpenTelemetry mapping with content export disabled by default
 
-## v0.7 requirement boundary
+## requirement boundary
 
 The fixture now includes:
 
@@ -101,7 +101,7 @@ The fixture now includes:
 
 For ordinary users this means the app shows what it can do in the workspace, what must be connected by Lime, and which external writes or publishes still require human confirmation.
 
-## v0.9 install and bridge metadata
+## Install, Shared Host, And Bridge Metadata
 
 The fixture includes [`app.install.yaml`](../../examples/content-factory-app/app.install.yaml) to declare:
 
@@ -132,7 +132,7 @@ That is correct behavior. The package is structurally valid; the workspace may s
 ## Try it locally
 
 ```bash
-npm run cli -- validate docs/examples/content-factory-app --version 0.9
+npm run cli -- validate docs/examples/content-factory-app
 npm run cli -- project docs/examples/content-factory-app
 npm run cli -- readiness docs/examples/content-factory-app
 ```

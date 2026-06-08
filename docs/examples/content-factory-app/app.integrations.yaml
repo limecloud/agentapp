@@ -1,4 +1,4 @@
-# Agent App v0.7 Host/Cloud-managed integrations.
+# Agent App Host/Cloud-managed integrations.
 
 integrations:
   - key: source_documents

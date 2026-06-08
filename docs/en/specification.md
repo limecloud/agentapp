@@ -1,6 +1,6 @@
 ---
 title: Specification
-description: Agent App v0.9 executable package, Capability SDK contract, Agent task runtime control plane, requirement boundaries, install modes, and App Server bridge profile.
+description: Agent App executable package, Capability SDK contract, Agent task runtime control plane, requirement boundaries, install modes, and App Server bridge profile.
 ---
 
 # Specification
@@ -9,7 +9,7 @@ Agent App defines a complete installable application package for agent hosts. It
 
 `APP.md` remains the required discovery entry. Hosts read it first for manifest data, human guidance, and progressive loading hints. But `APP.md` is only declaration and guidance; business capability must be implemented by the runtime package and by calls through the Lime Capability SDK.
 
-v0.9 inherits the v0.6 `lime.agent` task runtime control plane, v0.7 **Requirement Boundary & Capability Handoff**, and v0.8 **Standalone Installation & Runtime Separation**, then adds an explicit **App Server Bridge Profile**. Apps must map business requirements to App, Host, Cloud, connector, external-system, and human-decision responsibilities; declare whether they install inside Lime Desktop, as standalone branded apps, against a shared system Lime Runtime, or inside compatible web hosts; and declare how app-facing Agent tasks map to Desktop Host IPC, App Server JSON-RPC, RuntimeCore services, and execution backends.
+The current contract combines task runtime control, requirement boundaries, installation modes, and an explicit **App Server Bridge Profile**. Apps must map business requirements to App, Host, Cloud, connector, external-system, and human-decision responsibilities; declare whether they install inside Lime Desktop, as standalone branded apps, against a shared system Lime Runtime, or inside compatible web hosts; declare how app-facing Agent tasks map to Desktop Host IPC, App Server JSON-RPC, RuntimeCore services, and execution backends; and follow a mini-program style host model where shared user state and platform capabilities come from the host while app-local storage and app backend services stay isolated.
 
 > Project-level architecture, sequence, flow, and state-machine diagrams live in [Architecture overview](./architecture). This specification only embeds diagrams that bind to specific clauses.
 
@@ -22,6 +22,8 @@ v0.9 inherits the v0.6 `lime.agent` task runtime control plane, v0.7 **Requireme
 5. Keep customer data, credentials, and tenant differences in workspace state, Agent Knowledge, secrets, or overlays, not official packages.
 6. Preserve app provenance on every projected entry, task, tool call, artifact, eval, and evidence record.
 7. Let Agent Apps become standalone products without making Lime Desktop the mandatory entry point for every user.
+8. Share host-governed user state and platform capabilities across apps without leaking tokens, secrets, host databases, or internal paths.
+9. Let apps ship app-owned backend services in multiple languages while keeping those services under host supervision and capability policy.
 
 ## Layers
 
@@ -45,42 +47,43 @@ Apps must not import Lime internal modules or bypass host services. Every platfo
 app-name/
 ├── APP.md                    # required: discovery manifest + app guide
 ├── app.manifest.json         # optional: separated machine manifest
-├── app.capabilities.yaml     # v0.5 optional: detailed capability config
-├── app.entries.yaml          # v0.5 optional: detailed entry config
-├── app.permissions.yaml      # v0.5 optional: permission config
-├── app.errors.yaml           # v0.5 optional: standardized error codes
-├── app.i18n.yaml             # v0.5 optional: i18n config
-├── app.signature.yaml        # v0.5 optional: signature and trust chain
-├── app.runtime.yaml          # v0.6 optional: lime.agent task runtime control plane; v0.9 optional: App Server bridge profile
-├── app.requirements.yaml     # v0.7 optional: requirements, MVP, non-goals, acceptance
-├── app.boundary.yaml         # v0.7 optional: App / Host / Cloud / Connector / External / Human boundary
-├── app.integrations.yaml     # v0.7 optional: Host/Cloud-managed external integration needs
-├── app.operations.yaml       # v0.7 optional: side effects, approval, dry-run, evidence
-├── app.install.yaml          # v0.8 optional: in-Lime, standalone, runtime-backed install modes
+├── app.capabilities.yaml     # optional: detailed capability config
+├── app.entries.yaml          # optional: detailed entry config
+├── app.permissions.yaml      # optional: permission config
+├── app.errors.yaml           # optional: standardized error codes
+├── app.i18n.yaml             # optional: i18n config
+├── app.signature.yaml        # optional: signature and trust chain
+├── app.runtime.yaml          # optional: lime.agent task runtime control plane and App Server bridge profile
+├── app.requirements.yaml     # optional: requirements, MVP, non-goals, acceptance
+├── app.boundary.yaml         # optional: App / Host / Cloud / Connector / External / Human boundary
+├── app.integrations.yaml     # optional: Host/Cloud-managed external integration needs
+├── app.operations.yaml       # optional: side effects, approval, dry-run, evidence
+├── app.install.yaml          # optional: in-Lime, standalone, runtime-backed install modes
 ├── dist/
 │   ├── ui/                   # optional: real UI bundle, route manifest, assets
 │   ├── worker/               # optional: business workers, background tasks, long-running jobs
 │   └── tools/                # optional: packaged tool adapters, still authorized by Tool Broker
+├── services/                 # optional: app-owned backend services, possibly multi-language
 ├── storage/
 │   ├── schema.json           # optional: data model in the app namespace
 │   └── migrations/           # optional: versioned migration scripts
 ├── workflows/                # optional: business workflow, state machine, human review nodes
 ├── agents/                   # optional: expert-chat personas and conversation entries
-├── skills/                   # v0.5 standardized: bundled Agent Skill packages (with SKILL.md)
+├── skills/                   # standardized: bundled Agent Skill packages (with SKILL.md)
 ├── knowledge-templates/      # optional: Agent Knowledge binding slot templates
 ├── artifacts/                # optional: artifact schemas, viewers, exporters, examples
 ├── evals/                    # optional: quality gates, readiness checks, regression fixtures
-│   ├── readiness.yaml        # v0.5 optional: self-check model
-│   └── health.yaml           # v0.5 optional: runtime health checks
+│   ├── readiness.yaml        # optional: self-check model
+│   └── health.yaml           # optional: runtime health checks
 ├── policies/                 # optional: permissions, data boundaries, cost and risk policies
-├── locales/                  # v0.5 optional: i18n translation files
+├── locales/                  # optional: i18n translation files
 ├── assets/                   # optional: icons, screenshots, templates, sample media
 └── examples/                 # optional: sample workspaces, inputs, outputs, replays
 ```
 
 Only `APP.md` is mandatory. Compatible hosts must read `APP.md` and catalog metadata first, then progressively load the runtime package according to user action, readiness, permission, and capability version checks.
 
-v0.9 keeps the layered configuration principle: `APP.md` carries only discovery metadata and human-readable guidance, while complex configuration (capabilities, entries, permissions, errors, i18n, signature, Agent task runtime contracts, App Server bridge profile, requirement boundaries, integrations, operation side effects, and install modes) moves into independent `app.*.yaml` files when needed, preventing frontmatter bloat.
+The layered configuration principle: `APP.md` carries only discovery metadata and human-readable guidance, while complex configuration (capabilities, entries, permissions, errors, i18n, signature, Agent task runtime contracts, App Server bridge profile, requirement boundaries, integrations, operation side effects, and install modes) moves into independent `app.*.yaml` files when needed, preventing frontmatter bloat.
 
 ## `APP.md`
 
@@ -98,9 +101,9 @@ The frontmatter is the machine entry for installation and projection. The body i
 | `status` | `draft`, `ready`, `needs-review`, `deprecated`, or `archived`. |
 | `appType` | `agent-app`, `workflow-app`, `domain-app`, `customer-app`, or `custom`. |
 
-### v0.5 open-platform metadata
+### Open-platform metadata
 
-For open-platform distribution, v0.5 promotes "app identity, version, timeline, links, and compliance" into structured top-level fields. All fields are author-fillable except those marked "host-decided".
+For open-platform distribution, promotes "app identity, version, timeline, links, and compliance" into structured top-level fields. All fields are author-fillable except those marked "host-decided".
 
 #### Identity and presentation
 
@@ -128,7 +131,7 @@ For open-platform distribution, v0.5 promotes "app identity, version, timeline, 
 
 | Field | Purpose |
 | --- | --- |
-| `manifestVersion` | Manifest protocol version; current packages should set `0.9.0`. |
+| `manifestVersion` | Manifest protocol version; current packages should set `0.10.0`. |
 | `version` | App package version (SemVer). |
 | `createdAt` | ISO 8601; first appearance in any registry. |
 | `updatedAt` | ISO 8601; manifest last updated. |
@@ -158,7 +161,7 @@ For open-platform distribution, v0.5 promotes "app identity, version, timeline, 
 
 #### Distribution and compliance
 
-`distribution` is reserved metadata for the open platform in v0.5; billing logic is not part of this standard. Hosts and platforms decide payment flow based on these hints.
+`distribution` is reserved metadata for the open platform; billing logic is not part of this standard. Hosts and platforms decide payment flow based on these hints.
 
 | Field | Purpose |
 | --- | --- |
@@ -200,35 +203,35 @@ Hosts must mark apps with `endOfLifeAt < now` as `blocked` in readiness and surf
 | `manifestVersion` | Agent App manifest version. |
 | `runtimeTargets` | `local`, `hybrid`, or `server-assisted`. `local` means execution happens in the local host runtime. |
 | `requires` | Host, SDK, and capability version constraints. |
-| `triggers` | v0.5 new: AI auto-discovery keywords and scenarios. Contains `keywords[]` and `scenarios[]`. |
-| `quickstart` | v0.5 new: recommended first-launch entry and sample workflow. |
+| `triggers` | AI auto-discovery keywords and scenarios. Contains `keywords[]` and `scenarios[]`. |
+| `quickstart` | Recommended first-launch entry and sample workflow. |
 | `runtimePackage` | Locations and hashes for UI, workers, tools, storage, and migrations. |
 | `capabilities` | Required Lime capabilities or adjacent Agent standards. |
 | `permissions` | Permission requests that the host must authorize before install or runtime. |
 | `entries` | Host-visible entries such as page, panel, expert-chat, command, workflow, artifact, background-task, and settings. |
 | `ui` | UI routes, panels, cards, settings, and artifact viewers. |
 | `storage` | App namespace, schema, indexes, migrations, and retention rules. |
-| `services` | Workers, background tasks, tool adapters, schedulers. |
+| `services` | Workers, app-owned backend services, background tasks, tool adapters, schedulers. |
 | `knowledgeTemplates` | Agent Knowledge slots to bind through user, tenant, or workspace overlays. |
-| `skillRefs` | Required or recommended Agent Skill packages. v0.5 prefers the `skills/` directory for bundled Skills. |
+| `skillRefs` | Required or recommended Agent Skill packages. Prefer the `skills/` directory for bundled Skills. |
 | `toolRefs` | Agent Tool surfaces, external connectors, or ToolHub capabilities. |
 | `artifactTypes` | Artifact contracts, viewers, or exporters the app can produce. |
 | `evals` | Quality gates, readiness checks, regression evals, and human review rules. |
 | `events` | Events emitted or consumed by the app. |
 | `secrets` | Credential slots hosted by the Secret Manager. |
 | `lifecycle` | Hooks for install, activate, upgrade, disable, and uninstall. |
-| `agentRuntime` | v0.6 shorthand for Agent task runtime control plane; prefer `app.runtime.yaml` for detailed config. |
-| `requirements` | v0.7 shorthand for requirements, MVP scope, non-goals, and acceptance; prefer `app.requirements.yaml` for detailed config. |
-| `boundary` | v0.7 shorthand for App / Host / Cloud / Connector / External / Human boundaries; prefer `app.boundary.yaml` for detailed config. |
-| `integrations` | v0.7 shorthand for external integration needs; prefer `app.integrations.yaml` for detailed config. |
-| `operations` | v0.7 shorthand for side effects, approval, dry-run, and evidence; prefer `app.operations.yaml` for detailed config. |
-| `install` | v0.8 shorthand for in-Lime, standalone, runtime-backed, and web-host install modes; prefer `app.install.yaml` for detailed config. |
+| `agentRuntime` | Shorthand for Agent task runtime control plane; prefer `app.runtime.yaml` for detailed config. |
+| `requirements` | Shorthand for requirements, MVP scope, non-goals, and acceptance; prefer `app.requirements.yaml` for detailed config. |
+| `boundary` | Shorthand for App / Host / Cloud / Connector / External / Human boundaries; prefer `app.boundary.yaml` for detailed config. |
+| `integrations` | Shorthand for external integration needs; prefer `app.integrations.yaml` for detailed config. |
+| `operations` | Shorthand for side effects, approval, dry-run, and evidence; prefer `app.operations.yaml` for detailed config. |
+| `install` | Shorthand for in-Lime, standalone, runtime-backed, and web-host install modes; prefer `app.install.yaml` for detailed config. |
 | `overlayTemplates` | Configurable slots for tenant, workspace, user, or customer overlays. |
 | `presentation` | App card, icon, category, home copy, and sorting hints. |
 | `compatibility` | Compatibility matrix, fallback policy, and deprecation window. |
 | `metadata` | Namespaced implementation metadata. |
 
-### v0.5/v0.6/v0.7/v0.8 layered configuration
+### Layered configuration
 
 Detailed configuration can move to independent files; the frontmatter keeps only core metadata:
 
@@ -240,20 +243,20 @@ Detailed configuration can move to independent files; the frontmatter keeps only
 | `app.errors.yaml` | Standardized error codes and recovery | Loaded by manifest convention |
 | `app.i18n.yaml` | i18n config | Loaded by manifest convention |
 | `app.signature.yaml` | Signature, trust, and revocation | Loaded by manifest convention |
-| `app.runtime.yaml` | v0.6 Agent task event/result, structured output, approval, session, tool discovery, checkpoint, observability; v0.9 App Server bridge profile | Loaded by manifest convention |
-| `app.requirements.yaml` | v0.7 requirements, MVP scope, non-goals, later phases, and acceptance criteria | Loaded by manifest convention |
-| `app.boundary.yaml` | v0.7 App / Host / Cloud / Connector / External / Human responsibility boundary | Loaded by manifest convention |
-| `app.integrations.yaml` | v0.7 Host/Cloud-managed external systems, CLIs, MCPs, APIs, webhooks, or browser adapter needs | Loaded by manifest convention |
-| `app.operations.yaml` | v0.7 operation side effects, approval, dry-run, idempotency, and evidence requirements | Loaded by manifest convention |
-| `app.install.yaml` | v0.8 in-Lime, standalone, runtime-backed, and web-host installation modes | Loaded by manifest convention |
+| `app.runtime.yaml` | Agent task event/result, structured output, approval, session, tool discovery, checkpoint, observability; App Server bridge profile | Loaded by manifest convention |
+| `app.requirements.yaml` | Requirements, MVP scope, non-goals, later phases, and acceptance criteria | Loaded by manifest convention |
+| `app.boundary.yaml` | App / Host / Cloud / Connector / External / Human responsibility boundary | Loaded by manifest convention |
+| `app.integrations.yaml` | Host/Cloud-managed external systems, CLIs, MCPs, APIs, webhooks, or browser adapter needs | Loaded by manifest convention |
+| `app.operations.yaml` | Operation side effects, approval, dry-run, idempotency, and evidence requirements | Loaded by manifest convention |
+| `app.install.yaml` | In-Lime, standalone, runtime-backed, and web-host installation modes | Loaded by manifest convention |
 | `evals/readiness.yaml` | Readiness self-check model | Loaded by manifest convention |
 | `evals/health.yaml` | Runtime health checks | Loaded by manifest convention |
 
 Hosts load these files by file-name convention while parsing the manifest. When frontmatter and an independent file disagree, the independent file wins.
 
-### v0.8 install modes
+### Install modes
 
-`app.install.yaml` is the v0.8 boundary between product packaging and runtime substrate. It lets an app be distributed in more than one shape without changing the business package:
+`app.install.yaml` is the boundary between product packaging and runtime substrate. It lets an app be distributed in more than one shape without changing the business package:
 
 ```yaml
 install:
@@ -262,21 +265,20 @@ install:
     - standalone
     - runtime_backed
   runtime:
-    minVersion: 0.9.0
+    minVersion: current
     distribution:
       standalone:
         embedRuntime: true
         shell: lime-app-shell
       runtimeBacked:
         requires: lime-runtime
-        minVersion: 0.9.0
   standalone:
     shell: lime-app-shell
     bundleId: ai.limecloud.contentfactory
     platforms: [macos, windows]
   runtimeBacked:
     requires: lime-runtime
-    minVersion: 0.9.0
+    minVersion: current
   branding:
     name: Content Factory
     icon: ./assets/icon.svg
@@ -285,7 +287,7 @@ install:
 
 The install contract does not let an app bypass governance. Standalone and runtime-backed apps still receive `lime.*` capability handles from a compatible host shell, and Lime Runtime still owns model routing, tool execution, secrets, policy, storage namespace, and evidence. When an app needs Agent backend capability, the host must project SDK calls into the Desktop Host IPC / App Server JSON-RPC / RuntimeCore path. Apps must not spawn sidecars, read JSONL stdout, call legacy desktop commands, or copy RuntimeCore / ExecutionBackend.
 
-### v0.5 trigger field
+### Trigger field
 
 `triggers` helps hosts and AI clients route natural-language requests to the right app, inspired by the Agent Skills practice of putting trigger phrases in `description`:
 
@@ -305,7 +307,7 @@ triggers:
 
 `keywords` are user-facing semantic terms; `scenarios` are machine-readable identifiers used by catalog indexing, recommendation ranking, and command palettes.
 
-### v0.5 quickstart field
+### Quickstart field
 
 `quickstart` declares the recommended first-launch entry and sample workflow:
 
@@ -349,18 +351,18 @@ Apps must declare capability and version requirements before install. Hosts perf
 ```yaml
 requires:
   lime:
-    appRuntime: ">=0.3.0 <1.0.0"
-  sdk: "@lime/app-sdk@^0.3.0"
+    appRuntime: "current"
+  sdk: "@lime/app-sdk"
   capabilities:
-    lime.ui: "^0.3.0"
-    lime.storage: "^0.3.0"
-    lime.agent: "^0.3.0"
-    lime.artifacts: "^0.3.0"
-    lime.cloudSession: "^0.9.0"
-    lime.modelSettings: "^0.9.0"
+    lime.ui: "current"
+    lime.storage: "current"
+    lime.agent: "current"
+    lime.artifacts: "current"
+    lime.cloudSession: "current"
+    lime.modelSettings: "current"
 ```
 
-v0.3 treats the SDK as a typed contract, not only a list of capability names. Compatible hosts should stabilize at least these call semantics:
+The SDK is a typed contract, not only a list of capability names. Compatible hosts should stabilize at least these call semantics:
 
 ```ts
 const lime = await getLimeRuntime()
@@ -376,9 +378,9 @@ await lime.evidence.record({ subject: artifact.id, sources: hits })
 
 SDK calls must support stable error codes, cancellation, retries, timeouts, permission denial, cost limits, traceId, and mock implementations. Apps may depend on this contract only, not host file paths, database tables, or frontend components.
 
-## Agent Task Runtime Control Plane v0.6
+## Agent Task Runtime Control Plane
 
-v0.6 does not turn Agent App into a new AgentRuntime and does not require apps to embed a model SDK. It standardizes the task control plane around `lime.agent` so apps, hosts, AgentRuntime, ToolHub, Evidence, and UI surfaces share the same task facts.
+This layer does not turn Agent App into a new AgentRuntime and does not require apps to embed a model SDK. It standardizes the task control plane around `lime.agent` so apps, hosts, AgentRuntime, ToolHub, Evidence, and UI surfaces share the same task facts.
 
 ### Design goals
 
@@ -446,7 +448,7 @@ agentRuntime:
       exportContentByDefault: false
 ```
 
-`agentRuntime.bridge` is the v0.9 App Server bridge profile. It tells the host how app-facing `lime.agent` / `lime.workflow` calls should map to the backend fact source, but it is not a network address or process handle the app may access directly.
+`agentRuntime.bridge` is the App Server bridge profile. It tells the host how app-facing `lime.agent` / `lime.workflow` calls should map to the backend fact source, but it is not a network address or process handle the app may access directly.
 
 Fixed rules:
 
@@ -508,7 +510,7 @@ The final result must use `type: "result"` and a stable `subtype`:
 
 ### Structured output
 
-`expectedOutput` may stay in the `lime.agent.startTask` request, but v0.6 recommends explicit JSON Schema:
+`expectedOutput` may stay in the `lime.agent.startTask` request, but explicit JSON Schema is recommended:
 
 ```ts
 await lime.agent.startTask({
@@ -533,7 +535,7 @@ Hosts / AgentRuntime should validate structured output before artifact or storag
 
 ### Runtime approval
 
-v0.6 unifies tool approval, user questions, and context elicitation as runtime approval:
+Runtime approval unifies tool approval, user questions, and context elicitation:
 
 ```ts
 interface RuntimeApprovalRequest {
@@ -578,9 +580,9 @@ When many tools exist, apps should declare `toolDiscovery.mode: on_demand`. The 
 Runtime profile events should map to OpenTelemetry spans: `agent.task`, `llm.request`, `tool.call`, `approval.request`, `artifact.materialize`, `evidence.record`, and `subagent.run`. Prompt text, user content, and artifact bodies are not exported by default; content export must be explicit opt-in.
 
 
-## Requirement Boundary & Capability Handoff v0.7
+## Requirement Boundary & Capability Handoff
 
-v0.7 does not replace the v0.6 runtime control plane. It adds requirement boundaries and capability handoff above it. Given a sanitized business requirement, an Agent App must explain what becomes user-facing app experience, what the Host executes, what Cloud governs, what connectors adapt, what remains in external systems, and what humans must approve.
+This layer does not replace the runtime control plane. It adds requirement boundaries and capability handoff above it. Given a sanitized business requirement, an Agent App must explain what becomes user-facing app experience, what the Host executes, what Cloud governs, what connectors adapt, what remains in external systems, and what humans must approve.
 
 ### End-user architecture
 
@@ -630,7 +632,7 @@ sequenceDiagram
 ```mermaid
 flowchart TD
   Start([Sanitized business requirement]) --> Extract[Extract requirement items]
-  Extract --> Classify[Classify with v0.7\nAPP / HOST / CLOUD / CONNECTOR / EXTERNAL / HUMAN]
+  Extract --> Classify[Classify\nAPP / HOST / CLOUD / CONNECTOR / EXTERNAL / HUMAN]
   Classify --> Fit{Good Agent App fit?}
   Fit -- No --> Explain[Explain mismatch\nRecommend external system, cloud service, or manual flow]
   Fit -- Yes --> Scope[Define MVP / non-goals / later phases]
@@ -763,7 +765,7 @@ operations:
 | `OUT_OF_SCOPE` | Not part of the Agent App standard or current delivery scope. |
 | `NEEDS_CLARIFICATION` | Missing key business, permission, data, or acceptance information. |
 
-### v0.7 MUST / MUST NOT
+### MUST / MUST NOT
 
 - Apps **must** declare external side effects, required connections, acceptance criteria, and non-goals before execution.
 - Host / Cloud **must** own MCP, CLI, tools, credentials, policy, authorization, and evidence execution.
@@ -846,7 +848,7 @@ Entries are host-visible launch points. They are not limited to chat experts.
 
 An expert is only an `expert-chat` entry. Agent Apps may contain many experts, or none.
 
-v0.3 no longer treats `scene` as a current entry kind. `scene` / `home` entries from older manifests are v0.1 compatibility only. New apps should use `page`, `command`, `workflow`, `artifact`, `background-task`, or `settings`.
+The current standard no longer treats `scene` as a current entry kind. `scene` / `home` entries from older manifests are compatibility only. New apps should use `page`, `command`, `workflow`, `artifact`, `background-task`, or `settings`.
 
 ## Workflow descriptor
 
@@ -886,6 +888,31 @@ Agent Apps may reference adjacent standards and Lime platform capabilities. They
 
 Apps must not redefine Runtime, UI, Context, Knowledge, Skills, Tool / Connector, Artifact, Evidence, Policy, or QC. They can declare how they call them and provide business implementation code.
 
+## Shared host model
+
+Agent App follows a mini-program style host model:
+
+```text
+shared user state
++ shared host capabilities and UI
++ app-local storage
++ app-owned backend services
++ host-governed isolation, policy, and provenance
+```
+
+The host may share non-sensitive user, tenant, workspace, locale, theme, entitlement, model profile, and capability availability across installed apps. The host must not expose bearer tokens, refresh tokens, provider keys, plaintext secrets, raw billing ledgers, direct database handles, or internal filesystem paths to apps.
+
+Apps may own product UI, workflow state, storage schema, migrations, cache, and backend services. Those backend services may be implemented in JavaScript, TypeScript, Python, Go, Rust, Java, Wasm, or another host-supported runtime, but they run under host supervision and access files, secrets, models, storage, tools, artifacts, and user state only through authorized capabilities.
+
+Preferred app backend protocols:
+
+| Protocol | Use case | Constraint |
+| --- | --- | --- |
+| `stdio-jsonrpc` | Cross-language local service, short or long-running. | Host owns process lifecycle, env, stdout/stderr capture, cancellation, and permission envelope. |
+| `local-http` or local socket | Long-lived local backend with streaming or multiplexing. | Host owns binding, random port/socket, auth token, and shutdown; apps must not expose it directly to the network. |
+| `wasm` | Deterministic transforms or sandboxed compute. | No ambient filesystem, network, or secret access. |
+| `remote-http` | SaaS or OEM backend. | Must declare data boundary, authentication mode, tenant policy, audit, and server-assisted execution. |
+
 ## Storage and data boundary
 
 Apps may declare their own storage namespace, schema, and migrations, but the host owns the storage implementation.
@@ -897,6 +924,17 @@ Rules:
 3. Credentials belong in `lime.secrets`, never in package files or storage tables.
 4. Migrations must be replayable, reversible, or clearly declare irreversible risk.
 5. Upgrades must not overwrite tenant / workspace overlays or user data.
+6. Host core state must not be writable by app-owned migrations.
+7. A host may co-locate app storage in one physical database engine only if it exposes isolated app namespaces, schemas, or databases.
+8. High-risk apps should use dedicated databases or dedicated schemas. Low-risk shared indexes may use a shared table only with tenant / workspace / app scoping and database-enforced policy.
+
+Recommended placement:
+
+| Environment | Default | When to isolate further |
+| --- | --- | --- |
+| Local desktop | Separate host database plus per-app SQLite database files. | High-write apps, regulated data, destructive migrations, or app-specific corruption risk. |
+| App Server / PostgreSQL | Shared instance with per-app schema and role. | Enterprise tenants, regulated data, heavy write load, custom backup / retention, or strict compliance. |
+| Shared metadata | Shared tables with `tenantId`, `workspaceId`, `appId`, and row-level policy. | Only for catalog, indexes, or non-sensitive metadata; not for app business source of truth. |
 
 ## Projection contract
 
@@ -933,7 +971,7 @@ Compatible hosts must:
 4. Generate projection and register entries, UI, storage, services, skills, knowledge, tools, artifacts, evals, and permissions into host catalogs.
 5. Run readiness before execution: capability negotiation, permissions, Knowledge bindings, secrets, storage migrations, tool availability, policy.
 6. Inject capability handles at runtime; apps must not access Lime internals directly.
-7. Render UI bundles inside host-controlled containers; execute workers and services inside host-controlled runtimes.
+7. Render UI bundles inside host-controlled containers; execute workers and app backend services inside host-controlled runtimes.
 8. Keep Cloud to catalog, release, license, tenant enablement, and gateway; Cloud is not the default agent runtime.
 9. Preserve app provenance on tasks, tool calls, artifacts, evals, storage migrations, and evidence records.
 
@@ -947,7 +985,7 @@ Overlays may override knowledge bindings, tool credentials, default models, UI o
 
 ## Overlay package
 
-Industry apps should stay reusable; customer differences belong in overlays rather than forks of the official package. v0.3 recommends these objects:
+Industry apps should stay reusable; customer differences belong in overlays rather than forks of the official package. Current packages should use these objects:
 
 ```yaml
 overlayTemplates:
@@ -983,9 +1021,9 @@ Readiness should check:
 - storage migrations are complete or waiting for user approval
 - policy allows the requested entry
 
-Readiness may return `ready`, `needs-setup`, or `failed`. v0.5 extends the state set to `ready`, `ready-degraded`, `needs-setup`, `blocked`, and `unknown`.
+Readiness may return `ready`, `needs-setup`, or `failed`; hosts may also use `ready-degraded`, `blocked`, and `unknown`.
 
-### v0.5 readiness self-check model
+### Readiness self-check model
 
 `evals/readiness.yaml` moves readiness from host-coded logic to declarative app intent, in three tiers:
 
@@ -993,9 +1031,9 @@ Readiness may return `ready`, `needs-setup`, or `failed`. v0.5 extends the state
 readiness:
   required:
     - check: sdk_version
-      expect: ">=0.9.0"
+      expect: current
       blocker: true
-      message: Lime SDK v0.9.0 or higher is required
+      message: Current Lime SDK is required
     - check: capability_available
       capability: lime.agent
       blocker: true
@@ -1024,7 +1062,7 @@ readiness:
 
 Hosts must surface failures to the user and provide `setupActions[]` pointing to a fix flow.
 
-## v0.5 health checks
+## Health checks
 
 `evals/health.yaml` describes runtime health observation:
 
@@ -1058,7 +1096,7 @@ health:
 
 Failed `startup` checks regress readiness to `blocked`. Failed `runtime` checks trigger degradation or auto-recovery. `metrics` feed the host observability surface. Health checks must not run app business logic; they only read host-observable signals.
 
-## v0.5 standardized error codes
+## Standardized error codes
 
 `app.errors.yaml` turns error strings into a stable contract:
 
@@ -1093,7 +1131,7 @@ Code ranges:
 
 Hosts pass error codes through evidence and telemetry; UIs render `userAction` as guidance; `retryable: true` errors must support manual or automatic retry.
 
-## v0.5 i18n configuration
+## i18n configuration
 
 `app.i18n.yaml` standardizes localization so each app does not reinvent it:
 
@@ -1120,7 +1158,7 @@ i18n:
 
 Translation files are flat or nested JSON covering entries, errors, workflows, and UI copy. Hosts surface the active locale through `lime.ui.getLocale()`; apps stop guessing the host language.
 
-## v0.5 package signing and revocation
+## Package signing and revocation
 
 `app.signature.yaml` describes signature, trust chain, and revocation:
 
@@ -1130,7 +1168,7 @@ signature:
     algorithm: sha256
     hash: aaaa...aaaa
     signedBy: sigstore
-    signatureRef: sigstore:content-factory-app@0.9.0
+    signatureRef: sigstore:content-factory-app@current
     timestamp: 2026-05-16T00:00:00Z
   manifest:
     algorithm: sha256
@@ -1155,7 +1193,7 @@ Hosts must verify in this order:
 
 Signature verification does not replace Cloud release checks; it is a package-level repeatable verification.
 
-## v0.5 Skills integration
+## Skills integration
 
 Inspired by [Agent Skills](https://agentskills.io), apps may bundle or reference Skills, all called through the SDK.
 
@@ -1192,9 +1230,9 @@ Activation modes:
 
 Skill execution still goes through `lime.agent`; apps must not spawn Skill processes directly, which would bypass readiness, policy, and evidence.
 
-## Workflow descriptor v0.5 enhancements
+## Workflow descriptor enhancements
 
-v0.5 keeps the v0.3 state machine and adds human-readable overview, mermaid diagrams, and unified recovery policy:
+Workflow descriptors can keep a state machine and add human-readable overview, mermaid diagrams, and unified recovery policy:
 
 ```yaml
 workflow:
@@ -1230,9 +1268,9 @@ workflow:
     saveCheckpoint: true
 ```
 
-`recovery` is required in v0.5: hosts implement checkpoint resumption, timeout retry, and error fallback. `overview` and `diagram` are for humans, AI clients, and reviewers; they are not executed.
+`recovery` is required: hosts implement checkpoint resumption, timeout retry, and error fallback. `overview` and `diagram` are for humans, AI clients, and reviewers; they are not executed.
 
-## v0.5 APP.md body conventions
+## APP.md body conventions
 
 Inspired by Agent Skills' SKILL.md structure, the APP.md body (Markdown after frontmatter) is recommended to follow these sections:
 
@@ -1330,4 +1368,4 @@ knowledgeTemplates:
 | Capability | Host injects SDK capability handles according to manifest and intercepts permissions. |
 | Runtime | Host runs UI, workers, workflows, storage migrations, agent tasks, and artifacts. |
 | Product | App has independent business UI, data model, workflows, deliverables, upgrades, and regression validation. |
-| Executable | v0.3 level: host can run typed workflows, typed SDK calls, overlays, readiness, evidence, and regression evals. |
+| Executable | Host can run typed workflows, typed SDK calls, overlays, readiness, evidence, and regression evals. |

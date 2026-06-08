@@ -24,6 +24,7 @@ Fact-source relationship:
 | Desktop P3 | Provide model settings, OAuth session, OEM, billing, updates, and local evidence projection. | Rebuild those platform capabilities inside each app. |
 | Desktop P4 | Let multiple apps share host capabilities and support uninstall, disable, update, and rollback. | Let one app-specific shortcut pollute host core. |
 | Desktop P5 | Reuse the same contract in Tauri or runtime-backed shells while preserving the App Server JSON-RPC / RuntimeCore fact source. | Create a second standard or second Agent runtime for another technology stack. |
+| Desktop P6 | Run app-owned backend services and app storage under host supervision. | Let app backends read host databases, secrets, files, or user state directly. |
 
 ## Required desktop host behavior
 
@@ -36,7 +37,9 @@ Fact-source relationship:
 | Host Bridge | Use `lime.agentApp.bridge` v1 to transport host snapshots, theme, locale, navigation, and capability calls. | SDK bridge and lifecycle events. |
 | Capability SDK | Inject `lime.*` handles and let the host decide permission. | Governed platform capabilities. |
 | App Server bridge | Host owns the App Server client and projects `lime.agent` / `lime.workflow` through Desktop Host IPC into JSON-RPC. | SDK tasks, events, and artifact projections only. |
-| Storage / Artifacts / Evidence | Namespace app data, outputs, logs, and evidence by app. | Traceable business state. |
+| Shared user state | Project non-sensitive user, tenant, workspace, locale, theme, entitlement, model, and capability status. | Host snapshot without raw tokens or host internals. |
+| App backend services | Supervise app-owned local or remote backends, including multi-language services. | Capability-mediated service calls; no direct host authority. |
+| Storage / Artifacts / Evidence | Namespace app data, outputs, logs, and evidence by app, workspace, and tenant. | Traceable business state. |
 | Cleanup | Support disable, uninstall keep data, uninstall delete data, and export then delete. | Recoverable or removable app lifecycle. |
 
 ## Shared platform capabilities
@@ -52,6 +55,8 @@ A desktop host may expose these generic capabilities, but only through the Capab
 | Updates / distribution | `lime.appUpdates` | The host checks releases, downloads, switches versions, and rolls back; apps do not build private updaters. |
 | Permissions and policy | `lime.policy` | High-risk actions need human review or policy approval. |
 | Evidence | `lime.evidence` | Important runs and external side effects keep provenance. |
+| Workspace context | `lime.workspace` | Apps receive scoped workspace projections; they do not own the workspace source of truth. |
+| App storage | `lime.storage` | Apps own namespace schema and data model; the host owns physical database placement and migrations gatekeeping. |
 
 These capability names may be refined in future minor versions, but the semantics must remain stable: apps request capabilities, Host / Cloud governs them, and business facts stay in the app or external system.
 
@@ -74,7 +79,7 @@ flowchart LR
   Tauri --> Desktop
 ```
 
-An Electron adapter may use `ipcMain`, preload, `BrowserView`, or WebView. A Tauri adapter may use Rust commands, WebView IPC, and a system runtime. The implementation differs, but the app should not observe those differences.
+An Electron adapter should prefer `WebContentsView` or a controlled `BrowserWindow` for installed app surfaces. `iframe` remains a lightweight compatibility surface, and `<webview>` should not be the default new path. A Tauri adapter may use Rust commands, WebView IPC, and a system runtime. The implementation differs, but the app should not observe those differences.
 
 The desktop Agent execution path is fixed:
 
@@ -90,8 +95,9 @@ App UI / Worker
 
 Host implementation constraints:
 
-- Electron / Tauri adapters only own desktop shell capabilities, IPC allowlists, sidecar lifecycle, and renderer-safe projection.
+- Electron / Tauri adapters only own desktop shell capabilities, IPC allowlists, controlled UI surfaces, sidecar lifecycle, and renderer-safe projection.
 - The App Server client is held by the host main process or equivalent trusted process; renderers / iframes do not connect directly to the sidecar.
+- Electron app surfaces must use host-owned session partitions, context isolation, sandboxing, and preload allowlists; apps must not receive Node, Electron, or filesystem APIs.
 - `initialize -> initialized` is a required gate for every App Server transport.
 - `agentSession/event` is the public task event ingress; app UI must not fabricate runtime success from local state.
 - When App Server is unavailable, the host returns blocked / host:error; product paths must not fall back to mock success.
@@ -161,13 +167,16 @@ A desktop host should separate:
 
 | Scope | Contents | Example |
 | --- | --- | --- |
+| Host core database | Install state, user/session projections, host settings, capability registry, policy, and app catalog facts. | `host.db` or App Server host schema. |
 | App package cache | Official packages, hashes, signatures, projection cache. | Install directory or download cache. |
-| App namespace | App-local storage, workflow state, artifact refs. | `appId` namespace. |
+| App namespace | App-local storage, workflow state, artifact refs. | Per-app SQLite file, per-app schema, or `appId` namespace. |
 | Workspace | User-movable business data and app outputs. | Workspace files and artifacts. |
 | User data | Session, secure cache, host preferences, download cache. | OS `userData`. |
 | Cloud | Registry, tenant policy, OAuth, billing, OEM. | Lime Cloud control plane. |
 
 Apps must not copy platform sessions, global model settings, billing ledgers, or OEM authority config into their persistent state.
+
+The physical database engine may be shared, but the writable logical boundary must not be shared. On desktop, per-app SQLite database files are the preferred default because they reduce cross-app write contention and simplify uninstall, backup, migration rollback, and corruption recovery. On server, a shared PostgreSQL instance may use per-app schemas and roles; high-risk apps should use dedicated databases. Shared tables are only appropriate for low-risk metadata with tenant, workspace, app scoping, and database-enforced policy.
 
 ## `lime-desktop-platform` positioning
 
@@ -205,5 +214,8 @@ It should not implement:
 - [ ] Model settings, OAuth, OEM, billing, and updates are platform capabilities, not app-local state.
 - [ ] blocked / needs-setup are visible and explainable or recoverable.
 - [ ] App data, artifacts, evidence, and logs are namespaced.
+- [ ] Host core database state is not writable by app-owned migrations.
+- [ ] App backend services run under host supervision and reach host resources only through capabilities.
+- [ ] Electron app surfaces use context isolation, sandboxing, preload allowlists, and host-owned session partitions.
 - [ ] disable / uninstall / update do not break other apps.
 - [ ] Electron and Tauri adapters share the same contract.

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.10.0
+
+- Adds the shared host model: host-governed user state and platform capabilities, isolated app-local storage, and optional app-owned backend services.
+- Sets local desktop storage guidance to host-managed per-app SQLite by default; PostgreSQL is for cloud, enterprise, or team-shared server backends.
+- Extends manifest schema and reference CLI support for `manifestVersion: 0.10.0`, `--version 0.10`, storage isolation hints, and `app-backend` service metadata.
+- Updates Electron host guidance toward `WebContentsView` / controlled `BrowserWindow`, with iframe as compatibility surface.
+- Adds concise v0.10 version notes and removes nonessential version noise from latest docs.
+
 ## 0.9.0
 
 - Adds App Server Bridge Profile so Agent Apps can declare how `lime.agent` and `lime.workflow` calls flow through Capability SDK / Host Bridge, Desktop Host IPC, App Server JSON-RPC, RuntimeCore services, and ExecutionBackend.

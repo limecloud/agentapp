@@ -4,10 +4,15 @@ import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { basename, dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const cliVersion = '0.9.0'
+const cliVersion = '0.10.0'
 const currentEntryKinds = new Set(['page', 'panel', 'expert-chat', 'command', 'workflow', 'artifact', 'background-task', 'settings'])
 const legacyEntryKinds = new Set(['home', 'scene'])
-const supportedManifestVersions = new Set(['0.3.0', '0.4.0', '0.5.0', '0.6.0', '0.7.0', '0.8.0', '0.9.0'])
+const supportedManifestVersions = new Set(['0.3.0', '0.4.0', '0.5.0', '0.6.0', '0.7.0', '0.8.0', '0.9.0', '0.10.0'])
+const v05PlusVersions = ['0.5.0', '0.6.0', '0.7.0', '0.8.0', '0.9.0', '0.10.0']
+const v06PlusVersions = ['0.6.0', '0.7.0', '0.8.0', '0.9.0', '0.10.0']
+const v07PlusVersions = ['0.7.0', '0.8.0', '0.9.0', '0.10.0']
+const v08PlusVersions = ['0.8.0', '0.9.0', '0.10.0']
+const v09PlusVersions = ['0.9.0', '0.10.0']
 const v05LayeredFiles = [
   'app.capabilities.yaml',
   'app.entries.yaml',
@@ -78,13 +83,13 @@ function printHelp() {
   console.log(`agentapp-ref ${cliVersion}
 
 Usage:
-  agentapp-ref validate <app> [--version <0.3|0.4|0.5|0.6|0.7|0.8|0.9>]
+  agentapp-ref validate <app> [--version <version>]
   agentapp-ref read-properties <app>
   agentapp-ref to-catalog <app>
   agentapp-ref project <app>
   agentapp-ref readiness <app> [--workspace <path>]
-  agentapp-ref migrate-check <app> [--target 0.9.0]
-  agentapp-ref migrate-generate <app> [--target 0.9.0]
+  agentapp-ref migrate-check <app> [--target <version>]
+  agentapp-ref migrate-generate <app> [--target <version>]
 
 Commands:
   validate          Validate APP.md shape and local references.
@@ -137,20 +142,23 @@ function validateApp(appPath, options = []) {
   }
 
   const effectiveVersion = targetVersion || properties.manifestVersion || '0.4.0'
-  if (['0.5.0', '0.6.0', '0.7.0', '0.8.0', '0.9.0'].includes(effectiveVersion)) {
+  if (v05PlusVersions.includes(effectiveVersion)) {
     checkV05Conventions(appRoot, properties, findings)
   }
-  if (['0.6.0', '0.7.0', '0.8.0', '0.9.0'].includes(effectiveVersion)) {
+  if (v06PlusVersions.includes(effectiveVersion)) {
     checkV06Conventions(appRoot, properties, findings)
   }
-  if (['0.7.0', '0.8.0', '0.9.0'].includes(effectiveVersion)) {
+  if (v07PlusVersions.includes(effectiveVersion)) {
     checkV07Conventions(appRoot, properties, findings)
   }
-  if (['0.8.0', '0.9.0'].includes(effectiveVersion)) {
+  if (v08PlusVersions.includes(effectiveVersion)) {
     checkV08Conventions(appRoot, properties, findings)
   }
-  if (effectiveVersion === '0.9.0') {
+  if (v09PlusVersions.includes(effectiveVersion)) {
     checkV09Conventions(appRoot, properties, findings)
+  }
+  if (effectiveVersion === '0.10.0') {
+    checkV10Conventions(properties, findings)
   }
 
   checkEntries(properties.entries, properties, findings)
@@ -388,7 +396,7 @@ function checkProductRuntime(properties, findings) {
 
 function checkExecutablePolicy(properties, findings) {
   const executableEntries = asArray(properties.entries).filter((entry) => ['command', 'workflow', 'background-task'].includes(entry.kind))
-  const executableServices = asArray(properties.services).filter((service) => ['worker', 'background-task', 'scheduler', 'tool-adapter'].includes(service.kind))
+  const executableServices = asArray(properties.services).filter((service) => ['worker', 'background-task', 'scheduler', 'tool-adapter', 'app-backend'].includes(service.kind))
   const hasPermissions = asArray(properties.permissions).length > 0
   if ((executableEntries.length || executableServices.length || asArray(properties.secrets).length) && !hasPermissions) {
     findings.push(warningFinding('permissions', 'Executable entries, services, or secrets should declare permissions for host policy review.'))
@@ -562,6 +570,7 @@ function parseVersionFlag(args) {
   if (/^0\.7(\.\d+)?$/.test(raw)) return '0.7.0'
   if (/^0\.8(\.\d+)?$/.test(raw)) return '0.8.0'
   if (/^0\.9(\.\d+)?$/.test(raw)) return '0.9.0'
+  if (/^0\.10(\.\d+)?$/.test(raw)) return '0.10.0'
   return raw
 }
 
@@ -727,12 +736,71 @@ function checkV09Conventions(appRoot, properties, findings) {
   const runtimeYaml = readLayeredYaml(appRoot, 'app.runtime.yaml')
   const agentRuntime = properties.agentRuntime || runtimeYaml?.agentRuntime || runtimeYaml
   if (usesLimeAgent(properties) && (!agentRuntime || !agentRuntime.bridge)) {
-    findings.push(warningFinding('app.runtime.yaml', 'v0.9 apps using lime.agent should declare agentRuntime.bridge.kind=app-server-json-rpc so hosts can map SDK tasks to App Server JSON-RPC.'))
+    findings.push(warningFinding('app.runtime.yaml', 'Apps using lime.agent should declare agentRuntime.bridge.kind=app-server-json-rpc so hosts can map SDK tasks to App Server JSON-RPC.'))
   }
   const installYaml = readLayeredYaml(appRoot, 'app.install.yaml')
   const install = properties.install || installYaml?.install
   if (install && (asArray(install.modes).includes('standalone') || asArray(install.modes).includes('runtime_backed'))) {
     checkV09RuntimeDistribution(install, findings)
+  }
+}
+
+function checkV10Conventions(properties, findings) {
+  const storage = properties.storage || {}
+  if (isProductLevel(properties) && (!storage || typeof storage !== 'object' || Array.isArray(storage))) {
+    findings.push(warningFinding('storage', 'Product apps should declare app-local storage isolation. Local desktop hosts should default to host-managed per-app SQLite storage.'))
+  } else if (storage && typeof storage === 'object' && !Array.isArray(storage)) {
+    if (!storage.placement) {
+      findings.push(warningFinding('storage', 'Declare storage.placement, for example local-sqlite for desktop or server-postgresql for cloud/team storage.'))
+    }
+    if (!storage.isolation) {
+      findings.push(warningFinding('storage', 'Declare storage.isolation, for example per-app-database, per-app-schema, or per-app-namespace.'))
+    }
+    if (String(storage.placement || '').includes('postgresql') && storage.localDefault !== false) {
+      findings.push(warningFinding('storage', 'PostgreSQL should not be a consumer desktop install prerequisite. Use it for cloud, enterprise, or team-shared backends, and keep local desktop defaults on SQLite.'))
+    }
+  }
+
+  for (const service of asArray(properties.services)) {
+    if (service.kind !== 'app-backend') continue
+    const key = service.key || 'app-backend'
+    if (!service.protocol) findings.push(warningFinding('services', `App-backend service should declare protocol: ${key}.`))
+    if (!service.language) findings.push(warningFinding('services', `App-backend service should declare language: ${key}.`))
+    if (service.protocol && !['stdio-jsonrpc', 'local-http', 'local-socket', 'wasm', 'remote-http'].includes(service.protocol)) {
+      findings.push(warningFinding('services', `Unknown app-backend protocol for ${key}: ${service.protocol}.`))
+    }
+  }
+}
+
+function sampleStorageYaml() {
+  return {
+    namespace: 'example-app',
+    placement: 'local-sqlite',
+    isolation: 'per-app-database',
+    physicalSharing: 'host-managed',
+    schema: './storage/schema.json',
+    migrations: './storage/migrations',
+    uninstallPolicy: 'ask',
+    localDefault: true
+  }
+}
+
+function sampleAppBackendServiceYaml() {
+  return {
+    key: 'app_backend',
+    kind: 'app-backend',
+    language: 'nodejs',
+    runtime: 'host-supervised-process',
+    protocol: 'stdio-jsonrpc',
+    command: './services/app-backend/server.mjs',
+    sandbox: 'host-policy',
+    network: 'deny-by-default',
+    required: false,
+    requiredCapabilities: ['lime.storage', 'lime.agent', 'lime.artifacts'],
+    resourceLimits: {
+      memoryMb: 512,
+      timeoutMs: 30000
+    }
   }
 }
 
@@ -835,7 +903,7 @@ function migrateCheck(appPath, options = []) {
     return envelope(false, 'failed', 'migrate-check', basename(appRoot), findings)
   }
   const properties = readAppProperties(appMd)
-  const target = parseVersionFlag(options) || '0.9.0'
+  const target = parseVersionFlag(options) || '0.10.0'
   const sourceVersion = properties.manifestVersion || '0.3.0'
   const gaps = []
 
@@ -843,7 +911,7 @@ function migrateCheck(appPath, options = []) {
     findings.push({ severity: 'info', path: 'APP.md', message: `Already on manifestVersion ${target}. No migration required.` })
   }
 
-  if (['0.5.0', '0.6.0', '0.7.0', '0.8.0', '0.9.0'].includes(target)) {
+  if (v05PlusVersions.includes(target)) {
     if (!properties.triggers) gaps.push({ field: 'triggers', suggestion: 'Add triggers.keywords and triggers.scenarios to APP.md frontmatter.' })
     if (!properties.quickstart) gaps.push({ field: 'quickstart', suggestion: 'Add quickstart.entry pointing to a default entry key.' })
     if (!properties.skills) gaps.push({ field: 'skills', suggestion: 'Move skillRefs into skills.bundled / skills.references and add SKILL.md under skills/.' })
@@ -857,7 +925,7 @@ function migrateCheck(appPath, options = []) {
       gaps.push({ field: 'locales/', suggestion: 'Add locales/ directory with translation files for supported locales.' })
     }
   }
-  if (['0.6.0', '0.7.0', '0.8.0', '0.9.0'].includes(target)) {
+  if (v06PlusVersions.includes(target)) {
     for (const file of v06LayeredFiles) {
       if (!existsSync(join(appRoot, file))) {
         gaps.push({ field: file, suggestion: `Create ${file} for v0.6 Agent task runtime contracts.` })
@@ -867,14 +935,14 @@ function migrateCheck(appPath, options = []) {
       gaps.push({ field: 'agentRuntime', suggestion: 'Declare agentRuntime policies for structured output, approvals, session resume/fork, tool discovery, checkpoint scope, and observability.' })
     }
   }
-  if (['0.7.0', '0.8.0', '0.9.0'].includes(target)) {
+  if (v07PlusVersions.includes(target)) {
     for (const file of v07LayeredFiles) {
       if (!existsSync(join(appRoot, file))) {
         gaps.push({ field: file, suggestion: `Create ${file} for v0.7 requirement boundary and capability handoff contracts.` })
       }
     }
   }
-  if (['0.8.0', '0.9.0'].includes(target)) {
+  if (v08PlusVersions.includes(target)) {
     for (const file of v08LayeredFiles) {
       if (!existsSync(join(appRoot, file))) {
         gaps.push({ field: file, suggestion: `Create ${file} for v0.8 standalone installation and runtime separation contracts.` })
@@ -884,11 +952,19 @@ function migrateCheck(appPath, options = []) {
       gaps.push({ field: 'install', suggestion: 'Declare install.modes with in_lime, standalone, runtime_backed, or web_host support.' })
     }
   }
-  if (target === '0.9.0') {
+  if (v09PlusVersions.includes(target)) {
     const runtimeYaml = readLayeredYaml(appRoot, 'app.runtime.yaml')
     const agentRuntime = properties.agentRuntime || runtimeYaml?.agentRuntime || runtimeYaml
     if (usesLimeAgent(properties) && (!agentRuntime || !agentRuntime.bridge)) {
       gaps.push({ field: 'agentRuntime.bridge', suggestion: 'Declare agentRuntime.bridge.kind=app-server-json-rpc and map SDK tasks to App Server JSON-RPC methods.' })
+    }
+  }
+  if (target === '0.10.0') {
+    if (!properties.storage) {
+      gaps.push({ field: 'storage', suggestion: 'Declare app-local storage placement and isolation. Local desktop defaults should use host-managed per-app SQLite storage.' })
+    } else {
+      if (!properties.storage.placement) gaps.push({ field: 'storage.placement', suggestion: 'Declare local-sqlite for local desktop storage or server-postgresql for cloud/team storage.' })
+      if (!properties.storage.isolation) gaps.push({ field: 'storage.isolation', suggestion: 'Declare per-app-database, per-app-schema, or per-app-namespace isolation.' })
     }
   }
 
@@ -909,10 +985,10 @@ function migrateGenerate(appPath, options = []) {
     return envelope(false, 'failed', 'migrate-generate', basename(appRoot), [errorFinding('APP.md', 'Missing required APP.md.')])
   }
   const properties = readAppProperties(appMd)
-  const target = parseVersionFlag(options) || '0.9.0'
+  const target = parseVersionFlag(options) || '0.10.0'
   const suggestions = {}
 
-  if (['0.5.0', '0.6.0', '0.7.0', '0.8.0', '0.9.0'].includes(target)) {
+  if (v05PlusVersions.includes(target)) {
     suggestions['APP.md.frontmatter'] = {
       manifestVersion: target,
       triggers: properties.triggers || {
@@ -929,17 +1005,30 @@ function migrateGenerate(appPath, options = []) {
     suggestions['evals/health.yaml'] = sampleHealthYaml()
     suggestions['app.signature.yaml'] = sampleSignatureYaml(properties.name || 'app', properties.version || target)
   }
-  if (['0.6.0', '0.7.0', '0.8.0', '0.9.0'].includes(target)) {
+  if (v06PlusVersions.includes(target)) {
     suggestions['app.runtime.yaml'] = sampleRuntimeYaml()
   }
-  if (['0.7.0', '0.8.0', '0.9.0'].includes(target)) {
+  if (v07PlusVersions.includes(target)) {
     suggestions['app.requirements.yaml'] = sampleRequirementsYaml()
     suggestions['app.boundary.yaml'] = sampleBoundaryYaml()
     suggestions['app.integrations.yaml'] = sampleIntegrationsYaml()
     suggestions['app.operations.yaml'] = sampleOperationsYaml()
   }
-  if (['0.8.0', '0.9.0'].includes(target)) {
+  if (v08PlusVersions.includes(target)) {
     suggestions['app.install.yaml'] = sampleInstallYaml()
+  }
+  if (target === '0.10.0') {
+    suggestions['APP.md.frontmatter'].requires = properties.requires || {}
+    suggestions['APP.md.frontmatter'].requires.capabilities = suggestions['APP.md.frontmatter'].requires.capabilities || [
+      'lime.ui',
+      'lime.storage',
+      'lime.agent',
+      'lime.workflow',
+      'lime.artifacts',
+      'lime.evidence'
+    ]
+    suggestions['APP.md.frontmatter'].storage = properties.storage || sampleStorageYaml()
+    suggestions['APP.md.frontmatter'].services = properties.services || [sampleAppBackendServiceYaml()]
   }
 
   return envelope(true, 'ready', 'migrate-generate', basename(appRoot), [], {
@@ -1148,11 +1237,11 @@ function sampleInstallYaml() {
     '    - standalone',
     '    - runtime_backed',
     '  runtime:',
-    '    minVersion: 0.9.0',
+    '    minVersion: 0.10.0',
     '    protocolVersion: appserver.v0',
     '    clientPackage:',
     '      name: app-server-client',
-    '      version: ^0.9.0',
+    '      version: ^0.10.0',
     '      protocolVersion: appserver.v0',
     '    sidecar:',
     '      binary: app-server',
@@ -1170,7 +1259,7 @@ function sampleInstallYaml() {
     '        bundleSidecar: true',
     '      runtimeBacked:',
     '        requires: lime-runtime',
-    '        minVersion: 0.9.0',
+    '        minVersion: 0.10.0',
     '        resolveFromManifest: true',
     '  standalone:',
     '    shell: lime-app-shell',
@@ -1178,10 +1267,10 @@ function sampleInstallYaml() {
     '    platforms: [macos, windows]',
     '  runtimeBacked:',
     '    requires: lime-runtime',
-    '    minVersion: 0.9.0',
+    '    minVersion: 0.10.0',
     '    clientPackage:',
     '      name: app-server-client',
-    '      version: ^0.9.0',
+    '      version: ^0.10.0',
     '      protocolVersion: appserver.v0',
     '    releaseManifest:',
     '      path: resources/app-server/manifest.json',

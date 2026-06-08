@@ -13,7 +13,7 @@ Agent App 是 Agent 标准生态中的应用层。它应该组合相邻标准，
 
 | 层 | 负责什么 | 与 App 的关系 |
 | --- | --- | --- |
-| Agent App | 可安装包、entry、runtime package、workflow、storage、readiness、release、v0.7 边界文件。 | 组合完整业务产品，但不变成宿主 Runtime。 |
+| Agent App | 可安装包、entry、runtime package、workflow、storage、readiness、release、边界文件。 | 组合完整业务产品，但不变成宿主 Runtime。 |
 | Agent Runtime | task 执行、model routing、session、checkpoint、event stream、structured output。 | App 通过 `app.runtime.yaml` 声明任务意图，并调用 `lime.agent`。 |
 | Agent UI | 页面、面板、命令、viewer、Host Bridge 交互表面。 | App 声明 entries，也可以携带 UI assets；Host 在受控表面中渲染。 |
 | Agent Context | 上下文组装、预算、优先级、压缩、缺失上下文请求。 | App 描述每个 entry 或 workflow 需要什么上下文。 |

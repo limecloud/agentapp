@@ -20,7 +20,7 @@ npm run cli -- validate docs/examples/content-factory-app
 From npm after publishing:
 
 ```bash
-npx agentapp-ref@0.9.0 validate ./my-agent-app --version 0.9
+npx agentapp-ref validate ./my-agent-app
 ```
 
 ## Commands
@@ -32,8 +32,8 @@ npx agentapp-ref@0.9.0 validate ./my-agent-app --version 0.9
 | `to-catalog <app>` | Emit compact catalog metadata. |
 | `project <app>` | Emit host catalog projection with provenance. |
 | `readiness <app>` | Check static setup readiness without running an agent. |
-| `migrate-check <app> [--target 0.9.0]` | Report migration gaps for the current target version. |
-| `migrate-generate <app> [--target 0.9.0]` | Suggest layered config files, including v0.6 `app.runtime.yaml`, v0.7 boundary / integration / operation files, v0.8 `app.install.yaml`, and v0.9 App Server bridge fields. |
+| `migrate-check <app>` | Report migration gaps for the current target version. |
+| `migrate-generate <app>` | Suggest layered config files, including `app.runtime.yaml`, boundary / integration / operation files, `app.install.yaml`, App Server bridge fields, storage isolation, and optional app backend service metadata. |
 
 ## Validate
 
@@ -41,7 +41,7 @@ npx agentapp-ref@0.9.0 validate ./my-agent-app --version 0.9
 npm run cli -- validate docs/examples/content-factory-app
 ```
 
-Use this in CI before publishing. It catches missing required fields, unsupported statuses, unknown app types, invalid v0.3 entry kinds, missing local references, and missing executable permissions.
+Use this in CI before publishing. It catches missing required fields, unsupported statuses, unknown app types, invalid entry kinds, missing local references, and missing executable permissions.
 
 ## Project
 

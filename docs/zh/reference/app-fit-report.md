@@ -1,11 +1,11 @@
 ---
 title: App Fit Report
-description: v0.7 用于把自然语言需求拆成 App、Host、Cloud、Connector、外部系统和人工决策边界的报告。
+description: 用于把自然语言需求拆成 App、Host、Cloud、Connector、外部系统和人工决策边界的报告。
 ---
 
 # App Fit Report
 
-App Fit Report 是 v0.7 的方案阶段报告。它把自然语言业务需求拆成可交付边界，让团队先知道：哪些可以做成 Agent App，哪些需要 Lime Host，哪些需要 Lime Cloud，哪些需要 connector 或外部系统配合，哪些必须保留人工决策。
+App Fit Report 是方案阶段报告。它把自然语言业务需求拆成可交付边界，让团队先知道：哪些可以做成 Agent App，哪些需要 Lime Host，哪些需要 Lime Cloud，哪些需要 connector 或外部系统配合，哪些必须保留人工决策。
 
 ## 适配流程
 

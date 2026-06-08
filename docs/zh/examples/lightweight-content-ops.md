@@ -1,11 +1,11 @@
 ---
 title: 轻量内容运营工作台
-description: 用于说明 v0.7 需求边界和能力交接的脱敏示例。
+description: 用于说明需求边界和能力交接的脱敏示例。
 ---
 
 # 轻量内容运营工作台
 
-这是一个脱敏 v0.7 示例，用常见内容运营流程说明：Agent App 能做什么，哪些需要 Lime Host、Lime Cloud、连接器、外部系统和人工决策配合。
+这是一个脱敏示例，用常见内容运营流程说明：Agent App 能做什么，哪些需要 Lime Host、Lime Cloud、连接器、外部系统和人工决策配合。
 
 参考包：[`docs/examples/lightweight-content-ops-app/APP.md`](../../examples/lightweight-content-ops-app/APP.md)
 
@@ -29,7 +29,7 @@ flowchart TD
   External --> Done
 ```
 
-## v0.7 文件
+## 文件
 
 | 文件 | 用途 |
 | --- | --- |
@@ -49,7 +49,7 @@ flowchart TD
 ## 本地验证
 
 ```bash
-npm run cli -- validate docs/examples/lightweight-content-ops-app --version 0.7
+npm run cli -- validate docs/examples/lightweight-content-ops-app
 npm run cli -- project docs/examples/lightweight-content-ops-app
 npm run cli -- readiness docs/examples/lightweight-content-ops-app
 ```

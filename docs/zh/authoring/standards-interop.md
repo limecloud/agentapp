@@ -128,7 +128,7 @@ permissions:
 
 Artifact 是交付物，Evidence 是可信链路，Policy 是裁决输入，QC 是验收门槛。它们不应该混在一个自由文本 prompt 中。
 
-## v0.7 交接流程
+## 交接流程
 
 ```mermaid
 flowchart TD

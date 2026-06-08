@@ -1,5 +1,5 @@
 ---
-manifestVersion: 0.9.0
+manifestVersion: 0.10.0
 name: content-factory-app
 displayName: 内容工厂
 displayNameI18n:
@@ -10,7 +10,7 @@ shortDescriptionI18n:
   en-US: One-stop planning, production, and review workspace for content teams.
   zh-CN: 内容团队的一站式策划 / 生产 / 复盘工作台
 description: 内容工厂帮助团队规划、生产和管理营销内容。使用场景："创建内容日历"、"批量生成文案"、"内容资产管理"、"知识库构建"。
-version: 0.9.0
+version: 1.0.0
 status: ready
 appType: domain-app
 keywords:
@@ -47,11 +47,11 @@ maintainers:
     email: content-quality@limecloud.example
     role: quality
 createdAt: 2026-01-08T00:00:00Z
-updatedAt: 2026-05-18T00:00:00Z
-releasedAt: 2026-05-18T00:00:00Z
+updatedAt: 2026-06-08T00:00:00Z
+releasedAt: 2026-06-08T00:00:00Z
 supportWindow:
   channel: stable
-  supportedUntil: 2027-05-18T00:00:00Z
+  supportedUntil: 2027-06-08T00:00:00Z
 homepage: https://limecloud.example/apps/content-factory
 repository:
   type: git
@@ -95,7 +95,7 @@ runtimeTargets:
   - local
   - hybrid
 requires:
-  sdk: "@lime/app-sdk@^0.9.0"
+  sdk: "@lime/app-sdk@^0.10.0"
   capabilities:
     - lime.ui
     - lime.storage
@@ -142,6 +142,14 @@ runtimePackage:
     migrations: ./storage/migrations
 storage:
   namespace: content-factory-app
+  placement: local-sqlite
+  isolation: per-app-database
+  physicalSharing: host-managed
+  localDefault: true
+  database:
+    engine: sqlite
+    wal: true
+    migrationOwner: app
   schema: ./storage/schema.json
   migrations: ./storage/migrations
   uninstallPolicy: ask
@@ -171,6 +179,22 @@ services:
     kind: worker
     path: ./dist/worker/index.js
     required: true
+  - key: content_backend
+    kind: app-backend
+    language: nodejs
+    runtime: host-supervised-process
+    protocol: stdio-jsonrpc
+    command: ./services/content-backend/server.mjs
+    sandbox: host-policy
+    network: deny-by-default
+    required: false
+    requiredCapabilities:
+      - lime.storage
+      - lime.agent
+      - lime.artifacts
+    resourceLimits:
+      memoryMb: 512
+      timeoutMs: 30000
 workflows:
   - key: knowledge_builder
     path: ./workflows/knowledge-builder.workflow.md
@@ -271,7 +295,7 @@ presentation:
   title: 内容工厂
   summary: 面向内容团队的行业 Agent App。
 compatibility:
-  minHostVersion: 0.9.0
+  minHostVersion: current
 metadata:
   example: true
 ---
@@ -309,9 +333,11 @@ metadata:
 5. **资产沉淀** - 通过 Artifact 持久化内容资产并支持导出
 6. **复盘归因** - 根据投放数据回到知识库与策略迭代
 
-## v0.9 安装、需求边界与 App Server bridge
+## 安装、共享宿主、私有存储与 App backend
 
-该示例增加了 `app.install.yaml`，声明可安装到 Lime Desktop，也可通过 Lime App Shell 打包成独立应用，或复用系统 `lime-runtime` 运行。它仍通过 `@lime/app-sdk` 调用 `lime.*` 能力，不自建模型网关、权限系统、凭证库或 evidence store。
+该示例声明可安装到 Lime Desktop，也可通过 Lime App Shell 打包成独立应用，或复用系统 `lime-runtime` 运行。它仍通过 `@lime/app-sdk` 调用 `lime.*` 能力，不自建模型网关、权限系统、凭证库或 evidence store。
+
+该示例采用类似小程序的共享宿主模型：用户身份、session、模型设置、secrets、文件、artifacts、policy 和 agent runtime 由宿主共享并治理；内容工厂只拥有自己的 UI、workflow、app-local SQLite 存储、schema/migrations 和可选的 host-supervised `app-backend` 服务。本地桌面安装默认使用宿主管理的 per-app SQLite 数据库，不要求普通用户额外安装 PostgreSQL；PostgreSQL 只适合 Cloud、企业或团队共享后端。
 
 示例还保留 `app.requirements.yaml`、`app.boundary.yaml`、`app.integrations.yaml` 和 `app.operations.yaml`，用于说明：App 负责内容工作台、流程状态、草稿和审核；Lime Host 负责本地 Agent、文件、工具、连接器、凭证和 evidence；Lime Cloud 可提供租户策略、OAuth broker、connector registry 和计划同步；外部内容系统仍是事实源；发布或批量写入必须经过人工确认。
 
@@ -354,13 +380,13 @@ metadata:
 
 1. 未绑定 `project_knowledge` 知识库（`needs-setup`）
 2. `document_parser` 工具未启用（`blocked`）
-3. SDK 版本低于 `^0.9.0`
+3. SDK 版本低于宿主要求
 
 排查命令：
 
 ```bash
 agentapp-ref readiness ./content-factory-app --workspace ./workspace
-agentapp-ref validate ./content-factory-app --version 0.9.0
+agentapp-ref validate ./content-factory-app
 ```
 
 ### 问题：内容资产无法导出

@@ -1,42 +1,41 @@
 ---
 title: Architecture overview
-description: Project-level architecture, sequence, flow, and state-machine diagrams for Agent App v0.9.
+description: Project-level architecture, sequence, flow, and state-machine diagrams for Agent App.
 ---
 
 # Architecture overview
 
-## 0. v0.9 host split
+## 0. Host split
 
-v0.9 separates the product package, app-facing SDK, Desktop Host bridge, and App Server runtime substrate. Lime Desktop remains a full multi-app workspace, but it is no longer the mandatory way to launch every Agent App. Standalone and runtime-backed apps still use the same Capability SDK boundary and App Server bridge profile.
+The host split separates the product package, app-facing SDK, Desktop Host bridge, and App Server runtime substrate. Lime Desktop remains a full multi-app workspace, but it is no longer the mandatory way to launch every Agent App. Standalone and runtime-backed apps still use the same Capability SDK boundary and App Server bridge profile.
 
 ```mermaid
 flowchart TD
-  App[Agent App Package
-UI / Worker / Workflow / Storage] --> SDK[@lime/app-sdk]
-  SDK --> Host[Host Bridge / Desktop Host IPC]
-  Host --> Server[App Server JSON-RPC]
-  Server --> Runtime[RuntimeCore / services
-Agent / Storage / Secrets / Policy / Evidence / Tools]
-  Runtime --> Desktop[Lime Desktop
-Multi-app workspace]
-  Runtime --> Shell[Lime App Shell
-Standalone branded app]
-  Runtime --> Backed[Runtime-backed shell
-Uses system lime-runtime]
-  Runtime --> Web[Compatible Web Host]
-  Desktop --> User[User]
+  App["Agent App Package<br/>UI / Worker / Workflow / App Backend"] --> SDK["@lime/app-sdk"]
+  App --> AppStorage["App-local storage<br/>namespace / schema / migrations"]
+  SDK --> Host["Host Bridge / Desktop Host IPC"]
+  Host --> SharedState["Shared host user state<br/>user / tenant / workspace / theme"]
+  Host --> SharedCaps["Shared host capabilities<br/>files / model settings / secrets / billing"]
+  Host --> Server["App Server JSON-RPC"]
+  Server --> Runtime["RuntimeCore / services<br/>Agent / Storage / Secrets / Policy / Evidence / Tools"]
+  Runtime --> StorageBoundary["Storage boundary<br/>host DB separate; app DB/schema isolated"]
+  Runtime --> Desktop["Lime Desktop<br/>multi-app workspace"]
+  Runtime --> Shell["Lime App Shell<br/>standalone branded app"]
+  Runtime --> Backed["Runtime-backed shell<br/>uses system lime-runtime"]
+  Runtime --> Web["Compatible Web Host"]
+  Desktop --> User["User"]
   Shell --> User
   Backed --> User
   Web --> User
 ```
 
-This page collects the key structural, install-mode, requirement-boundary, and runtime diagrams for Agent App v0.9 in one place. The [specification](./specification) defines rules; this page renders them. Desktop host implementations such as `lime-desktop-platform` must also satisfy [Desktop host conformance](./client-implementation/desktop-host-conformance.md).
+This page collects the key structural, install-mode, requirement-boundary, and runtime diagrams for Agent App in one place. The [specification](./specification) defines rules; this page renders them. Desktop host implementations such as `lime-desktop-platform` must also satisfy [Desktop host conformance](./client-implementation/desktop-host-conformance.md).
 
-Agent Apps depend only on Capability SDK / Host Bridge semantics. Desktop Host IPC, App Server JSON-RPC, RuntimeCore, services, and ExecutionBackend are host-side fact sources; app packages must not access those internals directly.
+Agent Apps depend only on Capability SDK / Host Bridge semantics. Desktop Host IPC, App Server JSON-RPC, RuntimeCore, services, and ExecutionBackend are host-side fact sources; app packages must not access those internals directly. User state and host capabilities are shared as host projections; app storage and app backend services remain isolated by app, workspace, and tenant.
 
 ## 1. Standard layers
 
-v0.9 inherits v0.6/v0.7/v0.8 layering, splits delivery across App, Host, Cloud, connector, external-system, and human-decision planes, and adds an explicit App Server bridge profile across Lime Desktop, Lime App Shell, runtime-backed shells, and compatible web hosts. The layered manifest and Capability SDK are the stable app-facing boundaries; hosts and the Cloud control plane stay on contracts and never on business implementation.
+The standard layers split delivery across App, Host, Cloud, connector, external-system, and human-decision planes, with an explicit App Server bridge profile across Lime Desktop, Lime App Shell, runtime-backed shells, and compatible web hosts. The layered manifest and Capability SDK are the stable app-facing boundaries; hosts and the Cloud control plane stay on contracts and never on business implementation.
 
 ```mermaid
 flowchart TD
@@ -47,7 +46,7 @@ flowchart TD
     Reg[Registration / License]
   end
 
-  subgraph Standard[Agent App v0.9 standard]
+  subgraph Standard[Agent App standard]
     APPMD[APP.md frontmatter + sections]
     LAYERED[app.*.yaml layered config]
     BOUNDARY[requirements / boundary / integrations / operations]
@@ -132,9 +131,9 @@ flowchart TD
 | Standard (agentapp) | manifest schema, reference CLI, SDK contract, best practices | concrete host or app implementations |
 
 
-## 3. v0.7 requirement-boundary architecture
+## 3. Requirement-boundary architecture
 
-v0.7 uses this view to answer the product and delivery question: what can the App do, and what requires Lime Host, Lime Cloud, connectors, external systems, or human confirmation.
+This view answers the product and delivery question: what can the App do, and what requires Lime Host, Lime Cloud, connectors, external systems, or human confirmation.
 
 ```mermaid
 flowchart LR
@@ -313,7 +312,7 @@ flowchart LR
 
 ## 8. Workflow state machine example
 
-v0.5 workflow descriptors keep the v0.3 state machine and add a mermaid diagram and unified recovery policy. The example below is the Content Factory `content_scenario_planning` workflow.
+Workflow descriptors keep a state machine and add a mermaid diagram and unified recovery policy. The example below is the Content Factory `content_scenario_planning` workflow.
 
 ```mermaid
 stateDiagram-v2
@@ -385,28 +384,21 @@ flowchart LR
 
 ## 10. Upgrade and rollback
 
-v0.6 / v0.5 / v0.4 / v0.3 manifests continue to work in v0.7 hosts; the reference CLI provides `migrate-check` / `migrate-generate`.
+Older manifests continue to work in compatible hosts; the reference CLI provides `migrate-check` / `migrate-generate`.
 
 ```mermaid
 flowchart LR
-  v03[v0.3 manifest] -->|host reads directly| v07Host[v0.7 host]
-  v04[v0.4 manifest] -->|host reads directly| v07Host
-  v06[v0.6 manifest] -->|host reads directly| v07Host
-  v05[v0.5 manifest] -->|host reads directly| v07Host
-  v03 -->|migrate-check / migrate-generate| v07[v0.7 manifest]
-  v04 -->|migrate-check / migrate-generate| v07
-  v06 -->|migrate-check / migrate-generate| v07
-  v05 -->|migrate-check / migrate-generate| v07
-  v07 --> v07Host
-  v07Host -. failure .-> Rollback[Rollback to previous version]
-  Rollback --> v04
-  Rollback --> v03
+  oldManifest[older manifest] -->|host reads directly| currentHost[compatible host]
+  oldManifest -->|migrate-check / migrate-generate| currentManifest[current manifest]
+  currentManifest --> currentHost
+  currentHost -. failure .-> Rollback[Rollback to previous version]
+  Rollback --> oldManifest
 ```
 
 ## 11. Further reading
 
 - [Specification](./specification): rules, fields, and constraints.
-- [Quickstart](./authoring/quickstart): build a v0.9 package from scratch.
+- [Quickstart](./authoring/quickstart): build a package from scratch.
 - [Runtime model](./client-implementation/runtime-model): host implementation detail.
 - [Capability SDK](./client-implementation/capability-sdk): stable capability call contract.
-- [v0.7 snapshot](./versions/v0.7/overview): pinned version notes.
+- [Latest update](./versions/v0.10/overview): concise version notes.

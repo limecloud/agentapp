@@ -1,5 +1,9 @@
 # Release Notes
 
+## v0.10.0
+
+v0.10 defines Agent App as a mini-program style package: shared user state and host capabilities come from the host, while app UI, workflow, app-local storage, and optional app backend services stay isolated. Local desktop installs should default to host-managed per-app SQLite; PostgreSQL is reserved for cloud, enterprise, or team-shared server backends. The release updates schemas, CLI, examples, Electron host guidance, and adds a concise v0.10 update page.
+
 ## v0.9.0
 
 v0.9 standardizes the App Server Bridge Profile for Agent App runtime execution. It keeps v0.8 install modes, then makes the runtime path explicit: `@lime/app-sdk` / Host Bridge -> Desktop Host IPC -> App Server JSON-RPC -> RuntimeCore services -> ExecutionBackend. The release adds `agentRuntime.bridge`, extends runtime and install schemas with bridge / sidecar / release manifest metadata, upgrades `agentapp-ref` to `0.9.0`, and updates Content Factory as a v0.9 example. v0.8 packages remain valid; v0.9 adds bridge precision without weakening capability governance.

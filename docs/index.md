@@ -24,7 +24,7 @@ features:
   - title: Capability SDK boundary
     details: "Apps use lime.ui, lime.storage, lime.agent, lime.connectors, lime.artifacts, lime.evidence, lime.policy, and adjacent Agent standards without importing host internals."
   - title: App-like installation
-    details: "v0.9 keeps in-Lime, standalone, runtime-backed, and web-host install modes while making the App Server bridge explicit."
+    details: "Keeps in-Lime, standalone, runtime-backed, and web-host install modes while making the App Server bridge explicit."
 ---
 
 ## What to read first
@@ -32,7 +32,7 @@ features:
 Agent App is the application layer for agent hosts. If you are new to the standard, read in this order:
 
 1. [What is Agent App?](/en/what-is-agent-app) explains the boundary between complete apps, experts, Runtime, UI, Context, Knowledge, Skills, Tools / Connectors, Artifacts, Evidence, Policy, and QC.
-2. [Specification](/en/specification) defines the v0.9 package contract.
+2. [Specification](/en/specification) defines the package contract.
 3. [Quickstart](/en/authoring/quickstart) shows the smallest useful package.
 4. [Runtime package design](/en/authoring/runtime-package) explains where real UI, worker, storage, and workflow implementation lives.
 5. [Capability SDK](/en/client-implementation/capability-sdk) explains how apps call host capabilities without importing internals.
@@ -50,9 +50,9 @@ Agent App is the application layer for agent hosts. If you are new to the standa
 | Trust and quality | Evidence, Policy, QC, evals, human review, fact grounding, provenance, readiness status. |
 | Distribution | Release metadata, package hash, manifest hash, compatibility, tenant enablement. |
 
-## Current version
+## Current Model
 
-The current line is v0.9. It keeps the executable package contract, v0.5 layered configuration, v0.6 Agent task runtime control plane, v0.7 Requirement Boundary & Capability Handoff, and v0.8 Standalone Installation & Runtime Separation, then adds an explicit App Server bridge profile through `agentRuntime.bridge`. A v0.9 app can explain both delivery responsibilities and how app-facing SDK calls map to Desktop Host IPC, App Server JSON-RPC, RuntimeCore services, and execution backends.
+The current contract treats Agent App as a mini-program style package: the host shares user state and platform capabilities through governed SDK handles, while each app owns its UI, workflow state, app-local storage, and optional backend services. Local desktop storage should default to host-managed per-app SQLite. PostgreSQL belongs to cloud, enterprise, or team-shared backends rather than normal consumer installation.
 
 ## Package maturity ladder
 
@@ -65,4 +65,4 @@ The current line is v0.9. It keeps the executable package contract, v0.5 layered
 
 ## Design boundary
 
-Agent App intentionally sits above the surrounding standards as the composition layer. Runtime executes tasks; UI renders interaction surfaces; Context assembles task context; Skills describe reusable procedures; Knowledge supplies trusted facts; Tools and Connectors call external systems; Artifacts persist deliverables; Evidence, Policy, and QC make results trustworthy. Agent App packages those pieces with workflow, storage, permissions, lifecycle, v0.7 boundary files, v0.8 install metadata, and v0.9 bridge metadata so a compatible host can run a complete product experience without baking vertical business logic into host core.
+Agent App intentionally sits above the surrounding standards as the composition layer. Runtime executes tasks; UI renders interaction surfaces; Context assembles task context; Skills describe reusable procedures; Knowledge supplies trusted facts; Tools and Connectors call external systems; Artifacts persist deliverables; Evidence, Policy, and QC make results trustworthy. Agent App packages those pieces with workflow, storage, permissions, lifecycle, boundary files, install metadata, and bridge metadata so a compatible host can run a complete product experience without baking vertical business logic into host core.

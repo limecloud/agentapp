@@ -1,12 +1,12 @@
-# Agent App v0.9 readiness self-check model
+# Agent App readiness self-check model
 # Three tiers: required (blockers), recommended (warnings), performance (info).
 
 readiness:
   required:
     - check: sdk_version
-      expect: ">=0.9.0"
+      expect: ">=0.10.0"
       blocker: true
-      message: 需要 Lime SDK v0.9.0 或更高版本
+      message: 需要兼容的 Lime SDK
       remediation: 升级 Lime Desktop
 
     - check: capability_available

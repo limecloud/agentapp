@@ -1,4 +1,4 @@
-# Agent App v0.7 operation side effects.
+# Agent App operation side effects.
 
 operations:
   - key: build_project_knowledge

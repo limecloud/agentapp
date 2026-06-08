@@ -23,7 +23,7 @@ The example declares:
 - optional ticket lookup Tool / Connector requirement
 - `reply_draft` Artifact type
 - `policy_compliance` Eval
-- v0.6 `app.runtime.yaml` for structured reply drafts, approval, session, tool discovery, checkpoints, and observability
+- `app.runtime.yaml` for structured reply drafts, approval, session, tool discovery, checkpoints, and observability
 - support category presentation metadata
 
 It is a draft app, so validation still warns that a product-level runtime package, full layered config, and explicit permissions should be added before production use.
@@ -61,12 +61,12 @@ Support workflows are high trust. The app should never answer from generic model
 ## Try it locally
 
 ```bash
-npm run cli -- validate docs/examples/customer-support-app --version 0.6
+npm run cli -- validate docs/examples/customer-support-app
 npm run cli -- project docs/examples/customer-support-app
 npm run cli -- readiness docs/examples/customer-support-app
 ```
 
-The current v0.6 draft fixture is useful for testing warnings, runtime contract projection, and progressive completeness.
+The draft fixture is useful for testing warnings, runtime contract projection, and progressive completeness.
 
 ## End-to-end support flow
 

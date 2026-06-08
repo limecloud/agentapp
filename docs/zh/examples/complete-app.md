@@ -12,10 +12,10 @@ description: 完整 Agent App manifest 的检查表和注释结构。
 ## 必需身份字段
 
 ```yaml
-manifestVersion: 0.9.0
+manifestVersion: 0.10.0
 name: content-factory-app
 description: 内容工厂，用于知识库构建、内容场景规划、内容生产和数据复盘。
-version: 0.9.0
+version: 1.0.0
 status: ready
 appType: domain-app
 runtimeTargets:
@@ -29,13 +29,13 @@ runtimeTargets:
 ```yaml
 requires:
   lime:
-    appRuntime: ">=0.9.0 <1.0.0"
-  sdk: "@lime/app-sdk@^0.9.0"
+    appRuntime: "current"
+  sdk: "@lime/app-sdk"
   capabilities:
-    lime.ui: "^0.9.0"
-    lime.storage: "^0.9.0"
-    lime.agent: "^0.9.0"
-    lime.connectors: "^0.9.0"
+    lime.ui: "current"
+    lime.storage: "current"
+    lime.agent: "current"
+    lime.connectors: "current"
 ```
 
 Requirements 描述宿主必须提供什么，而不是宿主内部如何实现。
@@ -83,7 +83,7 @@ storage:
 
 Storage 必须 namespace 化，才能支持卸载、导出和审计。
 
-## v0.6 Agent runtime control
+## Agent runtime control
 
 调用 `lime.agent` 的完整 App 应包含 `app.runtime.yaml`，或等价的 `agentRuntime` 字段。Runtime layer 声明 task 事件 / 结果 schema、JSON Schema 结构化输出、runtime approval、session resume / fork policy、tool discovery、checkpoint scope 和可观测性默认值。
 
@@ -111,7 +111,7 @@ agentRuntime:
       exportContentByDefault: false
 ```
 
-## v0.7 需求边界
+## 需求边界
 
 完整 App 应包含独立的边界文件，说明哪些由 App 完成、哪些由 Host/Cloud/Connector/外部系统/人工决策配合。
 
@@ -136,7 +136,7 @@ app.operations.yaml     # 操作副作用、审批、dry-run、evidence
 - `permissions`：宿主 Policy 输入
 - `secrets`：凭证槽位
 - `overlayTemplates`：租户和 workspace 配置
-- `requirements` / `boundary` / `integrations` / `operations`：v0.7 需求边界和能力交接
+- `requirements` / `boundary` / `integrations` / `operations`：需求边界和能力交接
 
 ## Human guide
 
@@ -154,7 +154,7 @@ app.operations.yaml     # 操作副作用、审批、dry-run、evidence
 
 | 区域 | 完整标准 |
 | --- | --- |
-| Manifest | 必需字段和 v0.7 requirements 已声明。 |
+| Manifest | 必需字段和 requirements 已声明。 |
 | Runtime package | 使用到的 UI、worker、storage、workflow 路径已声明。 |
 | Entries | 每个启动点有稳定 key、kind、title 和绑定信息。 |
 | Data | Storage namespace 和 Knowledge slots 明确。 |
@@ -167,7 +167,7 @@ app.operations.yaml     # 操作副作用、审批、dry-run、evidence
 ## 验证命令
 
 ```bash
-npm run cli -- validate docs/examples/content-factory-app --version 0.9
+npm run cli -- validate docs/examples/content-factory-app
 npm run cli -- project docs/examples/content-factory-app
 npm run cli -- readiness docs/examples/content-factory-app
 ```

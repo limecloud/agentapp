@@ -125,7 +125,7 @@ my-app/
 ## 作者检查表
 
 - `APP.md` 说明什么时候使用 App，以及用户需要完成什么 setup。
-- v0.3 current entry 使用 `page`、`panel`、`expert-chat`、`command`、`workflow`、`artifact`、`background-task` 或 `settings`。
+- current entry 使用 `page`、`panel`、`expert-chat`、`command`、`workflow`、`artifact`、`background-task` 或 `settings`。
 - Runtime code 调用能力前，先在 `requires.capabilities` 声明必需 capability。
 - 客户专属数据通过 Knowledge templates、overlays、secrets 或 workspace files 表达，不打进官方 package。
 - 可执行 entry 有 permissions、policy、eval 和 Evidence 预期。

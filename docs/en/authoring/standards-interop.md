@@ -128,7 +128,7 @@ permissions:
 
 Artifacts are deliverables, Evidence is the trust chain, Policy is the decision input, and QC is the acceptance gate. They should not collapse into one free-form prompt.
 
-## v0.7 handoff flow
+## Handoff flow
 
 ```mermaid
 flowchart TD

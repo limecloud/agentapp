@@ -1,11 +1,11 @@
 ---
 title: Lightweight Content Ops App
-description: Sanitized v0.7 example for requirement boundary and capability handoff.
+description: Sanitized example for requirement boundary and capability handoff.
 ---
 
 # Lightweight Content Ops App
 
-This is a sanitized v0.7 example for a common content-operations workflow. It demonstrates how Agent App separates what the app can do from what Lime Host, Lime Cloud, connectors, external systems, and humans must provide.
+This is a sanitized example for a common content-operations workflow. It demonstrates how Agent App separates what the app can do from what Lime Host, Lime Cloud, connectors, external systems, and humans must provide.
 
 Reference package: [`docs/examples/lightweight-content-ops-app/APP.md`](../../examples/lightweight-content-ops-app/APP.md)
 
@@ -29,7 +29,7 @@ flowchart TD
   External --> Done
 ```
 
-## v0.7 files
+## Files
 
 | File | Purpose |
 | --- | --- |
@@ -49,7 +49,7 @@ flowchart TD
 ## Try it locally
 
 ```bash
-npm run cli -- validate docs/examples/lightweight-content-ops-app --version 0.7
+npm run cli -- validate docs/examples/lightweight-content-ops-app
 npm run cli -- project docs/examples/lightweight-content-ops-app
 npm run cli -- readiness docs/examples/lightweight-content-ops-app
 ```

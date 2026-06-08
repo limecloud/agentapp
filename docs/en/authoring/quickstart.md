@@ -125,7 +125,7 @@ Then update `APP.md` so every entry points to its implementation: `route` for pa
 ## Author checklist
 
 - `APP.md` explains when to use the app and what setup is required.
-- Every current v0.3 entry uses `page`, `panel`, `expert-chat`, `command`, `workflow`, `artifact`, `background-task`, or `settings`.
+- Every current entry uses `page`, `panel`, `expert-chat`, `command`, `workflow`, `artifact`, `background-task`, or `settings`.
 - Required capabilities are declared under `requires.capabilities` before runtime code calls them.
 - Customer-specific data is represented by Knowledge templates, overlays, secrets, or workspace files, not bundled in the package.
 - Executable entries have permissions, policy, eval, and Evidence expectations.

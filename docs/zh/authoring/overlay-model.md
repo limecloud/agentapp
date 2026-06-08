@@ -24,7 +24,7 @@ Host Default
 
 某些值可以被高层 policy 锁定。例如租户可以禁止用户覆盖模型成本上限。
 
-## v0.3 overlay template
+## Overlay template
 
 App 可以声明可配置槽位：
 

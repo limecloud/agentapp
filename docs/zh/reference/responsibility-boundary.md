@@ -1,11 +1,11 @@
 ---
 title: 职责边界
-description: v0.7 中 App、Host、Cloud、Connector、外部系统和人工决策的分工。
+description: App、Host、Cloud、Connector、外部系统和人工决策的分工。
 ---
 
 # 职责边界
 
-v0.7 的核心问题不是“这个需求能不能用 AI 做”，而是“这个需求应该由哪个平面负责”。Agent App 负责业务体验和流程编排；Lime Host、Lime Cloud、connector、外部系统和人工决策分别提供运行、治理、连接、事实源和风险确认。
+核心问题不是“这个需求能不能用 AI 做”，而是“这个需求应该由哪个平面负责”。Agent App 负责业务体验和流程编排；Lime Host、Lime Cloud、connector、外部系统和人工决策分别提供运行、治理、连接、事实源和风险确认。
 
 ## 边界总览
 

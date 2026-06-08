@@ -23,7 +23,7 @@ description: 面向客服流程的 Agent App 示例。
 - 可选 ticket lookup Tool / Connector
 - `reply_draft` Artifact type
 - `policy_compliance` Eval
-- v0.6 `app.runtime.yaml`：声明结构化回复草稿、审批、session、工具发现、checkpoint 与可观测性
+- `app.runtime.yaml`：声明结构化回复草稿、审批、session、工具发现、checkpoint 与可观测性
 - support category presentation metadata
 
 它是 draft app，所以 validate 仍会提示：生产级 app 还应增加 runtime package、完整分层配置和 explicit permissions。
@@ -59,12 +59,12 @@ description: 面向客服流程的 Agent App 示例。
 ## 本地验证
 
 ```bash
-npm run cli -- validate docs/examples/customer-support-app --version 0.6
+npm run cli -- validate docs/examples/customer-support-app
 npm run cli -- project docs/examples/customer-support-app
 npm run cli -- readiness docs/examples/customer-support-app
 ```
 
-当前 v0.6 draft fixture 适合测试 warning、runtime contract projection 和逐步完善流程。
+当前 draft fixture 适合测试 warning、runtime contract projection 和逐步完善流程。
 
 ## 端到端客服流程
 

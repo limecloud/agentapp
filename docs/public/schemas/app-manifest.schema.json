@@ -20,7 +20,8 @@
         "0.6.0",
         "0.7.0",
         "0.8.0",
-        "0.9.0"
+        "0.9.0",
+        "0.10.0"
       ]
     },
     "name": {
@@ -1160,6 +1161,74 @@
         "migrations": {
           "type": "string"
         },
+        "placement": {
+          "type": "string",
+          "description": "v0.10: preferred storage placement. Local desktop apps should default to local-sqlite; server-postgresql is for cloud, enterprise, or team-shared backends.",
+          "enum": [
+            "local-sqlite",
+            "local-indexeddb",
+            "host-managed",
+            "server-postgresql",
+            "server-managed",
+            "external"
+          ]
+        },
+        "isolation": {
+          "type": "string",
+          "description": "v0.10: logical data boundary exposed by the host.",
+          "enum": [
+            "per-app-database",
+            "per-app-schema",
+            "per-app-namespace",
+            "per-tenant-schema",
+            "dedicated-database"
+          ]
+        },
+        "physicalSharing": {
+          "type": "string",
+          "description": "v0.10: whether storage may share a physical database engine while keeping app namespaces isolated.",
+          "enum": [
+            "none",
+            "host-managed",
+            "shared-engine-isolated-namespace",
+            "dedicated"
+          ]
+        },
+        "localDefault": {
+          "type": "boolean",
+          "description": "v0.10: true when this storage profile is suitable as the default local desktop install profile."
+        },
+        "database": {
+          "type": "object",
+          "description": "v0.10: optional database hints. Apps must not receive host core database handles.",
+          "properties": {
+            "engine": {
+              "type": "string",
+              "enum": [
+                "sqlite",
+                "postgresql",
+                "indexeddb",
+                "host-managed",
+                "other"
+              ]
+            },
+            "wal": {
+              "type": "boolean",
+              "description": "SQLite local profile hint; host decides final pragma policy."
+            },
+            "schema": {
+              "type": "string"
+            },
+            "migrationOwner": {
+              "type": "string",
+              "enum": [
+                "app",
+                "host"
+              ]
+            }
+          },
+          "additionalProperties": true
+        },
         "retention": {
           "type": "object",
           "additionalProperties": true
@@ -1194,7 +1263,27 @@
             "background-task",
             "scheduler",
             "tool-adapter",
+            "app-backend",
             "webhook"
+          ]
+        },
+        "language": {
+          "type": "string",
+          "description": "v0.10: implementation language for app-owned backend services, for example nodejs, python, go, rust, java, or wasm."
+        },
+        "runtime": {
+          "type": "string",
+          "description": "v0.10: host-supervised runtime profile for the service."
+        },
+        "protocol": {
+          "type": "string",
+          "description": "v0.10: transport contract between host and app-owned backend service.",
+          "enum": [
+            "stdio-jsonrpc",
+            "local-http",
+            "local-socket",
+            "wasm",
+            "remote-http"
           ]
         },
         "entry": {
@@ -1202,6 +1291,31 @@
         },
         "path": {
           "type": "string"
+        },
+        "binary": {
+          "type": "string"
+        },
+        "command": {
+          "type": "string"
+        },
+        "endpoint": {
+          "type": "string"
+        },
+        "sandbox": {
+          "type": "string"
+        },
+        "network": {
+          "type": "string",
+          "enum": [
+            "deny-by-default",
+            "host-mediated",
+            "loopback-only",
+            "remote-allowed"
+          ]
+        },
+        "resourceLimits": {
+          "type": "object",
+          "additionalProperties": true
         },
         "schedule": {
           "type": "string"

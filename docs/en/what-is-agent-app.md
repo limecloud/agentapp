@@ -23,7 +23,7 @@ This also prevents the opposite failure mode. An app should not rebuild its own 
 
 ## First-class installable product
 
-v0.8 separates Lime Desktop from Lime Runtime. Lime Desktop is a multi-app workspace and app manager; Lime Runtime is the governed capability substrate; Lime App Shell is the minimal host that can wrap one Agent App as a standalone branded app.
+The host model separates Lime Desktop from Lime Runtime. Lime Desktop is a multi-app workspace and app manager; Lime Runtime is the governed capability substrate; Lime App Shell is the minimal host that can wrap one Agent App as a standalone branded app.
 
 That means a user can install a Content Factory app directly without first downloading or understanding Lime Desktop. The app still calls `lime.agent`, `lime.storage`, `lime.secrets`, `lime.policy`, and `lime.evidence` through the same SDK, so standalone distribution does not become an excuse to bypass governance.
 

@@ -4,11 +4,11 @@ install:
     - standalone
     - runtime_backed
   runtime:
-    minVersion: 0.9.0
+    minVersion: 0.10.0
     protocolVersion: appserver.v0
     clientPackage:
       name: app-server-client
-      version: ^0.9.0
+      version: ^0.10.0
       protocolVersion: appserver.v0
     sidecar:
       binary: app-server
@@ -30,7 +30,7 @@ install:
         bundleSidecar: true
       runtimeBacked:
         requires: lime-runtime
-        minVersion: 0.9.0
+        minVersion: 0.10.0
         resolveFromManifest: true
   standalone:
     shell: lime-app-shell
@@ -41,10 +41,10 @@ install:
     autoUpdate: true
   runtimeBacked:
     requires: lime-runtime
-    minVersion: 0.9.0
+    minVersion: 0.10.0
     clientPackage:
       name: app-server-client
-      version: ^0.9.0
+      version: ^0.10.0
       protocolVersion: appserver.v0
     releaseManifest:
       path: resources/app-server/manifest.json
@@ -56,6 +56,6 @@ install:
     windowTitle: Content Factory
   compatibility:
     hosts:
-      limeDesktop: ">=0.9.0 <1.0.0"
-      limeAppShell: ">=0.9.0 <1.0.0"
+      limeDesktop: ">=0.10.0 <1.0.0"
+      limeAppShell: ">=0.10.0 <1.0.0"
       webHost: optional

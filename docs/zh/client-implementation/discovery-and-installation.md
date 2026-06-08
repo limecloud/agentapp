@@ -5,7 +5,7 @@ description: 宿主如何发现、校验、安装和激活 Agent App。
 
 # 发现与安装
 
-安装不是执行。宿主应该先发现和校验 Agent App，再创建运行状态或暴露可执行 entry。v0.8 中的“宿主”可以是 Lime Desktop、Lime App Shell、runtime-backed shell 或兼容 Web Host；它们都必须收敛到同一套 manifest、projection、readiness 和 Capability SDK 契约。
+安装不是执行。宿主应该先发现和校验 Agent App，再创建运行状态或暴露可执行 entry。这里的“宿主”可以是 Lime Desktop、Lime App Shell、runtime-backed shell 或兼容 Web Host；它们都必须收敛到同一套 manifest、projection、readiness 和 Capability SDK 契约。
 
 ## 发现来源
 

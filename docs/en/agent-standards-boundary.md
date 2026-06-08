@@ -13,7 +13,7 @@ Current fact source: **Agent App owns installable business application compositi
 
 | Standard / plane | Owns | How App uses it |
 | --- | --- | --- |
-| Agent App | Installable app package, entries, runtime package, workflow, storage, release, v0.7 requirement boundary. | Composition layer for how a business workbench is installed, run, accepted, and upgraded. |
+| Agent App | Installable app package, entries, runtime package, workflow, storage, release, requirement boundary. | Composition layer for how a business workbench is installed, run, accepted, and upgraded. |
 | Agent Runtime | Tasks, models, tools, sessions, checkpoints, event streams, structured output. | Starts controlled tasks through `lime.agent` and `app.runtime.yaml`; does not ship a hidden runtime. |
 | Agent UI | Pages, panels, commands, interaction state, artifact viewers, Host Bridge. | Exposes product surfaces through entries, UI bundles, and `lime.ui`. |
 | Agent Context | Context assembly, budget, priority, compression, missing-context requests. | Declares which context sources and budgets each entry or workflow needs. |

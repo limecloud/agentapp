@@ -5,13 +5,15 @@ description: How a host installs, authorizes, executes, observes, and cleans up 
 
 # Runtime Model
 
-Agent App is host-executed, not registry-executed by default. A package may contain UI bundles, workers, workflows, storage schemas, and business code, but those assets must run inside host-controlled runtimes and call platform capabilities through the Capability SDK.
+Agent App is host-executed, not registry-executed by default. A package may contain UI bundles, workers, workflows, app backend services, storage schemas, and business code, but those assets must run inside host-controlled runtimes and call platform capabilities through the Capability SDK.
 
 The runtime model protects three boundaries:
 
 1. The host owns execution and policy.
 2. The app owns product behavior and app-local state.
 3. The registry owns distribution and release metadata, not hidden runtime execution.
+
+Agent App uses a mini-program style runtime: user state and platform capabilities are shared by the host, while app code, app storage, and app-owned backend services remain isolated.
 
 ## Core flow
 
@@ -38,7 +40,7 @@ Each step should be inspectable. A host should be able to stop before execution 
 | Capability bridge | Inject authorized SDK handles and enforce permissions. |
 | UI host | Mount app pages, panels, settings, and artifact viewers in a sandbox. |
 | Workflow runtime | Execute approved workflow steps with trace, retry, cancel, and evidence. |
-| Worker runtime | Run packaged background code only inside a sandbox and policy boundary. |
+| Worker / backend runtime | Run packaged background code and app-owned backend services only inside a sandbox and policy boundary. |
 | Storage service | Provide app namespace, schema, migrations, and cleanup. |
 | Artifact and Evidence services | Persist outputs and provenance. |
 | App Server client | Owned by the host; performs JSON-RPC initialization, session / turn / action requests, event subscription, reconnect, and error projection. |
@@ -102,10 +104,26 @@ Forbidden paths:
 - Run capability negotiation.
 - Register UI routes, panels, commands, settings, and artifact viewers.
 - Create app storage namespace and apply migrations only after review.
+- Create app backend service sandboxes, supervise their lifecycle, and expose only approved capability handles.
 - Inject `lime.*` capability handles.
 - Intercept file, network, secret, tool, agent, storage, and export permissions.
 - Record provenance, evidence, telemetry, eval results, and cleanup records.
 - Keep app state separate from host global state.
+
+## Shared host runtime profile
+
+Hosts may share these projections across apps:
+
+| Shared projection | Allowed | Forbidden |
+| --- | --- | --- |
+| User / tenant / workspace | Stable ids, display name, locale, timezone, workspace summary. | Bearer tokens, refresh tokens, private file contents. |
+| Session and OAuth | Presence, account label, provider availability, setup action. | Raw OAuth tokens or provider credentials. |
+| Model settings | Effective model profile, limits, setup action. | Provider API keys or host-private routing tables. |
+| Billing and entitlement | Plan summary, quota status, blocked reason. | Raw billing ledger or payment credentials. |
+| Host UI | Theme tokens, navigation, toast, download, shell actions. | Host DOM, Electron objects, Tauri commands, Node APIs. |
+| Platform capabilities | Capability availability and typed SDK handles. | Direct service objects, database handles, filesystem paths. |
+
+Shared user state is a host projection, not app-owned state. Apps may cache only the minimum non-sensitive snapshot needed for UI continuity, and must treat host snapshots as refreshable facts.
 
 ## Execution modes
 
@@ -140,11 +158,11 @@ The host must validate message source: `event.source` must be the current app fr
 
 Host Bridge does not expose App Server transport. The app sees SDK tasks, events, and artifact projections. The App Server client, sidecar path, JSON-RPC envelope, Electron IPC channel, Tauri command name, and RuntimeCore internal types are host implementation details.
 
-## Workflow and worker runtime
+## Workflow, worker, and app backend runtime
 
 Start with a controlled workflow runtime before executing arbitrary worker code. An allowlisted workflow DSL can call SDK capabilities such as storage, Knowledge, agent tasks, Artifacts, and Evidence.
 
-Raw worker execution requires additional sandboxing:
+Raw worker or app backend execution requires additional sandboxing:
 
 - resource limits
 - filesystem restrictions
@@ -153,6 +171,17 @@ Raw worker execution requires additional sandboxing:
 - cancellation and timeout
 - audit logs
 - package provenance
+
+App backend services may be multi-language. The host should prefer protocols that preserve supervision and capability mediation:
+
+| Runtime shape | Recommended protocol | Notes |
+| --- | --- | --- |
+| Python / Go / Rust / Node / Java local service | `stdio-jsonrpc` | Best default for cross-language services; host owns process, environment, stdio, cancellation, and restart policy. |
+| Long-lived local service | `local-http` or local socket | Host owns random binding, per-launch auth, health checks, and shutdown. |
+| Deterministic compute | `wasm` | No ambient filesystem, network, or secret access. |
+| Remote backend | `remote-http` | Requires explicit `server-assisted` declaration, tenant policy, audit, and data boundary. |
+
+Backend services are not a loophole around the host. They must not read host databases, workspace files, secrets, model keys, or user state directly; they request those through the same capability bridge as UI and workflow code.
 
 ## Runtime data lifecycle
 
@@ -167,6 +196,8 @@ App runtime may create:
 - secret bindings
 
 All of these need app provenance and cleanup behavior.
+
+Storage placement is an implementation detail, but the logical boundary is not. The host core database must remain separate from app-owned migrations. A host may co-locate multiple app stores in one physical database engine only when it still enforces app, workspace, and tenant boundaries. For local desktop hosts, per-app SQLite files avoid cross-app write contention and make uninstall, backup, migration rollback, and corruption recovery simpler. For server hosts, shared PostgreSQL instances should use per-app schemas or dedicated databases for high-risk apps; shared tables are only appropriate for low-risk metadata with database-enforced scoping.
 
 ## Cloud boundary
 

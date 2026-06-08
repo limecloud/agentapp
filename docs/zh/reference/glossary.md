@@ -5,7 +5,7 @@ description: Agent App 标准中的核心术语。
 
 # 术语表
 
-本页定义 Agent App v0.3 中的术语。
+本页定义当前 Agent App 标准中的术语。
 
 | 术语 | 含义 |
 | --- | --- |
@@ -20,7 +20,7 @@ description: Agent App 标准中的核心术语。
 | Capability | App 通过 SDK 调用的宿主能力。 |
 | Shared platform capability | 跨 App 共享的平台能力，例如 `lime.cloudSession`、`lime.modelSettings`、`lime.branding`、`lime.billing` 或 `lime.appUpdates`，不应在每个 App 里重复实现。 |
 | Entry | 宿主可见入口，例如 page、command、workflow、artifact、background-task、settings。 |
-| Expert | 聊天优先入口；v0.3 中是 `expert-chat`，不是整个 App。 |
+| Expert | 聊天优先入口；当前 manifest 中是 `expert-chat`，不是整个 App。 |
 | Projection | 从 manifest 到宿主 catalog objects 的确定性编译。 |
 | Readiness | 运行前静态设置和兼容性检查。 |
 | Overlay | 官方 package 外的租户、workspace、用户或客户配置。 |
@@ -40,7 +40,7 @@ description: Agent App 标准中的核心术语。
 
 | 术语 | 状态 |
 | --- | --- |
-| `scene` entry | 历史兼容术语。v0.3 App 应使用 `page`、`command`、`workflow`、`artifact`、`background-task` 或 `settings`。 |
+| `scene` entry | 历史兼容术语。当前 App 应使用 `page`、`command`、`workflow`、`artifact`、`background-task` 或 `settings`。 |
 | `home` entry | 历史兼容术语。App 首页应使用 `page`。 |
 
 ## 命名建议

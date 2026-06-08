@@ -12,10 +12,10 @@ Use `docs/examples/content-factory-app/APP.md` as the current fixture. The secti
 ## Required identity
 
 ```yaml
-manifestVersion: 0.9.0
+manifestVersion: 0.10.0
 name: content-factory-app
 description: Content Factory App for knowledge building, content scenario planning, content production, and review.
-version: 0.9.0
+version: 1.0.0
 status: ready
 appType: domain-app
 runtimeTargets:
@@ -29,13 +29,13 @@ Identity fields let registries and hosts index the package. They should be stabl
 ```yaml
 requires:
   lime:
-    appRuntime: ">=0.9.0 <1.0.0"
-  sdk: "@lime/app-sdk@^0.9.0"
+    appRuntime: "current"
+  sdk: "@lime/app-sdk"
   capabilities:
-    lime.ui: "^0.9.0"
-    lime.storage: "^0.9.0"
-    lime.agent: "^0.9.0"
-    lime.connectors: "^0.9.0"
+    lime.ui: "current"
+    lime.storage: "current"
+    lime.agent: "current"
+    lime.connectors: "current"
 ```
 
 Requirements should describe what the host must provide. They should not describe host internals.
@@ -83,7 +83,7 @@ storage:
 
 Storage must be namespaced so uninstall, export, and audit can work.
 
-## v0.6 Agent runtime control
+## Agent runtime control
 
 A complete app that calls `lime.agent` should include `app.runtime.yaml` or an equivalent `agentRuntime` field. The runtime layer declares the task event/result schema, JSON Schema structured output, runtime approval behavior, session resume/fork policy, tool discovery strategy, checkpoint scope, and observability defaults.
 
@@ -111,7 +111,7 @@ agentRuntime:
       exportContentByDefault: false
 ```
 
-## v0.7 requirement boundary
+## requirement boundary
 
 A complete app should include independent boundary files that explain what the App owns and what requires Host, Cloud, connector, external-system, or human-decision support.
 
@@ -136,7 +136,7 @@ A complete app usually declares:
 - `permissions` for host policy
 - `secrets` for credential slots
 - `overlayTemplates` for tenant and workspace configuration
-- `requirements` / `boundary` / `integrations` / `operations` for v0.7 requirement boundaries and capability handoff
+- `requirements` / `boundary` / `integrations` / `operations` for requirement boundaries and capability handoff
 
 ## Human guide
 
@@ -154,7 +154,7 @@ The Markdown body should answer:
 
 | Area | Complete when |
 | --- | --- |
-| Manifest | Required fields and v0.7 requirements are present. |
+| Manifest | Required fields and requirements are present. |
 | Runtime package | UI, worker, storage, and workflow paths are declared when used. |
 | Entries | Every user launch point has stable key, kind, title, and binding metadata. |
 | Context and data | Context requirements, storage namespace, Knowledge slots, overlays, and secrets are explicit. |
@@ -167,7 +167,7 @@ The Markdown body should answer:
 ## Validation commands
 
 ```bash
-npm run cli -- validate docs/examples/content-factory-app --version 0.9
+npm run cli -- validate docs/examples/content-factory-app
 npm run cli -- project docs/examples/content-factory-app
 npm run cli -- readiness docs/examples/content-factory-app
 ```

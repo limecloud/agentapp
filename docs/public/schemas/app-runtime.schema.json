@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://limecloud.github.io/agentapp/schemas/app-runtime.schema.json",
   "title": "Agent App Runtime Contract",
-  "description": "v0.6 Agent task runtime control plane for lime.agent tasks.",
+  "description": "v0.6 Agent task runtime control plane for lime.agent tasks; v0.9 App Server bridge profile; v0.10 shared host runtime profile for mini-program style apps and host-supervised app backend services.",
   "type": "object",
   "anyOf": [
     { "required": ["agentRuntime"] },
@@ -22,7 +22,7 @@
   "$defs": {
     "bridge": {
       "type": "object",
-      "description": "v0.8 host-mediated bridge from Capability SDK / Host Bridge to App Server JSON-RPC.",
+      "description": "v0.9 host-mediated bridge from Capability SDK / Host Bridge to App Server JSON-RPC. v0.10 keeps app UI, workflow, storage, and app backend services behind shared host runtime capabilities instead of exposing transport handles.",
       "properties": {
         "kind": {
           "type": "string",

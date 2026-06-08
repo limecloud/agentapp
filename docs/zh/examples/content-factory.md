@@ -5,7 +5,7 @@ description: 面向内容工厂流程的 Product-level Agent App 示例。
 
 # 内容工厂
 
-内容工厂说明 Agent App 是应用包，而不是单个专家或 prompt 集合。它把 UI、storage、workflow、worker、Knowledge binding、Tool、Artifact、Eval、permission、overlay 和 v0.7 需求边界文件打包成一个可安装业务应用。
+内容工厂说明 Agent App 是应用包，而不是单个专家或 prompt 集合。它把 UI、storage、workflow、worker、Knowledge binding、Tool、Artifact、Eval、permission、overlay 和 需求边界文件打包成一个可安装业务应用。
 
 参考包：[`docs/examples/content-factory-app/APP.md`](../../examples/content-factory-app/APP.md)
 
@@ -76,7 +76,7 @@ App 拥有 dashboard、content factory page、workflow entries 和 expert-chat e
 | `lime.policy` | 审查文件、Tool、模型和导出权限。 |
 | `lime.secrets` | 绑定可选发布 workspace token。 |
 
-## v0.6 Agent task runtime
+## Agent task runtime
 
 该 fixture 已包含 [`app.runtime.yaml`](../../examples/content-factory-app/app.runtime.yaml)，让 `lime.agent` 执行契约显式化。它声明：
 
@@ -88,7 +88,7 @@ App 拥有 dashboard、content factory page、workflow entries 和 expert-chat e
 - workflow state、App storage、artifacts、tracked files、conversation、external side effects 的 checkpoint 边界
 - OpenTelemetry 映射，默认不导出内容正文
 
-## v0.7 需求边界
+## 需求边界
 
 该 fixture 现在包含：
 

@@ -57,9 +57,9 @@ entries:
     persona: ./agents/advisor.md
 ```
 
-## v0.3 extra requirements
+## Extra requirements
 
-- `scene` / `home` are v0.1 compatibility entries only; new apps use `page`, `command`, `workflow`, `artifact`, `background-task`, or `settings`.
+- `scene` / `home` are compatibility entries only; new apps use `page`, `command`, `workflow`, `artifact`, `background-task`, or `settings`.
 - Product-level apps should declare `runtimePackage` and make every entry traceable to UI, worker, workflow, expert, or artifact implementation.
 - Executable entries, workers, tool adapters, or secrets must declare `permissions`.
 - Customer differences belong in `overlayTemplates`; do not fork official packages.

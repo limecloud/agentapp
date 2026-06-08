@@ -1,42 +1,41 @@
 ---
 title: 架构概览
-description: Agent App v0.9 的项目级架构图、时序图、流程图和状态机示意。
+description: Agent App 的项目级架构图、时序图、流程图和状态机示意。
 ---
 
 # 架构概览
 
-## 0. v0.9 Host 拆分
+## 0. Host 拆分
 
-v0.9 把产品包、App 面 SDK、Desktop Host bridge 和 App Server Runtime 底座拆开。Lime Desktop 仍是完整多 App 工作台，但不再是所有 Agent App 的强制启动入口。Standalone 和 runtime-backed App 仍走同一 Capability SDK 边界和 App Server bridge profile。
+Host 拆分把产品包、App 面 SDK、Desktop Host bridge 和 App Server Runtime 底座拆开。Lime Desktop 仍是完整多 App 工作台，但不再是所有 Agent App 的强制启动入口。Standalone 和 runtime-backed App 仍走同一 Capability SDK 边界和 App Server bridge profile。
 
 ```mermaid
 flowchart TD
-  App[Agent App Package
-UI / Worker / Workflow / Storage] --> SDK[@lime/app-sdk]
-  SDK --> Host[Host Bridge / Desktop Host IPC]
-  Host --> Server[App Server JSON-RPC]
-  Server --> Runtime[RuntimeCore / services
-Agent / Storage / Secrets / Policy / Evidence / Tools]
-  Runtime --> Desktop[Lime Desktop
-多 App 工作台]
-  Runtime --> Shell[Lime App Shell
-独立品牌 App]
-  Runtime --> Backed[Runtime-backed shell
-复用系统 lime-runtime]
-  Runtime --> Web[兼容 Web Host]
-  Desktop --> User[用户]
+  App["Agent App Package<br/>UI / Worker / Workflow / App Backend"] --> SDK["@lime/app-sdk"]
+  App --> AppStorage["App 私有存储<br/>namespace / schema / migrations"]
+  SDK --> Host["Host Bridge / Desktop Host IPC"]
+  Host --> SharedState["共享宿主用户态<br/>user / tenant / workspace / theme"]
+  Host --> SharedCaps["共享宿主能力<br/>files / model settings / secrets / billing"]
+  Host --> Server["App Server JSON-RPC"]
+  Server --> Runtime["RuntimeCore / services<br/>Agent / Storage / Secrets / Policy / Evidence / Tools"]
+  Runtime --> StorageBoundary["存储边界<br/>host DB 独立；App DB / schema 隔离"]
+  Runtime --> Desktop["Lime Desktop<br/>多 App 工作台"]
+  Runtime --> Shell["Lime App Shell<br/>独立品牌 App"]
+  Runtime --> Backed["Runtime-backed shell<br/>复用系统 lime-runtime"]
+  Runtime --> Web["兼容 Web Host"]
+  Desktop --> User["用户"]
   Shell --> User
   Backed --> User
   Web --> User
 ```
 
-本页用图集中展示 Agent App v0.9 的关键结构、安装模式、需求边界与运行时流程。各章节图与 [规范](./specification) 互相补充：规范是规则，本页是图。`lime-desktop-platform` 这类桌面宿主实现还必须满足 [桌面宿主一致性](./client-implementation/desktop-host-conformance.md)。
+本页用图集中展示 Agent App 的关键结构、安装模式、需求边界与运行时流程。各章节图与 [规范](./specification) 互相补充：规范是规则，本页是图。`lime-desktop-platform` 这类桌面宿主实现还必须满足 [桌面宿主一致性](./client-implementation/desktop-host-conformance.md)。
 
-Agent App 只依赖 Capability SDK / Host Bridge 语义。Desktop Host IPC、App Server JSON-RPC、RuntimeCore、services 和 ExecutionBackend 都是宿主侧事实源；App 包不能直接访问这些内部实现。
+Agent App 只依赖 Capability SDK / Host Bridge 语义。Desktop Host IPC、App Server JSON-RPC、RuntimeCore、services 和 ExecutionBackend 都是宿主侧事实源；App 包不能直接访问这些内部实现。用户态和宿主能力以宿主 projection 共享；App storage 和 App 后端服务按 app、workspace、tenant 隔离。
 
 ## 1. 标准分层架构
 
-v0.9 继承 v0.6/v0.7/v0.8 分层，把整个生态切成 App、Host、Cloud、Connector、外部系统和人工决策平面，并为 Lime Desktop、Lime App Shell、runtime-backed shell 和兼容 Web Host 补充明确 App Server bridge profile。分层 manifest 与 Capability SDK 是稳定 App 面边界，宿主和 Cloud 控制面只看接口、不看业务实现。
+标准分层把整个生态切成 App、Host、Cloud、Connector、外部系统和人工决策平面，并为 Lime Desktop、Lime App Shell、runtime-backed shell 和兼容 Web Host 补充明确 App Server bridge profile。分层 manifest 与 Capability SDK 是稳定 App 面边界，宿主和 Cloud 控制面只看接口、不看业务实现。
 
 ```mermaid
 flowchart TD
@@ -47,7 +46,7 @@ flowchart TD
     Reg[Registration / License]
   end
 
-  subgraph Standard[Agent App v0.9 标准]
+  subgraph Standard[Agent App 标准]
     APPMD[APP.md frontmatter + 人类章节]
     LAYERED[app.*.yaml 分层配置]
     BOUNDARY[requirements / boundary / integrations / operations]
@@ -132,9 +131,9 @@ flowchart TD
 | 标准（agentapp） | manifest schema、reference CLI、SDK 契约、最佳实践 | 任意宿主或 App 的具体实现 |
 
 
-## 3. v0.7 需求边界架构
+## 3. 需求边界架构
 
-v0.7 用这个图回答普通用户和交付团队最关心的问题：App 能做什么，哪些需要 Lime Host / Lime Cloud / 外部连接器 / 人工确认配合。
+这个图回答普通用户和交付团队最关心的问题：App 能做什么，哪些需要 Lime Host / Lime Cloud / 外部连接器 / 人工确认配合。
 
 ```mermaid
 flowchart LR
@@ -313,7 +312,7 @@ flowchart LR
 
 ## 8. Workflow 状态机示例
 
-v0.5 workflow 描述符在 v0.3 状态机基础上引入 mermaid 流程图与统一 recovery 策略。下面是内容工厂 `content_scenario_planning` workflow 的状态机示例。
+Workflow 描述符在状态机基础上引入 mermaid 流程图与统一 recovery 策略。下面是内容工厂 `content_scenario_planning` workflow 的状态机示例。
 
 ```mermaid
 stateDiagram-v2
@@ -385,28 +384,21 @@ flowchart LR
 
 ## 10. 升级与回滚关系
 
-v0.6 / v0.5 / v0.4 / v0.3 manifest 在 v0.7 宿主中继续可用；reference CLI 提供 `migrate-check` / `migrate-generate`。
+旧 manifest 在兼容宿主中继续可用；reference CLI 提供 `migrate-check` / `migrate-generate`。
 
 ```mermaid
 flowchart LR
-  v03[v0.3 manifest] -->|宿主直接读取| v07Host[v0.7 宿主]
-  v04[v0.4 manifest] -->|宿主直接读取| v07Host
-  v06[v0.6 manifest] -->|宿主直接读取| v07Host
-  v05[v0.5 manifest] -->|宿主直接读取| v07Host
-  v03 -->|migrate-check / migrate-generate| v07[v0.7 manifest]
-  v04 -->|migrate-check / migrate-generate| v07
-  v06 -->|migrate-check / migrate-generate| v07
-  v05 -->|migrate-check / migrate-generate| v07
-  v07 --> v07Host
-  v07Host -. 失败 .-> Rollback[回滚到旧版本]
-  Rollback --> v04
-  Rollback --> v03
+  oldManifest[旧 manifest] -->|宿主直接读取| currentHost[兼容宿主]
+  oldManifest -->|migrate-check / migrate-generate| currentManifest[current manifest]
+  currentManifest --> currentHost
+  currentHost -. 失败 .-> Rollback[回滚到旧版本]
+  Rollback --> oldManifest
 ```
 
 ## 11. 后续阅读
 
 - [规范](./specification)：字段、约束、契约的规则文本。
-- [快速开始](./authoring/quickstart)：从零创建一个 v0.9 包。
+- [快速开始](./authoring/quickstart)：从零创建一个包。
 - [运行时模型](./client-implementation/runtime-model)：宿主侧实现细节。
 - [Capability SDK](./client-implementation/capability-sdk)：稳定能力调用契约。
-- [v0.7 当前快照](./versions/v0.7/overview)：定格版本说明。
+- [最新更新](./versions/v0.10/overview)：精简版本说明。

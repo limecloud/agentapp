@@ -1,4 +1,4 @@
-# Agent App v0.7 runtime health checks
+# Agent App runtime health checks
 # Startup, runtime, and metric checks for content-factory-app.
 
 health:

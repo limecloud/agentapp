@@ -24,7 +24,7 @@ Host Default
 
 Some values can be locked by higher-level policy. For example, a tenant can prevent users from overriding model cost limits.
 
-## v0.3 overlay template
+## Overlay template
 
 Apps may declare configurable slots:
 

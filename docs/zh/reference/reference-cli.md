@@ -20,7 +20,7 @@ npm run cli -- validate docs/examples/content-factory-app
 发布到 npm 后：
 
 ```bash
-npx agentapp-ref@0.9.0 validate ./my-agent-app --version 0.9
+npx agentapp-ref validate ./my-agent-app
 ```
 
 ## 命令
@@ -32,8 +32,8 @@ npx agentapp-ref@0.9.0 validate ./my-agent-app --version 0.9
 | `to-catalog <app>` | 输出紧凑 catalog metadata。 |
 | `project <app>` | 输出带 provenance 的 host catalog projection。 |
 | `readiness <app>` | 不运行 Agent，只做静态 setup readiness。 |
-| `migrate-check <app> [--target 0.9.0]` | 报告当前目标版本的迁移缺口。 |
-| `migrate-generate <app> [--target 0.9.0]` | 生成分层配置建议，包括 v0.6 `app.runtime.yaml`、v0.7 boundary / integration / operation 文件、v0.8 `app.install.yaml` 和 v0.9 App Server bridge 字段。 |
+| `migrate-check <app>` | 报告当前目标版本的迁移缺口。 |
+| `migrate-generate <app>` | 生成分层配置建议，包括 `app.runtime.yaml`、boundary / integration / operation 文件、`app.install.yaml`、App Server bridge 字段、storage 隔离和可选 App backend service metadata。 |
 
 ## Validate
 
@@ -41,7 +41,7 @@ npx agentapp-ref@0.9.0 validate ./my-agent-app --version 0.9
 npm run cli -- validate docs/examples/content-factory-app
 ```
 
-适合发布前 CI 使用。它能发现缺必需字段、不支持 status、未知 appType、v0.3 无效 entry kind、本地引用缺失、可执行入口缺少 permissions 等问题。
+适合发布前 CI 使用。它能发现缺必需字段、不支持 status、未知 appType、无效 entry kind、本地引用缺失、可执行入口缺少 permissions 等问题。
 
 ## Project
 

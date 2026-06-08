@@ -24,6 +24,7 @@ description: Lime Desktop Platform、Electron 宿主和 Tauri 宿主如何符合
 | Desktop P3 | 提供模型设置、OAuth 会话、OEM、billing、更新和本地 evidence 投影。 | 不把这些平台能力做成 App 私有实现。 |
 | Desktop P4 | 支持多个 App 共用同一宿主能力，并能卸载、禁用、更新和回滚。 | 不让单个 App 特化污染宿主核心。 |
 | Desktop P5 | 同协议迁移到 Tauri 或 runtime-backed shell，并保持 App Server JSON-RPC / RuntimeCore 事实源不变。 | 不为不同技术栈发明第二套标准或第二套 Agent runtime。 |
+| Desktop P6 | 在宿主管控下运行 App 自有后端服务和 App storage。 | 不让 App 后端直接读取宿主数据库、secret、文件或用户态。 |
 
 ## 桌面宿主必须实现
 
@@ -36,7 +37,9 @@ description: Lime Desktop Platform、Electron 宿主和 Tauri 宿主如何符合
 | Host Bridge | 使用 `lime.agentApp.bridge` v1 传输 host snapshot、主题、语言、导航和 capability 调用。 | SDK bridge 和生命周期事件。 |
 | Capability SDK | 注入 `lime.*` handles，并由宿主裁决权限。 | 受控平台能力。 |
 | App Server bridge | 宿主持有 App Server client，经 Desktop Host IPC 把 `lime.agent` / `lime.workflow` 投影到 JSON-RPC。 | App 只看到 SDK task、事件和产物 projection。 |
-| Storage / Artifacts / Evidence | 按 app namespace 隔离数据、产物、日志和证据。 | 可追溯业务状态。 |
+| 共享用户态 | 投影非敏感用户、租户、workspace、locale、theme、entitlement、模型和 capability 状态。 | 不含 raw token 或宿主内部对象的 Host snapshot。 |
+| App 后端服务 | 监管 App 自有本地或远端后端，包括多语言服务。 | 能力中介后的服务调用，不直接拥有宿主权限。 |
+| Storage / Artifacts / Evidence | 按 app、workspace 和 tenant namespace 隔离数据、产物、日志和证据。 | 可追溯业务状态。 |
 | Cleanup | 支持 disable、uninstall keep data、uninstall delete data、export then delete。 | 可恢复或可删除的 App 生命周期。 |
 
 ## 平台级共享能力
@@ -52,6 +55,8 @@ description: Lime Desktop Platform、Electron 宿主和 Tauri 宿主如何符合
 | 更新 / 分发 | `lime.appUpdates` | Host 检查 release、下载、切换和回滚；App 不自建更新器。 |
 | 权限与策略 | `lime.policy` | 高风险动作必须有人审或 policy 通过。 |
 | Evidence | `lime.evidence` | 所有关键运行和外部副作用都要留 provenance。 |
+| Workspace context | `lime.workspace` | App 接收受限 workspace projection，不拥有 workspace 事实源。 |
+| App storage | `lime.storage` | App 拥有 namespace schema 和数据模型；宿主决定物理数据库放置并把 migration 纳入门禁。 |
 
 这些 capability 名称可以在未来 minor 版本中细化，但语义必须保持：App 请求能力，Host / Cloud 负责治理，业务事实留在 App 或外部系统。
 
@@ -74,7 +79,7 @@ flowchart LR
   Tauri --> Desktop
 ```
 
-Electron adapter 可以使用 `ipcMain`、`preload`、`BrowserView` 或 WebView。Tauri adapter 可以使用 Rust commands、WebView IPC 和系统 runtime。两者的实现细节不同，但 App 不应该感知这些差异。
+Electron adapter 应优先使用 `WebContentsView` 或受控 `BrowserWindow` 承载已安装 App surface。`iframe` 保留为轻量兼容 surface，`<webview>` 不应作为新的默认路径。Tauri adapter 可以使用 Rust commands、WebView IPC 和系统 runtime。两者的实现细节不同，但 App 不应该感知这些差异。
 
 桌面 Agent 执行推荐链路固定为：
 
@@ -90,8 +95,9 @@ App UI / Worker
 
 宿主实现约束：
 
-- Electron / Tauri adapter 只负责桌面壳能力、IPC 白名单、sidecar lifecycle 和 renderer-safe projection。
+- Electron / Tauri adapter 只负责桌面壳能力、IPC 白名单、受控 UI surface、sidecar lifecycle 和 renderer-safe projection。
 - App Server client 由宿主 main process 或等价可信进程持有，renderer / iframe 不直接连接 sidecar。
+- Electron App surface 必须使用宿主持有的 session partition、context isolation、sandbox 和 preload 白名单；App 不得获得 Node、Electron 或文件系统 API。
 - `initialize -> initialized` 是每条 App Server transport 的必需门禁。
 - `agentSession/event` 是任务事件公共入口；App UI 不能用本地状态伪造 runtime 成功。
 - App Server 不可用时返回 blocked / host:error；生产路径不能回退 mock。
@@ -161,13 +167,16 @@ Host snapshot 不得包含：
 
 | 范围 | 保存内容 | 示例 |
 | --- | --- | --- |
+| Host core database | 安装状态、用户 / session projection、宿主设置、capability registry、policy 和 app catalog facts。 | `host.db` 或 App Server host schema。 |
 | App package cache | 官方包、hash、signature、projection cache。 | 安装目录或下载缓存。 |
-| App namespace | app-local storage、workflow state、artifact refs。 | `appId` 命名空间。 |
+| App namespace | app-local storage、workflow state、artifact refs。 | 每 App SQLite file、每 App schema 或 `appId` namespace。 |
 | Workspace | 用户可迁移业务数据和 App 输出。 | workspace 文件、artifacts。 |
 | User data | 会话、安全缓存、宿主偏好、下载缓存。 | OS `userData`。 |
 | Cloud | registry、tenant policy、OAuth、billing、OEM。 | Lime Cloud 控制面。 |
 
 App 不得把平台会话、全局模型设置、billing 账本或 OEM 权威配置复制进自己的持久状态。
+
+物理数据库引擎可以共享，但可写逻辑边界不能共享。本地桌面默认推荐每个 App 一个 SQLite database file，因为它能降低跨 App 写锁竞争，也让卸载、备份、migration 回滚和损坏恢复更简单。服务端可以在共享 PostgreSQL 实例中使用每个 App 独立 schema 和 role；高风险 App 应使用独立 database。共享表只适合低风险 metadata，并且必须带 tenant、workspace、app scope 和数据库层 policy。
 
 ## `lime-desktop-platform` 的定位
 
@@ -205,5 +214,8 @@ App 不得把平台会话、全局模型设置、billing 账本或 OEM 权威配
 - [ ] 模型设置、OAuth、OEM、billing 和更新是平台能力，不是 App 私有状态。
 - [ ] blocked / needs-setup 可见并可恢复或解释。
 - [ ] App 数据、artifact、evidence 和日志有 namespace。
+- [ ] Host core database state 不被 App 自有 migration 写入。
+- [ ] App 后端服务在宿主管控下运行，并且只能通过 capability 访问宿主资源。
+- [ ] Electron App surface 使用 context isolation、sandbox、preload 白名单和宿主持有的 session partition。
 - [ ] disable / uninstall / update 不破坏其他 App。
 - [ ] Electron 和 Tauri adapter 共享同一契约。

@@ -5,13 +5,15 @@ description: 宿主如何安装、授权、执行、观察和清理 Agent App。
 
 # 运行时模型
 
-Agent App 默认由宿主执行，而不是由 registry 执行。Package 可以包含 UI bundle、worker、workflow、storage schema 和业务代码，但这些资产必须在宿主控制的 runtime 中运行，并通过 Capability SDK 调平台能力。
+Agent App 默认由宿主执行，而不是由 registry 执行。Package 可以包含 UI bundle、worker、workflow、App 后端服务、storage schema 和业务代码，但这些资产必须在宿主控制的 runtime 中运行，并通过 Capability SDK 调平台能力。
 
 运行时模型保护三个边界：
 
 1. 宿主拥有执行和 policy。
 2. App 拥有产品行为和 app-local state。
 3. Registry 拥有分发和 release metadata，不拥有隐藏 runtime。
+
+Agent App 使用类似小程序的运行时模型：用户态和平台能力由宿主共享，App code、App storage 和 App 自有后端服务保持隔离。
 
 ## 核心流程
 
@@ -38,7 +40,7 @@ APP.md / manifest
 | Capability bridge | 注入授权 SDK handles 并强制权限。 |
 | UI host | 在沙箱中挂载 pages、panels、settings、artifact viewers。 |
 | Workflow runtime | 执行受控 workflow steps，支持 trace、retry、cancel、evidence。 |
-| Worker runtime | 只在沙箱和 policy 边界内运行后台代码。 |
+| Worker / backend runtime | 只在沙箱和 policy 边界内运行后台代码和 App 自有后端服务。 |
 | Storage service | 提供 app namespace、schema、migrations、cleanup。 |
 | Artifact / Evidence services | 持久化输出和 provenance。 |
 | App Server client | 由宿主持有，完成 JSON-RPC 初始化、session / turn / action 请求、事件订阅、重连和错误投影。 |
@@ -102,10 +104,26 @@ lime.agent.startTask()
 - 做 capability negotiation。
 - 注册 UI routes、panels、commands、settings、artifact viewers。
 - 审查后创建 storage namespace 并执行 migration。
+- 创建 App 后端服务沙箱，监管其生命周期，并只暴露已授权 capability handles。
 - 注入 `lime.*` capability handles。
 - 拦截 file、network、secret、tool、agent、storage、export permissions。
 - 记录 provenance、evidence、telemetry、eval results、cleanup records。
 - 保持 app state 和宿主 global state 分离。
+
+## 共享宿主运行时 Profile
+
+宿主可以跨 App 共享这些 projection：
+
+| 共享 projection | 允许 | 禁止 |
+| --- | --- | --- |
+| 用户 / 租户 / workspace | 稳定 id、展示名、locale、timezone、workspace 摘要。 | Bearer token、refresh token、私有文件内容。 |
+| 会话和 OAuth | 是否已登录、账号标签、provider 可用状态、setup action。 | 原始 OAuth token 或 provider credential。 |
+| 模型设置 | 有效模型 profile、限制、setup action。 | Provider API key 或宿主私有路由表。 |
+| Billing / entitlement | 套餐摘要、quota 状态、blocked reason。 | 原始 billing 账本或支付凭证。 |
+| 宿主 UI | Theme tokens、navigation、toast、download、shell actions。 | Host DOM、Electron 对象、Tauri command、Node API。 |
+| 平台能力 | Capability 可用性和 typed SDK handles。 | 直接 service object、database handle、filesystem path。 |
+
+共享用户态是宿主 projection，不是 App 私有状态。App 只能缓存维持 UI 连续性所需的最小非敏感快照，并且必须把 Host snapshot 视为可刷新的事实。
 
 ## 执行模式
 
@@ -140,15 +158,28 @@ Host 必须验证消息来源：`event.source` 必须是当前 App frame，`even
 
 Host Bridge 不暴露 App Server transport。App 看到的是 SDK task、事件和产物 projection；App Server client、sidecar 路径、JSON-RPC envelope、Electron IPC channel、Tauri command 名称和 RuntimeCore 内部类型都属于宿主实现细节。
 
-## Workflow / Worker Runtime
+## Workflow / Worker / App Backend Runtime
 
 执行任意 worker code 前，应先支持受控 workflow runtime。Allowlisted workflow DSL 可以调用 storage、Knowledge、agent task、Artifact、Evidence 等 SDK 能力。
 
-Raw worker 需要额外沙箱：资源限制、文件限制、网络 policy、secret handling、cancel / timeout、audit logs、package provenance。
+Raw worker 或 App 后端服务需要额外沙箱：资源限制、文件限制、网络 policy、secret handling、cancel / timeout、audit logs、package provenance。
+
+App 后端服务可以是多语言实现。宿主应优先选择能保留监管和 capability mediation 的协议：
+
+| Runtime 形态 | 推荐协议 | 说明 |
+| --- | --- | --- |
+| Python / Go / Rust / Node / Java 本地服务 | `stdio-jsonrpc` | 跨语言服务默认优先；宿主管进程、环境变量、stdio、取消和重启策略。 |
+| 长驻本地服务 | `local-http` 或本地 socket | 宿主管随机绑定、单次启动认证、健康检查和关闭。 |
+| 确定性计算 | `wasm` | 无默认文件系统、网络或 secret 访问。 |
+| 远端后端 | `remote-http` | 必须显式声明 `server-assisted`、租户 policy、audit 和数据边界。 |
+
+App 后端不是绕过宿主的后门。它们不得直接读取宿主数据库、workspace 文件、secret、模型 key 或用户态；必须像 UI 和 workflow code 一样通过 capability bridge 请求。
 
 ## 数据生命周期
 
 App runtime 可能创建 storage records、artifacts、evidence、tasks、traces、logs、telemetry、cache、indexes、secret bindings。这些都需要 app provenance 和 cleanup 行为。
+
+存储位置是实现细节，但逻辑边界不是。宿主 core database 必须和 App 自有 migration 分离。宿主可以把多个 App store 放在同一个物理数据库引擎中，但仍必须强制 app、workspace 和 tenant 边界。本地桌面宿主默认使用每个 App 独立 SQLite 文件，可以避免跨 App 写锁竞争，也让卸载、备份、migration 回滚和损坏恢复更简单。服务端宿主如果使用 PostgreSQL，共享实例应使用每个 App 独立 schema；高风险 App 使用独立 database；共享表只适合低风险 metadata，并必须有数据库层 scope enforcement。
 
 ## Cloud 边界
 
