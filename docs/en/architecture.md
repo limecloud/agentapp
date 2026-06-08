@@ -1,19 +1,21 @@
 ---
 title: Architecture overview
-description: Project-level architecture, sequence, flow, and state-machine diagrams for Agent App v0.8.
+description: Project-level architecture, sequence, flow, and state-machine diagrams for Agent App v0.9.
 ---
 
 # Architecture overview
 
-## 0. v0.8 host split
+## 0. v0.9 host split
 
-v0.8 separates the product package from the runtime substrate. Lime Desktop remains a full multi-app workspace, but it is no longer the mandatory way to launch every Agent App. Standalone and runtime-backed apps still use the same Capability SDK boundary.
+v0.9 separates the product package, app-facing SDK, Desktop Host bridge, and App Server runtime substrate. Lime Desktop remains a full multi-app workspace, but it is no longer the mandatory way to launch every Agent App. Standalone and runtime-backed apps still use the same Capability SDK boundary and App Server bridge profile.
 
 ```mermaid
 flowchart TD
   App[Agent App Package
 UI / Worker / Workflow / Storage] --> SDK[@lime/app-sdk]
-  SDK --> Runtime[Lime Runtime Core
+  SDK --> Host[Host Bridge / Desktop Host IPC]
+  Host --> Server[App Server JSON-RPC]
+  Server --> Runtime[RuntimeCore / services
 Agent / Storage / Secrets / Policy / Evidence / Tools]
   Runtime --> Desktop[Lime Desktop
 Multi-app workspace]
@@ -28,11 +30,13 @@ Uses system lime-runtime]
   Web --> User
 ```
 
-This page collects the key structural, install-mode, requirement-boundary, and runtime diagrams for Agent App v0.8 in one place. The [specification](./specification) defines rules; this page renders them. Desktop host implementations such as `lime-desktop-platform` must also satisfy [Desktop host conformance](./client-implementation/desktop-host-conformance.md).
+This page collects the key structural, install-mode, requirement-boundary, and runtime diagrams for Agent App v0.9 in one place. The [specification](./specification) defines rules; this page renders them. Desktop host implementations such as `lime-desktop-platform` must also satisfy [Desktop host conformance](./client-implementation/desktop-host-conformance.md).
+
+Agent Apps depend only on Capability SDK / Host Bridge semantics. Desktop Host IPC, App Server JSON-RPC, RuntimeCore, services, and ExecutionBackend are host-side fact sources; app packages must not access those internals directly.
 
 ## 1. Standard layers
 
-v0.8 inherits v0.6/v0.7 layering, splits delivery across App, Host, Cloud, connector, external-system, and human-decision planes, and adds install-mode separation across Lime Desktop, Lime App Shell, runtime-backed shells, and compatible web hosts. The layered manifest and Capability SDK are the stable boundaries; hosts and the Cloud control plane stay on contracts and never on business implementation.
+v0.9 inherits v0.6/v0.7/v0.8 layering, splits delivery across App, Host, Cloud, connector, external-system, and human-decision planes, and adds an explicit App Server bridge profile across Lime Desktop, Lime App Shell, runtime-backed shells, and compatible web hosts. The layered manifest and Capability SDK are the stable app-facing boundaries; hosts and the Cloud control plane stay on contracts and never on business implementation.
 
 ```mermaid
 flowchart TD
@@ -43,7 +47,7 @@ flowchart TD
     Reg[Registration / License]
   end
 
-  subgraph Standard[Agent App v0.8 standard]
+  subgraph Standard[Agent App v0.9 standard]
     APPMD[APP.md frontmatter + sections]
     LAYERED[app.*.yaml layered config]
     BOUNDARY[requirements / boundary / integrations / operations]
@@ -61,11 +65,18 @@ flowchart TD
     Readiness[Readiness self-check]
     SDK[Capability SDK bridge]
     Bridge[Host Bridge v1]
+    IPC[Desktop Host IPC]
+    Server[App Server client / JSON-RPC]
+    Core[RuntimeCore / services]
+    TaskSvc[Agent / Workflow service]
+    StorageSvc[Storage service]
+    ArtifactSvc[Artifact / Evidence service]
+    ToolSvc[Tool / Knowledge service]
     Policy[Policy / permission]
     Health[Health monitoring]
   end
 
-  subgraph Runtime[App runtime package]
+  subgraph Package[App runtime package]
     UI[dist/ui]
     Worker[dist/worker]
     Workflow[workflows/]
@@ -95,6 +106,14 @@ flowchart TD
   Readiness --> SDK
   SDK --> Bridge
   SDK --> Policy
+  Bridge --> IPC
+  IPC --> Server
+  Server --> Core
+  Core --> TaskSvc
+  Core --> StorageSvc
+  Core --> ArtifactSvc
+  Core --> ToolSvc
+  Core --> Policy
   Bridge --> UI
   SDK --> Worker
   SDK --> Workflow
@@ -387,7 +406,7 @@ flowchart LR
 ## 11. Further reading
 
 - [Specification](./specification): rules, fields, and constraints.
-- [Quickstart](./authoring/quickstart): build a v0.8 package from scratch.
+- [Quickstart](./authoring/quickstart): build a v0.9 package from scratch.
 - [Runtime model](./client-implementation/runtime-model): host implementation detail.
 - [Capability SDK](./client-implementation/capability-sdk): stable capability call contract.
 - [v0.7 snapshot](./versions/v0.7/overview): pinned version notes.

@@ -12,7 +12,7 @@ Fact-source relationship:
 - `agentapp` is the fact source for the Agent App standard.
 - `lime-desktop-platform` is one conforming desktop host implementation.
 - `content-studio`, `zhongcao`, and OEM apps are Agent App consumers; `lime-desktop-platform/samples/platform-conformance` is a host-conformance reference fixture.
-- Electron and Tauri may use different adapters, but they must share manifest, projection, readiness, Host Bridge, and Capability SDK semantics.
+- Electron and Tauri may use different adapters, but they must share manifest, projection, readiness, Host Bridge, Capability SDK, and App Server bridge semantics.
 
 ## Conformance levels
 
@@ -23,7 +23,7 @@ Fact-source relationship:
 | Desktop P2 | Inject Host Bridge and Capability SDK, run controlled UI. | Expose Electron, Tauri, Node, Rust, or filesystem internals. |
 | Desktop P3 | Provide model settings, OAuth session, OEM, billing, updates, and local evidence projection. | Rebuild those platform capabilities inside each app. |
 | Desktop P4 | Let multiple apps share host capabilities and support uninstall, disable, update, and rollback. | Let one app-specific shortcut pollute host core. |
-| Desktop P5 | Reuse the same contract in Tauri or runtime-backed shells. | Create a second standard for another technology stack. |
+| Desktop P5 | Reuse the same contract in Tauri or runtime-backed shells while preserving the App Server JSON-RPC / RuntimeCore fact source. | Create a second standard or second Agent runtime for another technology stack. |
 
 ## Required desktop host behavior
 
@@ -35,6 +35,7 @@ Fact-source relationship:
 | Readiness | Check host version, capabilities, session, model settings, secrets, billing, and policy. | `ready` / `needs-setup` / `blocked`. |
 | Host Bridge | Use `lime.agentApp.bridge` v1 to transport host snapshots, theme, locale, navigation, and capability calls. | SDK bridge and lifecycle events. |
 | Capability SDK | Inject `lime.*` handles and let the host decide permission. | Governed platform capabilities. |
+| App Server bridge | Host owns the App Server client and projects `lime.agent` / `lime.workflow` through Desktop Host IPC into JSON-RPC. | SDK tasks, events, and artifact projections only. |
 | Storage / Artifacts / Evidence | Namespace app data, outputs, logs, and evidence by app. | Traceable business state. |
 | Cleanup | Support disable, uninstall keep data, uninstall delete data, and export then delete. | Recoverable or removable app lifecycle. |
 
@@ -74,6 +75,26 @@ flowchart LR
 ```
 
 An Electron adapter may use `ipcMain`, preload, `BrowserView`, or WebView. A Tauri adapter may use Rust commands, WebView IPC, and a system runtime. The implementation differs, but the app should not observe those differences.
+
+The desktop Agent execution path is fixed:
+
+```text
+App UI / Worker
+  -> Host Bridge / Capability SDK
+  -> Electron ipcMain / preload or Tauri WebView IPC
+  -> App Server client
+  -> App Server JSON-RPC
+  -> RuntimeCore / services
+  -> ExecutionBackend
+```
+
+Host implementation constraints:
+
+- Electron / Tauri adapters only own desktop shell capabilities, IPC allowlists, sidecar lifecycle, and renderer-safe projection.
+- The App Server client is held by the host main process or equivalent trusted process; renderers / iframes do not connect directly to the sidecar.
+- `initialize -> initialized` is a required gate for every App Server transport.
+- `agentSession/event` is the public task event ingress; app UI must not fabricate runtime success from local state.
+- When App Server is unavailable, the host returns blocked / host:error; product paths must not fall back to mock success.
 
 ## Launch flow
 
@@ -177,6 +198,9 @@ It should not implement:
 - [ ] Verification, projection, and readiness finish before app code executes.
 - [ ] Host Bridge messages include `protocol="lime.agentApp.bridge"` and `version=1`.
 - [ ] Apps can only call host capabilities through the Capability SDK.
+- [ ] Apps declaring `agentRuntime.bridge.kind=app-server-json-rpc` enter App Server JSON-RPC through Desktop Host IPC.
+- [ ] App Server transport completes `initialize -> initialized` before business methods are allowed.
+- [ ] `agentSession/event`, `artifact/read`, and `evidence/export` derive from RuntimeCore / services facts, not app UI synthesis.
 - [ ] `lime.cloudSession` snapshots never leak tokens.
 - [ ] Model settings, OAuth, OEM, billing, and updates are platform capabilities, not app-local state.
 - [ ] blocked / needs-setup are visible and explainable or recoverable.

@@ -6,7 +6,7 @@ description: Installable agent application packages.
 hero:
   name: Agent App
   text: Executable intelligent applications.
-  tagline: "A v0.8 package standard for complete intelligent apps that can run inside Lime, as standalone branded apps, or against a shared Lime Runtime."
+  tagline: "A v0.9 package standard for complete intelligent apps that run through host capabilities and App Server bridge contracts."
   actions:
     - theme: brand
       text: Read specification
@@ -25,7 +25,7 @@ features:
   - title: Runtime package
     details: "APP.md is discovery only; real UI, workers, storage, workflows, and business implementation live in the runtime package."
   - title: Standalone install
-    details: "v0.8 adds app.install.yaml so an Agent App can declare in-Lime, standalone, runtime-backed, and web-host install modes."
+    details: "v0.9 keeps app.install.yaml and adds explicit App Server bridge mapping for host-mediated runtime execution."
   - title: Capability SDK
     details: "Apps call Lime through stable capabilities such as lime.ui, lime.storage, lime.agent, lime.connectors, lime.artifacts, and lime.evidence instead of internals."
   - title: Capability composition
@@ -66,9 +66,9 @@ features:
 | Standards reviewer | [Specification](./specification.md) | JSON Schemas, glossary, version notes. |
 | Product planner | [What is Agent App?](./what-is-agent-app.md) | Standards ecosystem boundary, examples, mini-program analogy. |
 
-## v0.8 promise
+## v0.9 promise
 
-A v0.8 app should be understandable before execution, installable without changing host core, runnable through typed capability handles, observable through stable Agent task events, explicit about delivery boundaries, and clear about how users install it. v0.8 keeps the v0.5 layered manifest model, v0.6 `app.runtime.yaml`, and v0.7 `app.requirements.yaml` / `app.boundary.yaml` / `app.integrations.yaml` / `app.operations.yaml`, then adds `app.install.yaml` for in-Lime, standalone, runtime-backed, and web-host packaging. If a package cannot explain its entries, permissions, data boundary, runtime assets, task output contracts, external integrations, side effects, human approval boundaries, and install mode, it is not ready to be distributed as an Agent App.
+A v0.9 app should be understandable before execution, installable without changing host core, runnable through typed capability handles, observable through RuntimeCore-derived Agent task events, explicit about delivery boundaries, clear about how users install it, and explicit about how `lime.agent` / `lime.workflow` calls enter App Server JSON-RPC. v0.9 keeps the v0.5 layered manifest model, v0.6 `app.runtime.yaml`, v0.7 `app.requirements.yaml` / `app.boundary.yaml` / `app.integrations.yaml` / `app.operations.yaml`, and v0.8 `app.install.yaml`, then adds `agentRuntime.bridge` for App Server bridge mapping. If a package cannot explain its entries, permissions, data boundary, runtime assets, task output contracts, external integrations, side effects, human approval boundaries, install mode, and runtime bridge, it is not ready to be distributed as an Agent App.
 
 ## What a complete app page should answer
 
@@ -79,7 +79,8 @@ Every Agent App page in this documentation should help a reader answer four ques
 1. Define the app boundary and user-visible entries.
 2. Write the v0.7 requirement, boundary, integration, and operation files.
 3. Write the v0.8 install contract for in-Lime, standalone, runtime-backed, or web-host distribution.
-4. Declare capabilities, storage, Runtime, UI, Context, Knowledge, Skills, Tools / Connectors, Artifacts, Evidence, Policy, QC, permissions, and Evals.
-5. Add runtime package assets and call host services through the Capability SDK.
-6. Build projection and readiness checks before enabling execution.
-7. Release with package hashes, compatibility metadata, overlays, install metadata, and rollback guidance.
+4. Write the v0.9 App Server bridge profile for `lime.agent` / `lime.workflow` execution.
+5. Declare capabilities, storage, Runtime, UI, Context, Knowledge, Skills, Tools / Connectors, Artifacts, Evidence, Policy, QC, permissions, and Evals.
+6. Add runtime package assets and call host services through the Capability SDK.
+7. Build projection and readiness checks before enabling execution.
+8. Release with package hashes, compatibility metadata, overlays, install metadata, bridge metadata, and rollback guidance.

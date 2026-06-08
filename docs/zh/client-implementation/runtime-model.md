@@ -41,6 +41,8 @@ APP.md / manifest
 | Worker runtime | 只在沙箱和 policy 边界内运行后台代码。 |
 | Storage service | 提供 app namespace、schema、migrations、cleanup。 |
 | Artifact / Evidence services | 持久化输出和 provenance。 |
+| App Server client | 由宿主持有，完成 JSON-RPC 初始化、session / turn / action 请求、事件订阅、重连和错误投影。 |
+| RuntimeCore / services | Agent session、turn、tool、action、artifact、evidence、workspace 和 policy 的事实源。 |
 
 ## App 内 Agent Task 契约
 
@@ -55,6 +57,43 @@ APP.md / manifest
 - Expert Chat 可以作为协作者嵌入，但必须共享同一份 App 上下文和任务生命周期，不能变成核心业务脱离产品状态运行的旁路。
 
 这个契约同时防止两种偏航：App 退化成直接调模型的普通 Web App，或 Lime 通用 Chat 被迫继续承载所有业务流程。
+
+## App Server bridge profile
+
+支持 `app.runtime.yaml` 中 `agentRuntime.bridge.kind=app-server-json-rpc` 的桌面宿主必须把 App 面能力调用投影到 App Server current 协议：
+
+```text
+lime.agent.startTask()
+  -> Host Bridge capability:invoke
+  -> Desktop Host IPC / preload allowlist
+  -> App Server JSON-RPC agentSession/start
+  -> App Server JSON-RPC agentSession/turn/start
+  -> RuntimeCore / services / ExecutionBackend
+  -> App Server JSON-RPC notification agentSession/event
+  -> Host Bridge host:response / host:event projection
+```
+
+映射规则：
+
+| App / SDK 语义 | App Server 方法 | 说明 |
+| --- | --- | --- |
+| 初始化宿主 runtime client | `initialize` + `initialized` | 每个 transport connection 必须先完成握手；`clientInfo.name` 由宿主显式声明。 |
+| 创建或恢复 App task session | `agentSession/start` | 绑定 `appId`、`workspaceId` 和可选 `businessObjectRef`。 |
+| 读取恢复态 | `agentSession/read` | 本地缓存 session id 必须先经服务端确认存在且归属当前 workspace。 |
+| 启动一轮任务 | `agentSession/turn/start` | 承接 SDK input、附件、结构化输出、capabilityId、stream、queue 策略和 host options。 |
+| 取消任务 | `agentSession/turn/cancel` | 取消 active turn，不由 App 直接杀进程。 |
+| 响应审批或人工输入 | `agentSession/action/respond` | 响应 `action.required`，保留 policy 和 evidence。 |
+| 接收事件 | `agentSession/event` | 唯一公共事件入口；事件从 RuntimeCore facts 派生。 |
+| 能力发现 | `capability/list` | Host 投影当前 App 可用能力，不能把内部模块路径暴露给 App。 |
+| 读取产物 | `artifact/read` | App 读取 artifact ref / preview，不绕过 Artifact service。 |
+| 导出证据 | `evidence/export` | App 读取 evidence pack 摘要或 export ref，不重建 evidence store。 |
+
+禁用路径：
+
+- App UI / Worker 直接 spawn `app-server`、读取 stdout JSONL、连接本地 socket、或 import Lime Rust / JS 内部模块。
+- Electron main / preload 承接 Agent 执行业务事实；它只能做 Desktop Host bridge、sidecar lifecycle、窗口和 IPC 白名单。
+- App 用本地 UI state 合成 `assistant:delta`、tool result、artifact 或 evidence 成功事件。
+- 生产路径在 App Server 不可用时回退 mock 成功。
 
 ## 宿主职责
 
@@ -98,6 +137,8 @@ Host Bridge 首包快照至少包含：
 Host 必须验证消息来源：`event.source` 必须是当前 App frame，`event.origin` 必须匹配 runtime origin，消息 `protocol` 和 `version` 必须匹配。无法验证的消息必须静默丢弃或记录调试事件，不能执行能力调用。
 
 `capability:invoke` 只是一种传输信封。文件、模型、工具、下载、外链、secret、storage 写入等仍需经过 readiness、permission、policy、allowlist 和 provenance 记录；被阻断时返回 `host:error`，不能用 mock 结果伪装成功。
+
+Host Bridge 不暴露 App Server transport。App 看到的是 SDK task、事件和产物 projection；App Server client、sidecar 路径、JSON-RPC envelope、Electron IPC channel、Tauri command 名称和 RuntimeCore 内部类型都属于宿主实现细节。
 
 ## Workflow / Worker Runtime
 

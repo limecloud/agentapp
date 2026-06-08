@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.9.0
+
+- Adds App Server Bridge Profile so Agent Apps can declare how `lime.agent` and `lime.workflow` calls flow through Capability SDK / Host Bridge, Desktop Host IPC, App Server JSON-RPC, RuntimeCore services, and ExecutionBackend.
+- Extends `app.runtime.yaml` with `agentRuntime.bridge` for bridge kind, host-mediated transport, protocol version, method mapping, and event provenance.
+- Extends `app-runtime.schema.json` and `app-install.schema.json` with bridge and runtime distribution metadata for app-server-client, sidecar binaries, release manifests, and sha256 requirements.
+- Updates the reference CLI to 0.9.0 with `--version 0.9`, v0.9 migration target defaults, bridge validation, and generated v0.9 bridge samples.
+- Updates Content Factory to a v0.9 example with App Server bridge profile and runtime distribution constraints.
+- Backward compatible: v0.8 apps remain valid; v0.9 adds bridge precision above v0.8 install modes.
+
 ## 0.8.0
 
 - Adds Standalone Installation & Runtime Separation so Agent Apps can be distributed inside Lime, as standalone branded apps, against a shared system Lime Runtime, or in compatible web hosts.

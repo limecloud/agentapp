@@ -18,7 +18,8 @@ flowchart TD
   Bridge --> UI[UI Host]
   Bridge --> Storage[Storage Service]
   Bridge --> Files[File Service]
-  Bridge --> Agent[Local Agent Runtime]
+  Bridge --> Server[App Server JSON-RPC]
+  Server --> Agent[RuntimeCore / Agent services]
   Bridge --> Knowledge[Knowledge Binding]
   Bridge --> Tools[Tool Broker]
   Bridge --> Artifacts[Artifact Store]
@@ -28,6 +29,8 @@ flowchart TD
 ```
 
 SDK 是 facade，不是 Lime 内部模块重导出。App 不能 import `lime/src/...`，只能请求 capability handle。
+
+`lime.agent` / `lime.workflow` 的后端执行不在 SDK 内完成。桌面宿主应把 SDK 请求经 Host Bridge / Desktop Host IPC 投影到 App Server JSON-RPC，再进入 RuntimeCore / services。App 不能直接 import `app-server-client`、spawn sidecar、读取 JSONL transport 或持有 RuntimeCore 内部类型。
 
 ## 能力协商
 
@@ -87,6 +90,19 @@ await lime.evidence.record({ subject: artifact.id, sources: hits })
 App 决定何时启动任务，以及如何把结构化结果应用到业务状态；Lime 决定 Agent 任务如何运行、哪些工具和知识可用、权限如何强制、trace / artifact / evidence 如何自动附加。
 
 通用 Chat 和 Expert Chat 可以复用同一任务契约作为交互 surface，但不能成为 App 完成核心工作的唯一方式。
+
+### `lime.agent` 到 App Server 的映射
+
+支持 App Server bridge 的宿主应把 `lime.agent.startTask(request)` 投影为：
+
+```text
+agentSession/start
+agentSession/turn/start
+agentSession/event
+agentSession/read
+```
+
+SDK 返回给 App 的 `taskId`、`traceId`、事件、artifact 引用和 evidence 引用是受控 projection。App 不感知 Electron IPC channel、Tauri command、JSON-RPC envelope、sidecar 路径或 provider API key。App Server 不可用时，SDK 必须返回稳定 blocked error，不能用 mock result 伪装成功。
 
 ## @limecloud/agent-app-runtime 包
 

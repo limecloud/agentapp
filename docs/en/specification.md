@@ -1,6 +1,6 @@
 ---
 title: Specification
-description: Agent App v0.8 executable package, Capability SDK contract, Agent task runtime control plane, requirement boundaries, and standalone install modes.
+description: Agent App v0.9 executable package, Capability SDK contract, Agent task runtime control plane, requirement boundaries, install modes, and App Server bridge profile.
 ---
 
 # Specification
@@ -9,7 +9,7 @@ Agent App defines a complete installable application package for agent hosts. It
 
 `APP.md` remains the required discovery entry. Hosts read it first for manifest data, human guidance, and progressive loading hints. But `APP.md` is only declaration and guidance; business capability must be implemented by the runtime package and by calls through the Lime Capability SDK.
 
-v0.8 inherits the v0.6 `lime.agent` task runtime control plane and v0.7 **Requirement Boundary & Capability Handoff**, then adds **Standalone Installation & Runtime Separation**. Apps must map business requirements to App, Host, Cloud, connector, external-system, and human-decision responsibilities, and must also declare whether they install inside Lime Desktop, as standalone branded apps, against a shared system Lime Runtime, or inside compatible web hosts.
+v0.9 inherits the v0.6 `lime.agent` task runtime control plane, v0.7 **Requirement Boundary & Capability Handoff**, and v0.8 **Standalone Installation & Runtime Separation**, then adds an explicit **App Server Bridge Profile**. Apps must map business requirements to App, Host, Cloud, connector, external-system, and human-decision responsibilities; declare whether they install inside Lime Desktop, as standalone branded apps, against a shared system Lime Runtime, or inside compatible web hosts; and declare how app-facing Agent tasks map to Desktop Host IPC, App Server JSON-RPC, RuntimeCore services, and execution backends.
 
 > Project-level architecture, sequence, flow, and state-machine diagrams live in [Architecture overview](./architecture). This specification only embeds diagrams that bind to specific clauses.
 
@@ -51,7 +51,7 @@ app-name/
 ├── app.errors.yaml           # v0.5 optional: standardized error codes
 ├── app.i18n.yaml             # v0.5 optional: i18n config
 ├── app.signature.yaml        # v0.5 optional: signature and trust chain
-├── app.runtime.yaml          # v0.6 optional: lime.agent task runtime control plane
+├── app.runtime.yaml          # v0.6 optional: lime.agent task runtime control plane; v0.9 optional: App Server bridge profile
 ├── app.requirements.yaml     # v0.7 optional: requirements, MVP, non-goals, acceptance
 ├── app.boundary.yaml         # v0.7 optional: App / Host / Cloud / Connector / External / Human boundary
 ├── app.integrations.yaml     # v0.7 optional: Host/Cloud-managed external integration needs
@@ -80,7 +80,7 @@ app-name/
 
 Only `APP.md` is mandatory. Compatible hosts must read `APP.md` and catalog metadata first, then progressively load the runtime package according to user action, readiness, permission, and capability version checks.
 
-v0.8 keeps the layered configuration principle: `APP.md` carries only discovery metadata and human-readable guidance, while complex configuration (capabilities, entries, permissions, errors, i18n, signature, Agent task runtime contracts, requirement boundaries, integrations, operation side effects, and install modes) moves into independent `app.*.yaml` files when needed, preventing frontmatter bloat.
+v0.9 keeps the layered configuration principle: `APP.md` carries only discovery metadata and human-readable guidance, while complex configuration (capabilities, entries, permissions, errors, i18n, signature, Agent task runtime contracts, App Server bridge profile, requirement boundaries, integrations, operation side effects, and install modes) moves into independent `app.*.yaml` files when needed, preventing frontmatter bloat.
 
 ## `APP.md`
 
@@ -128,7 +128,7 @@ For open-platform distribution, v0.5 promotes "app identity, version, timeline, 
 
 | Field | Purpose |
 | --- | --- |
-| `manifestVersion` | Manifest protocol version; current packages should set `0.8.0`. |
+| `manifestVersion` | Manifest protocol version; current packages should set `0.9.0`. |
 | `version` | App package version (SemVer). |
 | `createdAt` | ISO 8601; first appearance in any registry. |
 | `updatedAt` | ISO 8601; manifest last updated. |
@@ -240,7 +240,7 @@ Detailed configuration can move to independent files; the frontmatter keeps only
 | `app.errors.yaml` | Standardized error codes and recovery | Loaded by manifest convention |
 | `app.i18n.yaml` | i18n config | Loaded by manifest convention |
 | `app.signature.yaml` | Signature, trust, and revocation | Loaded by manifest convention |
-| `app.runtime.yaml` | v0.6 Agent task event/result, structured output, approval, session, tool discovery, checkpoint, and observability | Loaded by manifest convention |
+| `app.runtime.yaml` | v0.6 Agent task event/result, structured output, approval, session, tool discovery, checkpoint, observability; v0.9 App Server bridge profile | Loaded by manifest convention |
 | `app.requirements.yaml` | v0.7 requirements, MVP scope, non-goals, later phases, and acceptance criteria | Loaded by manifest convention |
 | `app.boundary.yaml` | v0.7 App / Host / Cloud / Connector / External / Human responsibility boundary | Loaded by manifest convention |
 | `app.integrations.yaml` | v0.7 Host/Cloud-managed external systems, CLIs, MCPs, APIs, webhooks, or browser adapter needs | Loaded by manifest convention |
@@ -262,28 +262,28 @@ install:
     - standalone
     - runtime_backed
   runtime:
-    minVersion: 0.8.0
+    minVersion: 0.9.0
     distribution:
       standalone:
         embedRuntime: true
         shell: lime-app-shell
       runtimeBacked:
         requires: lime-runtime
-        minVersion: 0.8.0
+        minVersion: 0.9.0
   standalone:
     shell: lime-app-shell
     bundleId: ai.limecloud.contentfactory
     platforms: [macos, windows]
   runtimeBacked:
     requires: lime-runtime
-    minVersion: 0.8.0
+    minVersion: 0.9.0
   branding:
     name: Content Factory
     icon: ./assets/icon.svg
     windowTitle: Content Factory
 ```
 
-The install contract does not let an app bypass governance. Standalone and runtime-backed apps still receive `lime.*` capability handles from a compatible host shell, and Lime Runtime still owns model routing, tool execution, secrets, policy, storage namespace, and evidence.
+The install contract does not let an app bypass governance. Standalone and runtime-backed apps still receive `lime.*` capability handles from a compatible host shell, and Lime Runtime still owns model routing, tool execution, secrets, policy, storage namespace, and evidence. When an app needs Agent backend capability, the host must project SDK calls into the Desktop Host IPC / App Server JSON-RPC / RuntimeCore path. Apps must not spawn sidecars, read JSONL stdout, call legacy desktop commands, or copy RuntimeCore / ExecutionBackend.
 
 ### v0.5 trigger field
 
@@ -356,8 +356,8 @@ requires:
     lime.storage: "^0.3.0"
     lime.agent: "^0.3.0"
     lime.artifacts: "^0.3.0"
-    lime.cloudSession: "^0.8.0"
-    lime.modelSettings: "^0.8.0"
+    lime.cloudSession: "^0.9.0"
+    lime.modelSettings: "^0.9.0"
 ```
 
 v0.3 treats the SDK as a typed contract, not only a list of capability names. Compatible hosts should stabilize at least these call semantics:
@@ -394,6 +394,25 @@ Apps that use `lime.agent` should add `app.runtime.yaml` to declare Agent task r
 
 ```yaml
 agentRuntime:
+  bridge:
+    kind: app-server-json-rpc
+    transport: host-mediated
+    protocolVersion: appserver.v0
+    clientSurface: capability-sdk
+    hostBoundary: desktop-host-ipc
+    runtimeOwner: runtime-core
+    methods:
+      initialize: initialize
+      initialized: initialized
+      startSession: agentSession/start
+      readSession: agentSession/read
+      startTurn: agentSession/turn/start
+      cancelTurn: agentSession/turn/cancel
+      respondAction: agentSession/action/respond
+      events: agentSession/event
+      listCapabilities: capability/list
+      readArtifact: artifact/read
+      exportEvidence: evidence/export
   agentTask:
     eventSchema: lime.agent-task-event.v1
     resultSchema: lime.agent-task-result.v1
@@ -426,6 +445,17 @@ agentRuntime:
       openTelemetryMapping: true
       exportContentByDefault: false
 ```
+
+`agentRuntime.bridge` is the v0.9 App Server bridge profile. It tells the host how app-facing `lime.agent` / `lime.workflow` calls should map to the backend fact source, but it is not a network address or process handle the app may access directly.
+
+Fixed rules:
+
+- Apps only call the Capability SDK or Host Bridge `capability:invoke`; they must not import `app-server-client`, spawn sidecars, read or write JSONL transport, or hold RuntimeCore internal types.
+- Electron / Tauri / runtime-backed shells are Desktop Host bridges. They own IPC, preload / WebView allowlists, sidecar lifecycle, windows, and renderer-safe projections; they do not own Agent execution facts.
+- Agent execution facts must come from App Server JSON-RPC: `initialize -> initialized -> agentSession/start -> agentSession/turn/start -> agentSession/event -> agentSession/read`.
+- `agentSession/event` is the public event ingress. `assistant:delta`, tool, approval, artifact, evidence, and terminal status must derive from RuntimeCore facts, not app UI state.
+- `capability/list`, `artifact/read`, and `evidence/export` are current entries for capability, artifact, and evidence projection; apps must not bypass them to read host databases or filesystems.
+- `mock` is only allowed in reference hosts, test fixtures, or offline evals. Product paths must fail closed when real Desktop Host IPC / App Server JSON-RPC is unavailable.
 
 These fields express runtime intent, not execution permission. Hosts must still combine them with `app.permissions.yaml`, tenant policy, readiness, and user authorization before running anything.
 
@@ -748,6 +778,19 @@ Host Bridge is the event boundary for `lime.ui` and the Capability SDK inside th
 
 Host Bridge does not replace the Capability SDK. It is the transport layer between sandboxed UI and the host capability bridge. The host remains the only decision maker: apps may request actions, but must not directly access host DOM, Tauri, Node, filesystems, databases, or credentials.
 
+In desktop hosts, Host Bridge also does not replace Desktop Host IPC or App Server JSON-RPC. The recommended path is:
+
+```text
+App UI / Worker
+  -> @lime/app-sdk or lime.agentApp.bridge capability:invoke
+  -> Desktop Host IPC / preload allowlist
+  -> App Server JSON-RPC
+  -> RuntimeCore / services
+  -> ExecutionBackend
+```
+
+Apps may only see SDK results, events, and governed projections. They must not see Electron IPC channels, Tauri commands, App Server transport, Rust structs, sidecar paths, or provider API keys.
+
 Standard message envelope:
 
 ```ts
@@ -950,9 +993,9 @@ Readiness may return `ready`, `needs-setup`, or `failed`. v0.5 extends the state
 readiness:
   required:
     - check: sdk_version
-      expect: ">=0.8.0"
+      expect: ">=0.9.0"
       blocker: true
-      message: Lime SDK v0.8.0 or higher is required
+      message: Lime SDK v0.9.0 or higher is required
     - check: capability_available
       capability: lime.agent
       blocker: true
@@ -1087,7 +1130,7 @@ signature:
     algorithm: sha256
     hash: aaaa...aaaa
     signedBy: sigstore
-    signatureRef: sigstore:content-factory-app@0.8.0
+    signatureRef: sigstore:content-factory-app@0.9.0
     timestamp: 2026-05-16T00:00:00Z
   manifest:
     algorithm: sha256

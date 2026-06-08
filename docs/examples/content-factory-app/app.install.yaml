@@ -4,14 +4,34 @@ install:
     - standalone
     - runtime_backed
   runtime:
-    minVersion: 0.8.0
+    minVersion: 0.9.0
+    protocolVersion: appserver.v0
+    clientPackage:
+      name: app-server-client
+      version: ^0.9.0
+      protocolVersion: appserver.v0
+    sidecar:
+      binary: app-server
+      packagedResource: resources/app-server
+      platforms:
+        - darwin-arm64
+        - darwin-x64
+        - win32-x64
+        - linux-x64
+      sha256Required: true
+    releaseManifest:
+      path: resources/app-server/manifest.json
+      sha256Required: true
+      allowEnvOverrideInProduction: false
     distribution:
       standalone:
         embedRuntime: true
         shell: lime-app-shell
+        bundleSidecar: true
       runtimeBacked:
         requires: lime-runtime
-        minVersion: 0.8.0
+        minVersion: 0.9.0
+        resolveFromManifest: true
   standalone:
     shell: lime-app-shell
     bundleId: ai.limecloud.contentfactory
@@ -21,13 +41,21 @@ install:
     autoUpdate: true
   runtimeBacked:
     requires: lime-runtime
-    minVersion: 0.8.0
+    minVersion: 0.9.0
+    clientPackage:
+      name: app-server-client
+      version: ^0.9.0
+      protocolVersion: appserver.v0
+    releaseManifest:
+      path: resources/app-server/manifest.json
+      sha256Required: true
+      allowEnvOverrideInProduction: false
   branding:
     name: Content Factory
     icon: ./assets/icon.svg
     windowTitle: Content Factory
   compatibility:
     hosts:
-      limeDesktop: ">=0.8.0 <1.0.0"
-      limeAppShell: ">=0.8.0 <1.0.0"
+      limeDesktop: ">=0.9.0 <1.0.0"
+      limeAppShell: ">=0.9.0 <1.0.0"
       webHost: optional

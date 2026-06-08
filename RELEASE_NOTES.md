@@ -1,5 +1,9 @@
 # Release Notes
 
+## v0.9.0
+
+v0.9 standardizes the App Server Bridge Profile for Agent App runtime execution. It keeps v0.8 install modes, then makes the runtime path explicit: `@lime/app-sdk` / Host Bridge -> Desktop Host IPC -> App Server JSON-RPC -> RuntimeCore services -> ExecutionBackend. The release adds `agentRuntime.bridge`, extends runtime and install schemas with bridge / sidecar / release manifest metadata, upgrades `agentapp-ref` to `0.9.0`, and updates Content Factory as a v0.9 example. v0.8 packages remain valid; v0.9 adds bridge precision without weakening capability governance.
+
 ## v0.8.0
 
 v0.8 makes Agent Apps first-class standalone products without letting each app rebuild the platform. It separates Agent App package, Lime Runtime Core, Lime Desktop, and Lime App Shell. The release adds `app.install.yaml`, `app-install.schema.json`, install-mode projection, and reference CLI support for `--version 0.8` / `--target 0.8.0`. Apps can now declare `in_lime`, `standalone`, `runtime_backed`, and optional `web_host` distribution modes while still relying on Lime-governed capabilities for agent execution, secrets, policy, tools, storage, and evidence. v0.7 packages remain valid; v0.8 adds install topology above the existing requirement-boundary model.

@@ -12,6 +12,7 @@
     "agentRuntime": {
       "type": "object",
       "properties": {
+        "bridge": { "$ref": "#/$defs/bridge" },
         "agentTask": { "$ref": "#/$defs/agentTask" }
       },
       "additionalProperties": true
@@ -19,6 +20,61 @@
     "agentTask": { "$ref": "#/$defs/agentTask" }
   },
   "$defs": {
+    "bridge": {
+      "type": "object",
+      "description": "v0.8 host-mediated bridge from Capability SDK / Host Bridge to App Server JSON-RPC.",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["app-server-json-rpc", "host-native", "reference-mock"]
+        },
+        "transport": {
+          "type": "string",
+          "enum": ["host-mediated", "stdio-jsonl", "local-socket", "web-host"]
+        },
+        "protocolVersion": { "type": "string" },
+        "clientSurface": {
+          "type": "string",
+          "enum": ["capability-sdk", "host-bridge", "server-client"]
+        },
+        "hostBoundary": {
+          "type": "string",
+          "enum": ["desktop-host-ipc", "web-host-postmessage", "host-native"]
+        },
+        "runtimeOwner": {
+          "type": "string",
+          "enum": ["runtime-core", "host-native", "reference-mock"]
+        },
+        "methods": { "$ref": "#/$defs/bridgeMethods" },
+        "events": {
+          "type": "object",
+          "properties": {
+            "notification": { "type": "string", "const": "agentSession/event" },
+            "deriveFromRuntimeFacts": { "type": "boolean" },
+            "allowUiSynthesis": { "type": "boolean", "const": false }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    },
+    "bridgeMethods": {
+      "type": "object",
+      "properties": {
+        "initialize": { "type": "string", "const": "initialize" },
+        "initialized": { "type": "string", "const": "initialized" },
+        "startSession": { "type": "string", "const": "agentSession/start" },
+        "readSession": { "type": "string", "const": "agentSession/read" },
+        "startTurn": { "type": "string", "const": "agentSession/turn/start" },
+        "cancelTurn": { "type": "string", "const": "agentSession/turn/cancel" },
+        "respondAction": { "type": "string", "const": "agentSession/action/respond" },
+        "events": { "type": "string", "const": "agentSession/event" },
+        "listCapabilities": { "type": "string", "const": "capability/list" },
+        "readArtifact": { "type": "string", "const": "artifact/read" },
+        "exportEvidence": { "type": "string", "const": "evidence/export" }
+      },
+      "additionalProperties": true
+    },
     "agentTask": {
       "type": "object",
       "properties": {

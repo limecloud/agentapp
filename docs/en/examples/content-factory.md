@@ -5,7 +5,7 @@ description: Product-level Agent App example for content factory workflows.
 
 # Content Factory App
 
-The Content Factory App shows why Agent App is an application package, not a single expert or a prompt collection. It packages a business workflow with UI, storage, workflows, workers, Knowledge bindings, Tools, Artifacts, Evals, permissions, overlays, v0.7 requirement-boundary files, and v0.8 install metadata.
+The Content Factory App shows why Agent App is an application package, not a single expert or a prompt collection. It packages a business workflow with UI, storage, workflows, workers, Knowledge bindings, Tools, Artifacts, Evals, permissions, overlays, v0.7 requirement-boundary files, and v0.9 install and bridge metadata.
 
 Reference package: [`docs/examples/content-factory-app/APP.md`](../../examples/content-factory-app/APP.md)
 
@@ -101,7 +101,7 @@ The fixture now includes:
 
 For ordinary users this means the app shows what it can do in the workspace, what must be connected by Lime, and which external writes or publishes still require human confirmation.
 
-## v0.8 install metadata
+## v0.9 install and bridge metadata
 
 The fixture includes [`app.install.yaml`](../../examples/content-factory-app/app.install.yaml) to declare:
 
@@ -132,7 +132,7 @@ That is correct behavior. The package is structurally valid; the workspace may s
 ## Try it locally
 
 ```bash
-npm run cli -- validate docs/examples/content-factory-app --version 0.8
+npm run cli -- validate docs/examples/content-factory-app --version 0.9
 npm run cli -- project docs/examples/content-factory-app
 npm run cli -- readiness docs/examples/content-factory-app
 ```

@@ -1,5 +1,5 @@
 ---
-manifestVersion: 0.8.0
+manifestVersion: 0.9.0
 name: content-factory-app
 displayName: 内容工厂
 displayNameI18n:
@@ -10,7 +10,7 @@ shortDescriptionI18n:
   en-US: One-stop planning, production, and review workspace for content teams.
   zh-CN: 内容团队的一站式策划 / 生产 / 复盘工作台
 description: 内容工厂帮助团队规划、生产和管理营销内容。使用场景："创建内容日历"、"批量生成文案"、"内容资产管理"、"知识库构建"。
-version: 0.8.0
+version: 0.9.0
 status: ready
 appType: domain-app
 keywords:
@@ -95,7 +95,7 @@ runtimeTargets:
   - local
   - hybrid
 requires:
-  sdk: "@lime/app-sdk@^0.8.0"
+  sdk: "@lime/app-sdk@^0.9.0"
   capabilities:
     - lime.ui
     - lime.storage
@@ -271,7 +271,7 @@ presentation:
   title: 内容工厂
   summary: 面向内容团队的行业 Agent App。
 compatibility:
-  minHostVersion: 0.8.0
+  minHostVersion: 0.9.0
 metadata:
   example: true
 ---
@@ -309,7 +309,7 @@ metadata:
 5. **资产沉淀** - 通过 Artifact 持久化内容资产并支持导出
 6. **复盘归因** - 根据投放数据回到知识库与策略迭代
 
-## v0.8 安装与需求边界
+## v0.9 安装、需求边界与 App Server bridge
 
 该示例增加了 `app.install.yaml`，声明可安装到 Lime Desktop，也可通过 Lime App Shell 打包成独立应用，或复用系统 `lime-runtime` 运行。它仍通过 `@lime/app-sdk` 调用 `lime.*` 能力，不自建模型网关、权限系统、凭证库或 evidence store。
 
@@ -354,13 +354,13 @@ metadata:
 
 1. 未绑定 `project_knowledge` 知识库（`needs-setup`）
 2. `document_parser` 工具未启用（`blocked`）
-3. SDK 版本低于 `^0.8.0`
+3. SDK 版本低于 `^0.9.0`
 
 排查命令：
 
 ```bash
 agentapp-ref readiness ./content-factory-app --workspace ./workspace
-agentapp-ref validate ./content-factory-app --version 0.8.0
+agentapp-ref validate ./content-factory-app --version 0.9.0
 ```
 
 ### 问题：内容资产无法导出

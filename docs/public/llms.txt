@@ -1,6 +1,6 @@
 # Agent App
 
-> v0.8 installable Agent App package standard for host runtimes, standalone shells, and the wider Agent standards ecosystem.
+> v0.9 installable Agent App package standard for host runtimes, standalone shells, App Server bridges, and the wider Agent standards ecosystem.
 
 ## Core docs
 
@@ -20,13 +20,14 @@
 
 ## Core boundary
 
-Agent App is the composition layer for installable intelligent applications. It packages UI, workflows, storage, workers, Runtime intent, Context needs, Knowledge bindings, Skill references, Tool/Connector requirements, Artifacts, Evidence, Policy, QC, permissions, overlays, v0.7 requirement-boundary files, and v0.8 install-mode metadata. It does not replace adjacent standards and does not run agents by itself. Compatible hosts install apps, project entries into local catalogs, inject versioned Capability SDK handles, execute through Lime Runtime, and mediate connectors, secrets, policy, and evidence.
+Agent App is the composition layer for installable intelligent applications. It packages UI, workflows, storage, workers, Runtime intent, Context needs, Knowledge bindings, Skill references, Tool/Connector requirements, Artifacts, Evidence, Policy, QC, permissions, overlays, v0.7 requirement-boundary files, v0.8 install-mode metadata, and v0.9 App Server bridge metadata. It does not replace adjacent standards and does not run agents by itself. Compatible hosts install apps, project entries into local catalogs, inject versioned Capability SDK handles, execute through Lime Runtime, and mediate connectors, secrets, policy, and evidence.
 
-## v0.8 current model
+## v0.9 current model
 
 - Current entry kinds: page, panel, expert-chat, command, workflow, artifact, background-task, settings.
 - v0.7 layered files: app.requirements.yaml, app.boundary.yaml, app.integrations.yaml, app.operations.yaml.
 - v0.8 install file: app.install.yaml for in_lime, standalone, runtime_backed, and web_host modes.
+- v0.9 bridge profile: agentRuntime.bridge for Capability SDK / Host Bridge -> Desktop Host IPC -> App Server JSON-RPC -> RuntimeCore / services.
 - v0.6 runtime layer remains: app.runtime.yaml for lime.agent task control.
-- Reference examples: content-factory-app (v0.8) and lightweight-content-ops-app (v0.7 boundary example).
+- Reference examples: content-factory-app (v0.9) and lightweight-content-ops-app (v0.7 boundary example).
 - Host Bridge v1: `lime.agentApp.bridge` standardizes sandbox UI theme sync, host snapshots, navigation, toast, download, and capability invocation envelopes.

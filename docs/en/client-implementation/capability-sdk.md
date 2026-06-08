@@ -18,7 +18,8 @@ flowchart TD
   Bridge --> UI[UI Host]
   Bridge --> Storage[Storage Service]
   Bridge --> Files[File Service]
-  Bridge --> Agent[Local Agent Runtime]
+  Bridge --> Server[App Server JSON-RPC]
+  Server --> Agent[RuntimeCore / Agent services]
   Bridge --> Knowledge[Knowledge Binding]
   Bridge --> Tools[Tool Broker]
   Bridge --> Artifacts[Artifact Store]
@@ -28,6 +29,8 @@ flowchart TD
 ```
 
 The SDK is a facade, not a re-export of Lime internals. Apps must not import `lime/src/...`; they request capability handles.
+
+Backend execution for `lime.agent` / `lime.workflow` does not happen inside the SDK. Desktop hosts should project SDK requests through Host Bridge / Desktop Host IPC into App Server JSON-RPC, then into RuntimeCore / services. Apps must not import `app-server-client`, spawn sidecars, read JSONL transport, or hold RuntimeCore internal types.
 
 ## Capability negotiation
 
@@ -87,6 +90,19 @@ Every handle should include:
 Apps decide when to start a task and how to apply the structured result to their business state. Lime decides how the agent task runs, which tools and knowledge are allowed, how permissions are enforced, and how trace, artifact, and evidence records are attached.
 
 Generic chat and expert-chat can reuse this same task contract as an interaction surface, but they must not be the only way an app completes core work.
+
+### `lime.agent` to App Server mapping
+
+A host that supports the App Server bridge should project `lime.agent.startTask(request)` into:
+
+```text
+agentSession/start
+agentSession/turn/start
+agentSession/event
+agentSession/read
+```
+
+The SDK returns governed projections for `taskId`, `traceId`, events, artifact refs, and evidence refs. Apps do not observe Electron IPC channels, Tauri commands, JSON-RPC envelopes, sidecar paths, or provider API keys. When App Server is unavailable, the SDK must return a stable blocked error instead of mock success.
 ## Host Bridge and SDK Bridge
 
 Inside UI runtime, `getLimeRuntime()` may be transported by Host Bridge, but its semantics still belong to the Capability SDK. Implementations should keep two layers:

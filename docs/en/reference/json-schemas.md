@@ -12,12 +12,12 @@ Agent App publishes JSON Schemas so hosts, registries, editors, and CI jobs can 
 | Schema | Purpose |
 | --- | --- |
 | [`app-manifest.schema.json`](/schemas/app-manifest.schema.json) | Validates manifest fields from `APP.md` or `app.manifest.json`. |
-| [`app-runtime.schema.json`](/schemas/app-runtime.schema.json) | Validates v0.6 `app.runtime.yaml` Agent task runtime contracts. |
+| [`app-runtime.schema.json`](/schemas/app-runtime.schema.json) | Validates v0.6 `app.runtime.yaml` Agent task runtime contracts and v0.9 App Server bridge profiles. |
 | [`app-requirements.schema.json`](/schemas/app-requirements.schema.json) | Validates v0.7 business requirements, MVP scope, non-goals, and acceptance criteria. |
 | [`app-boundary.schema.json`](/schemas/app-boundary.schema.json) | Validates v0.7 App / Host / Cloud / connector / external system / human responsibility boundaries. |
 | [`app-integrations.schema.json`](/schemas/app-integrations.schema.json) | Validates v0.7 host/cloud-managed external integration requirements. |
 | [`app-operations.schema.json`](/schemas/app-operations.schema.json) | Validates v0.7 operation side effects, approvals, dry-run, and evidence contracts. |
-| [`app-install.schema.json`](/schemas/app-install.schema.json) | Validates v0.8 in-Lime, standalone, runtime-backed, and web-host installation contracts. |
+| [`app-install.schema.json`](/schemas/app-install.schema.json) | Validates v0.8 in-Lime, standalone, runtime-backed, and web-host installation contracts, plus v0.9 runtime distribution metadata. |
 | [`app-fit-report.schema.json`](/schemas/app-fit-report.schema.json) | Validates v0.7 pre-implementation fit reports for business requirements. |
 | [`app-projection.schema.json`](/schemas/app-projection.schema.json) | Validates host projection output with provenance. |
 | [`app-readiness.schema.json`](/schemas/app-readiness.schema.json) | Validates readiness output and setup findings. |
@@ -48,6 +48,7 @@ The manifest schema covers fields such as:
 - v0.6 `agentRuntime` shorthand for task control-plane intent
 - v0.7 `requirements`, `boundary`, `integrations`, and `operations` shorthands
 - v0.8 `install` shorthand for in-Lime, standalone, runtime-backed, and web-host install modes
+- v0.9 `agentRuntime.bridge` profile for App Server JSON-RPC mapping
 - presentation and compatibility
 
 v0.3 current entry kinds are `page`, `panel`, `expert-chat`, `command`, `workflow`, `artifact`, `background-task`, and `settings`.

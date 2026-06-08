@@ -4,10 +4,10 @@ import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { basename, dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const cliVersion = '0.8.0'
+const cliVersion = '0.9.0'
 const currentEntryKinds = new Set(['page', 'panel', 'expert-chat', 'command', 'workflow', 'artifact', 'background-task', 'settings'])
 const legacyEntryKinds = new Set(['home', 'scene'])
-const supportedManifestVersions = new Set(['0.3.0', '0.4.0', '0.5.0', '0.6.0', '0.7.0', '0.8.0'])
+const supportedManifestVersions = new Set(['0.3.0', '0.4.0', '0.5.0', '0.6.0', '0.7.0', '0.8.0', '0.9.0'])
 const v05LayeredFiles = [
   'app.capabilities.yaml',
   'app.entries.yaml',
@@ -26,6 +26,19 @@ const v07LayeredFiles = [
   'app.operations.yaml'
 ]
 const v08LayeredFiles = ['app.install.yaml']
+const appServerBridgeMethods = {
+  initialize: 'initialize',
+  initialized: 'initialized',
+  startSession: 'agentSession/start',
+  readSession: 'agentSession/read',
+  startTurn: 'agentSession/turn/start',
+  cancelTurn: 'agentSession/turn/cancel',
+  respondAction: 'agentSession/action/respond',
+  events: 'agentSession/event',
+  listCapabilities: 'capability/list',
+  readArtifact: 'artifact/read',
+  exportEvidence: 'evidence/export'
+}
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 
 function main() {
@@ -65,13 +78,13 @@ function printHelp() {
   console.log(`agentapp-ref ${cliVersion}
 
 Usage:
-  agentapp-ref validate <app> [--version <0.3|0.4|0.5|0.6|0.7|0.8>]
+  agentapp-ref validate <app> [--version <0.3|0.4|0.5|0.6|0.7|0.8|0.9>]
   agentapp-ref read-properties <app>
   agentapp-ref to-catalog <app>
   agentapp-ref project <app>
   agentapp-ref readiness <app> [--workspace <path>]
-  agentapp-ref migrate-check <app> [--target 0.8.0]
-  agentapp-ref migrate-generate <app> [--target 0.8.0]
+  agentapp-ref migrate-check <app> [--target 0.9.0]
+  agentapp-ref migrate-generate <app> [--target 0.9.0]
 
 Commands:
   validate          Validate APP.md shape and local references.
@@ -124,17 +137,20 @@ function validateApp(appPath, options = []) {
   }
 
   const effectiveVersion = targetVersion || properties.manifestVersion || '0.4.0'
-  if (['0.5.0', '0.6.0', '0.7.0', '0.8.0'].includes(effectiveVersion)) {
+  if (['0.5.0', '0.6.0', '0.7.0', '0.8.0', '0.9.0'].includes(effectiveVersion)) {
     checkV05Conventions(appRoot, properties, findings)
   }
-  if (['0.6.0', '0.7.0', '0.8.0'].includes(effectiveVersion)) {
+  if (['0.6.0', '0.7.0', '0.8.0', '0.9.0'].includes(effectiveVersion)) {
     checkV06Conventions(appRoot, properties, findings)
   }
-  if (['0.7.0', '0.8.0'].includes(effectiveVersion)) {
+  if (['0.7.0', '0.8.0', '0.9.0'].includes(effectiveVersion)) {
     checkV07Conventions(appRoot, properties, findings)
   }
-  if (effectiveVersion === '0.8.0') {
+  if (['0.8.0', '0.9.0'].includes(effectiveVersion)) {
     checkV08Conventions(appRoot, properties, findings)
+  }
+  if (effectiveVersion === '0.9.0') {
+    checkV09Conventions(appRoot, properties, findings)
   }
 
   checkEntries(properties.entries, properties, findings)
@@ -545,6 +561,7 @@ function parseVersionFlag(args) {
   if (/^0\.6(\.\d+)?$/.test(raw)) return '0.6.0'
   if (/^0\.7(\.\d+)?$/.test(raw)) return '0.7.0'
   if (/^0\.8(\.\d+)?$/.test(raw)) return '0.8.0'
+  if (/^0\.9(\.\d+)?$/.test(raw)) return '0.9.0'
   return raw
 }
 
@@ -631,6 +648,7 @@ function checkV06Conventions(appRoot, properties, findings) {
       findings.push(warningFinding('app.runtime.yaml', `v0.6 recommends declaring ${key} policy for lime.agent tasks.`))
     }
   }
+  if (agentRuntime.bridge) checkAgentRuntimeBridge(agentRuntime.bridge, findings)
 }
 
 function checkV07Conventions(appRoot, properties, findings) {
@@ -705,6 +723,97 @@ function checkV08Conventions(appRoot, properties, findings) {
   }
 }
 
+function checkV09Conventions(appRoot, properties, findings) {
+  const runtimeYaml = readLayeredYaml(appRoot, 'app.runtime.yaml')
+  const agentRuntime = properties.agentRuntime || runtimeYaml?.agentRuntime || runtimeYaml
+  if (usesLimeAgent(properties) && (!agentRuntime || !agentRuntime.bridge)) {
+    findings.push(warningFinding('app.runtime.yaml', 'v0.9 apps using lime.agent should declare agentRuntime.bridge.kind=app-server-json-rpc so hosts can map SDK tasks to App Server JSON-RPC.'))
+  }
+  const installYaml = readLayeredYaml(appRoot, 'app.install.yaml')
+  const install = properties.install || installYaml?.install
+  if (install && (asArray(install.modes).includes('standalone') || asArray(install.modes).includes('runtime_backed'))) {
+    checkV09RuntimeDistribution(install, findings)
+  }
+}
+
+function checkAgentRuntimeBridge(bridge, findings) {
+  if (!bridge || typeof bridge !== 'object' || Array.isArray(bridge)) return
+  if (!bridge.kind) {
+    findings.push(warningFinding('app.runtime.yaml', 'v0.9 agentRuntime.bridge should declare kind, for example app-server-json-rpc.'))
+    return
+  }
+  if (!['app-server-json-rpc', 'host-native', 'reference-mock'].includes(bridge.kind)) {
+    findings.push(warningFinding('app.runtime.yaml', `Unknown agentRuntime.bridge.kind: ${bridge.kind}.`))
+    return
+  }
+  if (bridge.kind === 'reference-mock') {
+    findings.push(warningFinding('app.runtime.yaml', 'agentRuntime.bridge.kind=reference-mock is only for reference hosts, tests, or offline evals; product hosts must not treat it as delivery evidence.'))
+    return
+  }
+  if (bridge.kind !== 'app-server-json-rpc') return
+  if (bridge.transport !== 'host-mediated') {
+    findings.push(warningFinding('app.runtime.yaml', 'app-server-json-rpc bridge should use transport: host-mediated; apps must not connect directly to JSON-RPC transport.'))
+  }
+  if (bridge.clientSurface && !['capability-sdk', 'host-bridge'].includes(bridge.clientSurface)) {
+    findings.push(warningFinding('app.runtime.yaml', 'App-facing bridge clientSurface should be capability-sdk or host-bridge.'))
+  }
+  if (bridge.hostBoundary !== 'desktop-host-ipc') {
+    findings.push(warningFinding('app.runtime.yaml', 'app-server-json-rpc bridge should declare hostBoundary: desktop-host-ipc for desktop hosts.'))
+  }
+  if (bridge.runtimeOwner !== 'runtime-core') {
+    findings.push(warningFinding('app.runtime.yaml', 'app-server-json-rpc bridge should declare runtimeOwner: runtime-core.'))
+  }
+  if (!bridge.protocolVersion) {
+    findings.push(warningFinding('app.runtime.yaml', 'app-server-json-rpc bridge should declare protocolVersion, for example appserver.v0.'))
+  }
+  const methods = bridge.methods || {}
+  for (const [key, expected] of Object.entries(appServerBridgeMethods)) {
+    if (!methods[key]) {
+      findings.push(warningFinding('app.runtime.yaml', `agentRuntime.bridge.methods.${key} should map to ${expected}.`))
+    } else if (methods[key] !== expected) {
+      findings.push(warningFinding('app.runtime.yaml', `agentRuntime.bridge.methods.${key} should be ${expected}, got ${methods[key]}.`))
+    }
+  }
+  if (bridge.events) {
+    if (bridge.events.notification && bridge.events.notification !== 'agentSession/event') {
+      findings.push(warningFinding('app.runtime.yaml', 'agentRuntime.bridge.events.notification should be agentSession/event.'))
+    }
+    if (bridge.events.allowUiSynthesis !== false) {
+      findings.push(warningFinding('app.runtime.yaml', 'agentRuntime.bridge.events.allowUiSynthesis should be false; runtime events must derive from RuntimeCore facts.'))
+    }
+  }
+}
+
+function checkV09RuntimeDistribution(install, findings) {
+  const runtime = install.runtime || {}
+  if (!runtime.protocolVersion) {
+    findings.push(warningFinding('app.install.yaml', 'Standalone or runtime-backed apps should declare install.runtime.protocolVersion, for example appserver.v0.'))
+  }
+  if (!runtime.clientPackage?.name) {
+    findings.push(warningFinding('app.install.yaml', 'Standalone or runtime-backed apps should declare install.runtime.clientPackage.name, for example app-server-client.'))
+  }
+  if (!runtime.clientPackage?.version) {
+    findings.push(warningFinding('app.install.yaml', 'Standalone or runtime-backed apps should declare install.runtime.clientPackage.version.'))
+  }
+  if (!runtime.releaseManifest?.path && !runtime.releaseManifest?.url) {
+    findings.push(warningFinding('app.install.yaml', 'Standalone or runtime-backed apps should declare install.runtime.releaseManifest.path or url.'))
+  }
+  if (runtime.releaseManifest && runtime.releaseManifest.sha256Required !== true) {
+    findings.push(warningFinding('app.install.yaml', 'install.runtime.releaseManifest.sha256Required should be true for runtime distribution.'))
+  }
+  if (runtime.releaseManifest && runtime.releaseManifest.allowEnvOverrideInProduction !== false) {
+    findings.push(warningFinding('app.install.yaml', 'install.runtime.releaseManifest.allowEnvOverrideInProduction should be false; env overrides are development-only.'))
+  }
+  if (asArray(install.modes).includes('standalone')) {
+    if (!runtime.sidecar?.binary) {
+      findings.push(warningFinding('app.install.yaml', 'Standalone apps should declare install.runtime.sidecar.binary, for example app-server.'))
+    }
+    if (runtime.sidecar && runtime.sidecar.sha256Required !== true) {
+      findings.push(warningFinding('app.install.yaml', 'install.runtime.sidecar.sha256Required should be true for packaged sidecar binaries.'))
+    }
+  }
+}
+
 function usesLimeAgent(properties) {
   const requiredCapabilities = properties.requires?.capabilities
   if (Array.isArray(requiredCapabilities) && requiredCapabilities.includes('lime.agent')) return true
@@ -726,7 +835,7 @@ function migrateCheck(appPath, options = []) {
     return envelope(false, 'failed', 'migrate-check', basename(appRoot), findings)
   }
   const properties = readAppProperties(appMd)
-  const target = parseVersionFlag(options) || '0.8.0'
+  const target = parseVersionFlag(options) || '0.9.0'
   const sourceVersion = properties.manifestVersion || '0.3.0'
   const gaps = []
 
@@ -734,7 +843,7 @@ function migrateCheck(appPath, options = []) {
     findings.push({ severity: 'info', path: 'APP.md', message: `Already on manifestVersion ${target}. No migration required.` })
   }
 
-  if (['0.5.0', '0.6.0', '0.7.0', '0.8.0'].includes(target)) {
+  if (['0.5.0', '0.6.0', '0.7.0', '0.8.0', '0.9.0'].includes(target)) {
     if (!properties.triggers) gaps.push({ field: 'triggers', suggestion: 'Add triggers.keywords and triggers.scenarios to APP.md frontmatter.' })
     if (!properties.quickstart) gaps.push({ field: 'quickstart', suggestion: 'Add quickstart.entry pointing to a default entry key.' })
     if (!properties.skills) gaps.push({ field: 'skills', suggestion: 'Move skillRefs into skills.bundled / skills.references and add SKILL.md under skills/.' })
@@ -748,7 +857,7 @@ function migrateCheck(appPath, options = []) {
       gaps.push({ field: 'locales/', suggestion: 'Add locales/ directory with translation files for supported locales.' })
     }
   }
-  if (['0.6.0', '0.7.0', '0.8.0'].includes(target)) {
+  if (['0.6.0', '0.7.0', '0.8.0', '0.9.0'].includes(target)) {
     for (const file of v06LayeredFiles) {
       if (!existsSync(join(appRoot, file))) {
         gaps.push({ field: file, suggestion: `Create ${file} for v0.6 Agent task runtime contracts.` })
@@ -758,14 +867,14 @@ function migrateCheck(appPath, options = []) {
       gaps.push({ field: 'agentRuntime', suggestion: 'Declare agentRuntime policies for structured output, approvals, session resume/fork, tool discovery, checkpoint scope, and observability.' })
     }
   }
-  if (['0.7.0', '0.8.0'].includes(target)) {
+  if (['0.7.0', '0.8.0', '0.9.0'].includes(target)) {
     for (const file of v07LayeredFiles) {
       if (!existsSync(join(appRoot, file))) {
         gaps.push({ field: file, suggestion: `Create ${file} for v0.7 requirement boundary and capability handoff contracts.` })
       }
     }
   }
-  if (target === '0.8.0') {
+  if (['0.8.0', '0.9.0'].includes(target)) {
     for (const file of v08LayeredFiles) {
       if (!existsSync(join(appRoot, file))) {
         gaps.push({ field: file, suggestion: `Create ${file} for v0.8 standalone installation and runtime separation contracts.` })
@@ -773,6 +882,13 @@ function migrateCheck(appPath, options = []) {
     }
     if (!properties.install && !existsSync(join(appRoot, 'app.install.yaml'))) {
       gaps.push({ field: 'install', suggestion: 'Declare install.modes with in_lime, standalone, runtime_backed, or web_host support.' })
+    }
+  }
+  if (target === '0.9.0') {
+    const runtimeYaml = readLayeredYaml(appRoot, 'app.runtime.yaml')
+    const agentRuntime = properties.agentRuntime || runtimeYaml?.agentRuntime || runtimeYaml
+    if (usesLimeAgent(properties) && (!agentRuntime || !agentRuntime.bridge)) {
+      gaps.push({ field: 'agentRuntime.bridge', suggestion: 'Declare agentRuntime.bridge.kind=app-server-json-rpc and map SDK tasks to App Server JSON-RPC methods.' })
     }
   }
 
@@ -793,10 +909,10 @@ function migrateGenerate(appPath, options = []) {
     return envelope(false, 'failed', 'migrate-generate', basename(appRoot), [errorFinding('APP.md', 'Missing required APP.md.')])
   }
   const properties = readAppProperties(appMd)
-  const target = parseVersionFlag(options) || '0.8.0'
+  const target = parseVersionFlag(options) || '0.9.0'
   const suggestions = {}
 
-  if (['0.5.0', '0.6.0', '0.7.0', '0.8.0'].includes(target)) {
+  if (['0.5.0', '0.6.0', '0.7.0', '0.8.0', '0.9.0'].includes(target)) {
     suggestions['APP.md.frontmatter'] = {
       manifestVersion: target,
       triggers: properties.triggers || {
@@ -813,16 +929,16 @@ function migrateGenerate(appPath, options = []) {
     suggestions['evals/health.yaml'] = sampleHealthYaml()
     suggestions['app.signature.yaml'] = sampleSignatureYaml(properties.name || 'app', properties.version || target)
   }
-  if (['0.6.0', '0.7.0', '0.8.0'].includes(target)) {
+  if (['0.6.0', '0.7.0', '0.8.0', '0.9.0'].includes(target)) {
     suggestions['app.runtime.yaml'] = sampleRuntimeYaml()
   }
-  if (['0.7.0', '0.8.0'].includes(target)) {
+  if (['0.7.0', '0.8.0', '0.9.0'].includes(target)) {
     suggestions['app.requirements.yaml'] = sampleRequirementsYaml()
     suggestions['app.boundary.yaml'] = sampleBoundaryYaml()
     suggestions['app.integrations.yaml'] = sampleIntegrationsYaml()
     suggestions['app.operations.yaml'] = sampleOperationsYaml()
   }
-  if (target === '0.8.0') {
+  if (['0.8.0', '0.9.0'].includes(target)) {
     suggestions['app.install.yaml'] = sampleInstallYaml()
   }
 
@@ -877,6 +993,29 @@ function sampleReadinessYaml(target = cliVersion) {
 function sampleRuntimeYaml() {
   return [
     'agentRuntime:',
+    '  bridge:',
+    '    kind: app-server-json-rpc',
+    '    transport: host-mediated',
+    '    protocolVersion: appserver.v0',
+    '    clientSurface: capability-sdk',
+    '    hostBoundary: desktop-host-ipc',
+    '    runtimeOwner: runtime-core',
+    '    methods:',
+    '      initialize: initialize',
+    '      initialized: initialized',
+    '      startSession: agentSession/start',
+    '      readSession: agentSession/read',
+    '      startTurn: agentSession/turn/start',
+    '      cancelTurn: agentSession/turn/cancel',
+    '      respondAction: agentSession/action/respond',
+    '      events: agentSession/event',
+    '      listCapabilities: capability/list',
+    '      readArtifact: artifact/read',
+    '      exportEvidence: evidence/export',
+    '    events:',
+    '      notification: agentSession/event',
+    '      deriveFromRuntimeFacts: true',
+    '      allowUiSynthesis: false',
     '  agentTask:',
     '    eventSchema: lime.agent-task-event.v1',
     '    resultSchema: lime.agent-task-result.v1',
@@ -1009,21 +1148,45 @@ function sampleInstallYaml() {
     '    - standalone',
     '    - runtime_backed',
     '  runtime:',
-    '    minVersion: 0.8.0',
+    '    minVersion: 0.9.0',
+    '    protocolVersion: appserver.v0',
+    '    clientPackage:',
+    '      name: app-server-client',
+    '      version: ^0.9.0',
+    '      protocolVersion: appserver.v0',
+    '    sidecar:',
+    '      binary: app-server',
+    '      packagedResource: resources/app-server',
+    '      platforms: [darwin-arm64, darwin-x64, win32-x64, linux-x64]',
+    '      sha256Required: true',
+    '    releaseManifest:',
+    '      path: resources/app-server/manifest.json',
+    '      sha256Required: true',
+    '      allowEnvOverrideInProduction: false',
     '    distribution:',
     '      standalone:',
     '        embedRuntime: true',
     '        shell: lime-app-shell',
+    '        bundleSidecar: true',
     '      runtimeBacked:',
     '        requires: lime-runtime',
-    '        minVersion: 0.8.0',
+    '        minVersion: 0.9.0',
+    '        resolveFromManifest: true',
     '  standalone:',
     '    shell: lime-app-shell',
     '    bundleId: ai.limecloud.example',
     '    platforms: [macos, windows]',
     '  runtimeBacked:',
     '    requires: lime-runtime',
-    '    minVersion: 0.8.0',
+    '    minVersion: 0.9.0',
+    '    clientPackage:',
+    '      name: app-server-client',
+    '      version: ^0.9.0',
+    '      protocolVersion: appserver.v0',
+    '    releaseManifest:',
+    '      path: resources/app-server/manifest.json',
+    '      sha256Required: true',
+    '      allowEnvOverrideInProduction: false',
     '  branding:',
     '    name: Example Agent App',
     '    icon: ./assets/icon.png',

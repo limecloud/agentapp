@@ -41,6 +41,8 @@ Each step should be inspectable. A host should be able to stop before execution 
 | Worker runtime | Run packaged background code only inside a sandbox and policy boundary. |
 | Storage service | Provide app namespace, schema, migrations, and cleanup. |
 | Artifact and Evidence services | Persist outputs and provenance. |
+| App Server client | Owned by the host; performs JSON-RPC initialization, session / turn / action requests, event subscription, reconnect, and error projection. |
+| RuntimeCore / services | Fact source for Agent sessions, turns, tools, actions, artifacts, evidence, workspace, and policy. |
 
 ## In-app Agent task contract
 
@@ -55,6 +57,43 @@ Minimum contract:
 - Expert chat may be embedded as a collaborator, but it must share the same app context and task lifecycle. It must not become a detached place where core app work happens outside product state.
 
 This contract keeps the app from becoming a plain web app that calls models directly, and keeps Lime chat from becoming the mandatory container for every business process.
+
+## App Server bridge profile
+
+A desktop host that supports `agentRuntime.bridge.kind=app-server-json-rpc` in `app.runtime.yaml` must project app-facing capability calls into the current App Server protocol:
+
+```text
+lime.agent.startTask()
+  -> Host Bridge capability:invoke
+  -> Desktop Host IPC / preload allowlist
+  -> App Server JSON-RPC agentSession/start
+  -> App Server JSON-RPC agentSession/turn/start
+  -> RuntimeCore / services / ExecutionBackend
+  -> App Server JSON-RPC notification agentSession/event
+  -> Host Bridge host:response / host:event projection
+```
+
+Mapping rules:
+
+| App / SDK meaning | App Server method | Notes |
+| --- | --- | --- |
+| Initialize host runtime client | `initialize` + `initialized` | Every transport connection must handshake first; `clientInfo.name` is explicitly provided by the host. |
+| Create or resume an app task session | `agentSession/start` | Binds `appId`, `workspaceId`, and optional `businessObjectRef`. |
+| Read recoverable state | `agentSession/read` | Locally cached session ids must be confirmed by the server and must belong to the current workspace. |
+| Start one task turn | `agentSession/turn/start` | Carries SDK input, attachments, structured output, capabilityId, stream, queue policy, and host options. |
+| Cancel task | `agentSession/turn/cancel` | Cancels the active turn; apps do not kill processes directly. |
+| Respond to approval or human input | `agentSession/action/respond` | Responds to `action.required` while preserving policy and evidence. |
+| Receive events | `agentSession/event` | The only public event ingress; events derive from RuntimeCore facts. |
+| Discover capabilities | `capability/list` | Host projects capabilities available to the app without exposing internal module paths. |
+| Read artifacts | `artifact/read` | App reads artifact refs / previews without bypassing Artifact service. |
+| Export evidence | `evidence/export` | App reads evidence pack summaries or export refs without rebuilding the evidence store. |
+
+Forbidden paths:
+
+- App UI / Worker directly spawning `app-server`, reading stdout JSONL, connecting local sockets, or importing Lime Rust / JS internals.
+- Electron main / preload owning Agent execution facts; it only provides Desktop Host bridge, sidecar lifecycle, windows, and IPC allowlists.
+- App UI state fabricating successful `assistant:delta`, tool result, artifact, or evidence events.
+- Product paths falling back to mock success when App Server is unavailable.
 
 ## Host runtime responsibilities
 
@@ -98,6 +137,8 @@ The first host snapshot should include at least:
 The host must validate message source: `event.source` must be the current app frame, `event.origin` must match runtime origin, and message `protocol` and `version` must match. Untrusted messages must be ignored or logged for debugging, never executed as capability calls.
 
 `capability:invoke` is only a transport envelope. Files, models, tools, downloads, external URLs, secrets, and storage writes must still pass readiness, permission, policy, allowlists, and provenance recording. Blocked calls return `host:error`; mock results must not masquerade as success.
+
+Host Bridge does not expose App Server transport. The app sees SDK tasks, events, and artifact projections. The App Server client, sidecar path, JSON-RPC envelope, Electron IPC channel, Tauri command name, and RuntimeCore internal types are host implementation details.
 
 ## Workflow and worker runtime
 

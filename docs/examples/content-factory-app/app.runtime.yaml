@@ -2,6 +2,29 @@
 # The app declares task boundaries; Lime Host / AgentRuntime still owns execution, policy, tools, evidence, and telemetry.
 
 agentRuntime:
+  bridge:
+    kind: app-server-json-rpc
+    transport: host-mediated
+    protocolVersion: appserver.v0
+    clientSurface: capability-sdk
+    hostBoundary: desktop-host-ipc
+    runtimeOwner: runtime-core
+    methods:
+      initialize: initialize
+      initialized: initialized
+      startSession: agentSession/start
+      readSession: agentSession/read
+      startTurn: agentSession/turn/start
+      cancelTurn: agentSession/turn/cancel
+      respondAction: agentSession/action/respond
+      events: agentSession/event
+      listCapabilities: capability/list
+      readArtifact: artifact/read
+      exportEvidence: evidence/export
+    events:
+      notification: agentSession/event
+      deriveFromRuntimeFacts: true
+      allowUiSynthesis: false
   agentTask:
     eventSchema: lime.agent-task-event.v1
     resultSchema: lime.agent-task-result.v1

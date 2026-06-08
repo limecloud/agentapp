@@ -12,7 +12,7 @@ description: Lime Desktop Platform、Electron 宿主和 Tauri 宿主如何符合
 - `agentapp` 是 Agent App 标准事实源。
 - `lime-desktop-platform` 是标准桌面宿主实现之一。
 - `content-studio`、`zhongcao` 和 OEM App 是 Agent App 消费者；`lime-desktop-platform/samples/platform-conformance` 是宿主一致性 reference fixture。
-- Electron 和 Tauri 可以有不同 adapter，但必须共享同一组 manifest、projection、readiness、Host Bridge 和 Capability SDK 语义。
+- Electron 和 Tauri 可以有不同 adapter，但必须共享同一组 manifest、projection、readiness、Host Bridge、Capability SDK 和 App Server bridge 语义。
 
 ## 一致性等级
 
@@ -23,7 +23,7 @@ description: Lime Desktop Platform、Electron 宿主和 Tauri 宿主如何符合
 | Desktop P2 | 注入 Host Bridge 和 Capability SDK，运行受控 UI。 | 不暴露 Electron、Tauri、Node、Rust 或文件系统内部 API。 |
 | Desktop P3 | 提供模型设置、OAuth 会话、OEM、billing、更新和本地 evidence 投影。 | 不把这些平台能力做成 App 私有实现。 |
 | Desktop P4 | 支持多个 App 共用同一宿主能力，并能卸载、禁用、更新和回滚。 | 不让单个 App 特化污染宿主核心。 |
-| Desktop P5 | 同协议迁移到 Tauri 或 runtime-backed shell。 | 不为不同技术栈发明第二套标准。 |
+| Desktop P5 | 同协议迁移到 Tauri 或 runtime-backed shell，并保持 App Server JSON-RPC / RuntimeCore 事实源不变。 | 不为不同技术栈发明第二套标准或第二套 Agent runtime。 |
 
 ## 桌面宿主必须实现
 
@@ -35,6 +35,7 @@ description: Lime Desktop Platform、Electron 宿主和 Tauri 宿主如何符合
 | Readiness | 检查宿主版本、capability、会话、模型、secret、billing 和 policy。 | `ready` / `needs-setup` / `blocked`。 |
 | Host Bridge | 使用 `lime.agentApp.bridge` v1 传输 host snapshot、主题、语言、导航和 capability 调用。 | SDK bridge 和生命周期事件。 |
 | Capability SDK | 注入 `lime.*` handles，并由宿主裁决权限。 | 受控平台能力。 |
+| App Server bridge | 宿主持有 App Server client，经 Desktop Host IPC 把 `lime.agent` / `lime.workflow` 投影到 JSON-RPC。 | App 只看到 SDK task、事件和产物 projection。 |
 | Storage / Artifacts / Evidence | 按 app namespace 隔离数据、产物、日志和证据。 | 可追溯业务状态。 |
 | Cleanup | 支持 disable、uninstall keep data、uninstall delete data、export then delete。 | 可恢复或可删除的 App 生命周期。 |
 
@@ -74,6 +75,26 @@ flowchart LR
 ```
 
 Electron adapter 可以使用 `ipcMain`、`preload`、`BrowserView` 或 WebView。Tauri adapter 可以使用 Rust commands、WebView IPC 和系统 runtime。两者的实现细节不同，但 App 不应该感知这些差异。
+
+桌面 Agent 执行推荐链路固定为：
+
+```text
+App UI / Worker
+  -> Host Bridge / Capability SDK
+  -> Electron ipcMain / preload 或 Tauri WebView IPC
+  -> App Server client
+  -> App Server JSON-RPC
+  -> RuntimeCore / services
+  -> ExecutionBackend
+```
+
+宿主实现约束：
+
+- Electron / Tauri adapter 只负责桌面壳能力、IPC 白名单、sidecar lifecycle 和 renderer-safe projection。
+- App Server client 由宿主 main process 或等价可信进程持有，renderer / iframe 不直接连接 sidecar。
+- `initialize -> initialized` 是每条 App Server transport 的必需门禁。
+- `agentSession/event` 是任务事件公共入口；App UI 不能用本地状态伪造 runtime 成功。
+- App Server 不可用时返回 blocked / host:error；生产路径不能回退 mock。
 
 ## 启动流程
 
@@ -177,6 +198,9 @@ App 不得把平台会话、全局模型设置、billing 账本或 OEM 权威配
 - [ ] 执行 App 代码前完成 verification、projection 和 readiness。
 - [ ] Host Bridge 消息包含 `protocol="lime.agentApp.bridge"` 和 `version=1`。
 - [ ] App 只能通过 Capability SDK 调宿主能力。
+- [ ] 声明 `agentRuntime.bridge.kind=app-server-json-rpc` 的 App 经 Desktop Host IPC 进入 App Server JSON-RPC。
+- [ ] App Server transport 完成 `initialize -> initialized` 后才允许业务方法。
+- [ ] `agentSession/event`、`artifact/read` 和 `evidence/export` 由 RuntimeCore / services facts 派生，不由 App UI 合成。
 - [ ] `lime.cloudSession` snapshot 不泄露 token。
 - [ ] 模型设置、OAuth、OEM、billing 和更新是平台能力，不是 App 私有状态。
 - [ ] blocked / needs-setup 可见并可恢复或解释。

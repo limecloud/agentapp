@@ -13,7 +13,15 @@
   "properties": {
     "manifestVersion": {
       "type": "string",
-      "enum": ["0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0", "0.8.0"]
+      "enum": [
+        "0.3.0",
+        "0.4.0",
+        "0.5.0",
+        "0.6.0",
+        "0.7.0",
+        "0.8.0",
+        "0.9.0"
+      ]
     },
     "name": {
       "type": "string",
@@ -78,12 +86,16 @@
           "oneOf": [
             {
               "type": "array",
-              "items": { "type": "string" },
+              "items": {
+                "type": "string"
+              },
               "uniqueItems": true
             },
             {
               "type": "object",
-              "additionalProperties": { "type": "string" }
+              "additionalProperties": {
+                "type": "string"
+              }
             }
           ]
         }
@@ -179,7 +191,9 @@
           "type": "array",
           "items": {
             "type": "object",
-            "required": ["path"],
+            "required": [
+              "path"
+            ],
             "properties": {
               "path": {
                 "type": "string",
@@ -187,7 +201,11 @@
               },
               "activation": {
                 "type": "string",
-                "enum": ["auto", "on-demand", "manual"]
+                "enum": [
+                  "auto",
+                  "on-demand",
+                  "manual"
+                ]
               }
             },
             "additionalProperties": false
@@ -197,7 +215,9 @@
           "type": "array",
           "items": {
             "type": "object",
-            "required": ["id"],
+            "required": [
+              "id"
+            ],
             "properties": {
               "id": {
                 "type": "string",
@@ -208,7 +228,11 @@
               },
               "activation": {
                 "type": "string",
-                "enum": ["auto", "on-demand", "manual"]
+                "enum": [
+                  "auto",
+                  "on-demand",
+                  "manual"
+                ]
               },
               "required": {
                 "type": "boolean"
@@ -290,7 +314,10 @@
     "publisher": {
       "type": "object",
       "description": "v0.5: open-platform publisher identity. publisherId is the global unique key.",
-      "required": ["publisherId", "name"],
+      "required": [
+        "publisherId",
+        "name"
+      ],
       "properties": {
         "publisherId": {
           "type": "string",
@@ -341,7 +368,12 @@
         },
         "kind": {
           "type": "string",
-          "enum": ["individual", "organization", "team", "platform"]
+          "enum": [
+            "individual",
+            "organization",
+            "team",
+            "platform"
+          ]
         }
       },
       "additionalProperties": true
@@ -354,11 +386,22 @@
         },
         {
           "type": "object",
-          "required": ["name"],
+          "required": [
+            "name"
+          ],
           "properties": {
-            "name": { "type": "string", "minLength": 1 },
-            "email": { "type": "string", "format": "email" },
-            "url": { "type": "string", "format": "uri" }
+            "name": {
+              "type": "string",
+              "minLength": 1
+            },
+            "email": {
+              "type": "string",
+              "format": "email"
+            },
+            "url": {
+              "type": "string",
+              "format": "uri"
+            }
           },
           "additionalProperties": true
         }
@@ -369,12 +412,25 @@
       "description": "v0.5: people responsible for ongoing maintenance.",
       "items": {
         "type": "object",
-        "required": ["name"],
+        "required": [
+          "name"
+        ],
         "properties": {
-          "name": { "type": "string", "minLength": 1 },
-          "email": { "type": "string", "format": "email" },
-          "url": { "type": "string", "format": "uri" },
-          "role": { "type": "string" }
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "role": {
+            "type": "string"
+          }
         },
         "additionalProperties": true
       }
@@ -384,11 +440,22 @@
       "description": "v0.5: contributors beyond maintainers.",
       "items": {
         "type": "object",
-        "required": ["name"],
+        "required": [
+          "name"
+        ],
         "properties": {
-          "name": { "type": "string", "minLength": 1 },
-          "email": { "type": "string", "format": "email" },
-          "url": { "type": "string", "format": "uri" }
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          }
         },
         "additionalProperties": true
       }
@@ -424,7 +491,12 @@
       "properties": {
         "channel": {
           "type": "string",
-          "enum": ["stable", "lts", "preview", "experimental"]
+          "enum": [
+            "stable",
+            "lts",
+            "preview",
+            "experimental"
+          ]
         },
         "supportedUntil": {
           "type": "string",
@@ -443,14 +515,32 @@
     },
     "repository": {
       "oneOf": [
-        { "type": "string", "format": "uri" },
+        {
+          "type": "string",
+          "format": "uri"
+        },
         {
           "type": "object",
-          "required": ["url"],
+          "required": [
+            "url"
+          ],
           "properties": {
-            "type": { "type": "string", "enum": ["git", "svn", "hg", "other"] },
-            "url": { "type": "string", "format": "uri" },
-            "directory": { "type": "string" }
+            "type": {
+              "type": "string",
+              "enum": [
+                "git",
+                "svn",
+                "hg",
+                "other"
+              ]
+            },
+            "url": {
+              "type": "string",
+              "format": "uri"
+            },
+            "directory": {
+              "type": "string"
+            }
           },
           "additionalProperties": true
         }
@@ -485,12 +575,30 @@
       "type": "object",
       "description": "v0.5: support channels for users and operators.",
       "properties": {
-        "email": { "type": "string", "format": "email" },
-        "url": { "type": "string", "format": "uri" },
-        "discordUrl": { "type": "string", "format": "uri" },
-        "slackUrl": { "type": "string", "format": "uri" },
-        "statusPageUrl": { "type": "string", "format": "uri" },
-        "discussionsUrl": { "type": "string", "format": "uri" },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "discordUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "slackUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "statusPageUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "discussionsUrl": {
+          "type": "string",
+          "format": "uri"
+        },
         "responseSla": {
           "type": "string",
           "description": "Plain-text SLA description, e.g. 'business-hours, 24h response'."
@@ -504,20 +612,44 @@
       "properties": {
         "channel": {
           "type": "string",
-          "enum": ["stable", "preview", "beta", "alpha", "internal"]
+          "enum": [
+            "stable",
+            "preview",
+            "beta",
+            "alpha",
+            "internal"
+          ]
         },
         "visibility": {
           "type": "string",
-          "enum": ["public", "unlisted", "private", "invite-only"]
+          "enum": [
+            "public",
+            "unlisted",
+            "private",
+            "invite-only"
+          ]
         },
         "pricing": {
           "type": "string",
-          "enum": ["free", "freemium", "paid", "contact_sales", "custom"],
+          "enum": [
+            "free",
+            "freemium",
+            "paid",
+            "contact_sales",
+            "custom"
+          ],
           "description": "v0.5 reserves enum values; concrete billing lives outside the standard."
         },
         "billingModel": {
           "type": "string",
-          "enum": ["one_time", "subscription", "usage_based", "tiered", "contact_sales", "none"]
+          "enum": [
+            "one_time",
+            "subscription",
+            "usage_based",
+            "tiered",
+            "contact_sales",
+            "none"
+          ]
         },
         "trialDays": {
           "type": "integer",
@@ -544,7 +676,17 @@
           "type": "array",
           "items": {
             "type": "string",
-            "enum": ["global", "cn", "eu", "us", "apac", "sg", "jp", "kr", "in"]
+            "enum": [
+              "global",
+              "cn",
+              "eu",
+              "us",
+              "apac",
+              "sg",
+              "jp",
+              "kr",
+              "in"
+            ]
           },
           "uniqueItems": true
         },
@@ -556,15 +698,38 @@
           "type": "array",
           "items": {
             "type": "string",
-            "enum": ["soc2", "iso27001", "gdpr", "hipaa", "pci-dss", "ccpa", "csa-star"]
+            "enum": [
+              "soc2",
+              "iso27001",
+              "gdpr",
+              "hipaa",
+              "pci-dss",
+              "ccpa",
+              "csa-star"
+            ]
           },
           "uniqueItems": true
         },
-        "privacyPolicyUrl": { "type": "string", "format": "uri" },
-        "termsOfServiceUrl": { "type": "string", "format": "uri" },
-        "dpaUrl": { "type": "string", "format": "uri", "description": "Data Processing Agreement URL." },
-        "subprocessorsUrl": { "type": "string", "format": "uri" },
-        "exportControl": { "type": "string" }
+        "privacyPolicyUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "termsOfServiceUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "dpaUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "Data Processing Agreement URL."
+        },
+        "subprocessorsUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "exportControl": {
+          "type": "string"
+        }
       },
       "additionalProperties": true
     },
