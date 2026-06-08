@@ -1275,9 +1275,17 @@
           "type": "string",
           "description": "v0.10: host-supervised runtime profile for the service."
         },
+        "executionPlane": {
+          "type": "string",
+          "description": "v0.10: where an app-owned backend runs. client-local means supervised by the desktop/client host; cloud-remote means a declared server-assisted backend.",
+          "enum": [
+            "client-local",
+            "cloud-remote"
+          ]
+        },
         "protocol": {
           "type": "string",
-          "description": "v0.10: transport contract between host and app-owned backend service.",
+          "description": "v0.10: transport contract between host and app-owned backend service. client-local services use stdio-jsonrpc, local-http, local-socket, or wasm; cloud-remote services use remote-http.",
           "enum": [
             "stdio-jsonrpc",
             "local-http",

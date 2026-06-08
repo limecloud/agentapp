@@ -172,14 +172,21 @@ Raw worker or app backend execution requires additional sandboxing:
 - audit logs
 - package provenance
 
-App backend services may be multi-language. The host should prefer protocols that preserve supervision and capability mediation:
+App backend services may be multi-language, but must first declare an execution plane:
+
+| Execution plane | Meaning | Host requirement |
+| --- | --- | --- |
+| `client-local` | Client-local service backend shipped with the app package and launched on the user's machine by the desktop/client host. | Use a local process, loopback / socket, or Wasm; the host owns lifecycle, auth, resource limits, and cleanup; local data defaults to per-app SQLite. |
+| `cloud-remote` | Cloud service backend deployed remotely by the app author, enterprise, or Cloud. | Use `remote-http`; must declare `server-assisted`, endpoint, auth, tenant policy, audit, data boundary, and failure behavior. |
+
+The host should prefer protocols that preserve supervision and capability mediation:
 
 | Runtime shape | Recommended protocol | Notes |
 | --- | --- | --- |
 | Python / Go / Rust / Node / Java local service | `stdio-jsonrpc` | Best default for cross-language services; host owns process, environment, stdio, cancellation, and restart policy. |
 | Long-lived local service | `local-http` or local socket | Host owns random binding, per-launch auth, health checks, and shutdown. |
 | Deterministic compute | `wasm` | No ambient filesystem, network, or secret access. |
-| Remote backend | `remote-http` | Requires explicit `server-assisted` declaration, tenant policy, audit, and data boundary. |
+| Cloud service backend | `remote-http` | Requires explicit `server-assisted` declaration, tenant policy, audit, and data boundary. |
 
 Backend services are not a loophole around the host. They must not read host databases, workspace files, secrets, model keys, or user state directly; they request those through the same capability bridge as UI and workflow code.
 

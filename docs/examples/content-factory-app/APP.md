@@ -183,6 +183,7 @@ services:
     kind: app-backend
     language: nodejs
     runtime: host-supervised-process
+    executionPlane: client-local
     protocol: stdio-jsonrpc
     command: ./services/content-backend/server.mjs
     sandbox: host-policy

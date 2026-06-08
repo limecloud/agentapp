@@ -38,7 +38,7 @@ Fact-source relationship:
 | Capability SDK | Inject `lime.*` handles and let the host decide permission. | Governed platform capabilities. |
 | App Server bridge | Host owns the App Server client and projects `lime.agent` / `lime.workflow` through Desktop Host IPC into JSON-RPC. | SDK tasks, events, and artifact projections only. |
 | Shared user state | Project non-sensitive user, tenant, workspace, locale, theme, entitlement, model, and capability status. | Host snapshot without raw tokens or host internals. |
-| App backend services | Supervise app-owned local or remote backends, including multi-language services. | Capability-mediated service calls; no direct host authority. |
+| App backend services | Supervise `client-local` backends and broker declared `cloud-remote` backends, including multi-language services. | Capability-mediated service calls; no direct host authority. |
 | Storage / Artifacts / Evidence | Namespace app data, outputs, logs, and evidence by app, workspace, and tenant. | Traceable business state. |
 | Cleanup | Support disable, uninstall keep data, uninstall delete data, and export then delete. | Recoverable or removable app lifecycle. |
 

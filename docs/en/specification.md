@@ -902,7 +902,14 @@ shared user state
 
 The host may share non-sensitive user, tenant, workspace, locale, theme, entitlement, model profile, and capability availability across installed apps. The host must not expose bearer tokens, refresh tokens, provider keys, plaintext secrets, raw billing ledgers, direct database handles, or internal filesystem paths to apps.
 
-Apps may own product UI, workflow state, storage schema, migrations, cache, and backend services. Those backend services may be implemented in JavaScript, TypeScript, Python, Go, Rust, Java, Wasm, or another host-supported runtime, but they run under host supervision and access files, secrets, models, storage, tools, artifacts, and user state only through authorized capabilities.
+Apps may own product UI, workflow state, storage schema, migrations, cache, and backend services. Those backend services may be implemented in JavaScript, TypeScript, Python, Go, Rust, Java, Wasm, or another host-supported runtime, but they must declare their execution plane and access files, secrets, models, storage, tools, artifacts, and user state only through authorized capabilities.
+
+App backends split into two classes:
+
+| Backend type | `executionPlane` | Deployment | Boundary |
+| --- | --- | --- | --- |
+| Client-local service backend | `client-local` | Ships with the desktop app / runtime package and runs in a client-host-supervised process, socket, or Wasm sandbox. | The host owns lifecycle, port / socket binding, environment, resource limits, logs, cancellation, and permissions; users should not need to install PostgreSQL or a separate service. |
+| Cloud service backend | `cloud-remote` | Remote service deployed by the app author, enterprise, or Cloud. | Must explicitly declare `server-assisted`, endpoint, auth mode, tenant policy, audit, data egress / retention, and failure behavior; it must not masquerade as a local capability. |
 
 Preferred app backend protocols:
 

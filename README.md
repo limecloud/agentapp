@@ -77,7 +77,7 @@ my-agent-app/
 
 Compatible hosts share user state and platform capabilities across installed apps, but they do not give apps raw authority. A host snapshot may expose non-sensitive user, tenant, workspace, locale, theme, model profile, billing entitlement, and capability availability. It must not expose bearer tokens, refresh tokens, provider keys, plaintext secrets, host database handles, or internal filesystem paths.
 
-Apps can declare their own storage namespace, schema, migrations, and app backend services. The host may co-locate multiple app stores in one physical database engine, but the logical boundary must remain per app and per workspace or tenant. Host core state must stay separate from app-owned migrations. On desktop, per-app SQLite databases are the preferred default; on server, shared PostgreSQL instances may use per-app schemas or dedicated databases for high-risk apps.
+Apps can declare their own storage namespace, schema, migrations, and app backend services. Backend services must say whether they are `client-local` services supervised by the desktop/client host or `cloud-remote` services governed as explicit server-assisted backends. The host may co-locate multiple app stores in one physical database engine, but the logical boundary must remain per app and per workspace or tenant. Host core state must stay separate from app-owned migrations. On desktop, per-app SQLite databases are the preferred default; on server, shared PostgreSQL instances may use per-app schemas or dedicated databases for high-risk apps.
 
 ## Capability SDK contract
 

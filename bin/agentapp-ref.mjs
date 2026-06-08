@@ -766,8 +766,21 @@ function checkV10Conventions(properties, findings) {
     const key = service.key || 'app-backend'
     if (!service.protocol) findings.push(warningFinding('services', `App-backend service should declare protocol: ${key}.`))
     if (!service.language) findings.push(warningFinding('services', `App-backend service should declare language: ${key}.`))
+    if (!service.executionPlane) findings.push(warningFinding('services', `App-backend service should declare executionPlane: ${key}. Use client-local for client-supervised services or cloud-remote for server-assisted services.`))
     if (service.protocol && !['stdio-jsonrpc', 'local-http', 'local-socket', 'wasm', 'remote-http'].includes(service.protocol)) {
       findings.push(warningFinding('services', `Unknown app-backend protocol for ${key}: ${service.protocol}.`))
+    }
+    if (service.executionPlane === 'client-local' && service.protocol === 'remote-http') {
+      findings.push(warningFinding('services', `client-local app-backend ${key} should use stdio-jsonrpc, local-http, local-socket, or wasm, not remote-http.`))
+    }
+    if (service.executionPlane === 'cloud-remote' && service.protocol !== 'remote-http') {
+      findings.push(warningFinding('services', `cloud-remote app-backend ${key} should use remote-http and declare endpoint plus data boundary policy.`))
+    }
+    if (service.executionPlane === 'cloud-remote' && !service.endpoint) {
+      findings.push(warningFinding('services', `cloud-remote app-backend ${key} should declare endpoint.`))
+    }
+    if (service.executionPlane === 'client-local' && !service.command && !service.binary && !service.path && service.protocol !== 'wasm') {
+      findings.push(warningFinding('services', `client-local app-backend ${key} should declare command, binary, or path so the host can supervise lifecycle.`))
     }
   }
 }
@@ -791,6 +804,7 @@ function sampleAppBackendServiceYaml() {
     kind: 'app-backend',
     language: 'nodejs',
     runtime: 'host-supervised-process',
+    executionPlane: 'client-local',
     protocol: 'stdio-jsonrpc',
     command: './services/app-backend/server.mjs',
     sandbox: 'host-policy',

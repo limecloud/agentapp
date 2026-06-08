@@ -932,7 +932,14 @@ Agent App 遵循类似小程序的宿主模型：
 
 宿主可以向已安装 App 共享非敏感的用户、租户、workspace、locale、theme、entitlement、模型 profile 和 capability 可用状态。宿主不得向 App 暴露 bearer token、refresh token、provider key、明文 secret、原始 billing 账本、直接数据库 handle 或内部文件系统路径。
 
-App 可以拥有产品 UI、workflow state、storage schema、migration、cache 和后端服务。这些后端服务可以用 JavaScript、TypeScript、Python、Go、Rust、Java、Wasm 或宿主支持的其他 runtime 实现，但它们必须在宿主管控下运行，并且只能通过已授权 capability 访问文件、secret、模型、storage、tool、artifact 和用户态。
+App 可以拥有产品 UI、workflow state、storage schema、migration、cache 和后端服务。这些后端服务可以用 JavaScript、TypeScript、Python、Go、Rust、Java、Wasm 或宿主支持的其他 runtime 实现，但必须声明运行平面，并且只能通过已授权 capability 访问文件、secret、模型、storage、tool、artifact 和用户态。
+
+App 后端分两类：
+
+| 后端类型 | `executionPlane` | 部署位置 | 边界 |
+| --- | --- | --- | --- |
+| 客户端本地服务后端 | `client-local` | 随桌面 App / runtime package 安装，运行在本机宿主管控的进程、socket 或 Wasm sandbox 中。 | 宿主管生命周期、端口 / socket、环境变量、资源限制、日志、取消和权限；不要求用户额外安装 PostgreSQL 或独立服务。 |
+| 云端服务后端 | `cloud-remote` | App 作者、企业或 Cloud 部署的远端服务。 | 必须显式声明 `server-assisted`、endpoint、认证方式、租户 policy、审计、数据出境 / 留存和失败降级；不能伪装成本地能力。 |
 
 推荐的 App 后端协议：
 

@@ -12,7 +12,7 @@ v0.10 tightens Agent App around a mini-program style host model: apps share host
 | Host model | User, tenant, workspace, locale, theme, model profile, secrets, policy, files, artifacts, and agent runtime are host-governed capability projections. Apps do not receive raw tokens, host DB handles, or internal paths. |
 | Local storage | Local desktop installs should default to host-managed per-app SQLite. A normal user should not need to install PostgreSQL just to run a desktop app. |
 | Server storage | PostgreSQL is appropriate for cloud, enterprise, or team-shared backends, using per-app schemas/roles or dedicated databases for high-risk apps. |
-| App backend | Apps may ship backend services in Node.js, Python, Go, Rust, Java, Wasm, or other host-supported runtimes. Services are host-supervised and talk through declared protocols such as `stdio-jsonrpc`, local socket/HTTP, `wasm`, or `remote-http`. |
+| App backend | Split app backends into client-local services and cloud-remote services. Client-local backends ship with the app and are supervised by the desktop/client host; cloud-remote backends are explicit `server-assisted` capabilities and must declare endpoint, tenant policy, audit, and data boundary. |
 | Desktop surface | Electron hosts should prefer `WebContentsView` or a controlled `BrowserWindow`; iframe stays as a compatibility surface and `<webview>` is not the default new path. |
 
 The reference CLI now reports `0.10.0`, accepts `--version 0.10`, validates storage isolation hints, and generates app-backend metadata in migration suggestions.

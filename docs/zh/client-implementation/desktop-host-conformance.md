@@ -38,7 +38,7 @@ description: Lime Desktop Platform、Electron 宿主和 Tauri 宿主如何符合
 | Capability SDK | 注入 `lime.*` handles，并由宿主裁决权限。 | 受控平台能力。 |
 | App Server bridge | 宿主持有 App Server client，经 Desktop Host IPC 把 `lime.agent` / `lime.workflow` 投影到 JSON-RPC。 | App 只看到 SDK task、事件和产物 projection。 |
 | 共享用户态 | 投影非敏感用户、租户、workspace、locale、theme、entitlement、模型和 capability 状态。 | 不含 raw token 或宿主内部对象的 Host snapshot。 |
-| App 后端服务 | 监管 App 自有本地或远端后端，包括多语言服务。 | 能力中介后的服务调用，不直接拥有宿主权限。 |
+| App 后端服务 | 监管 `client-local` 后端，并代理已声明的 `cloud-remote` 后端，包括多语言服务。 | 能力中介后的服务调用，不直接拥有宿主权限。 |
 | Storage / Artifacts / Evidence | 按 app、workspace 和 tenant namespace 隔离数据、产物、日志和证据。 | 可追溯业务状态。 |
 | Cleanup | 支持 disable、uninstall keep data、uninstall delete data、export then delete。 | 可恢复或可删除的 App 生命周期。 |
 
